@@ -7,11 +7,29 @@ class ChitChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      themeMode: ThemeMode.system,
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepOrange,
+          brightness: Brightness.dark,
+        ),
       ),
-      home: const Scaffold(),
+
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.lightBlueAccent,
+          brightness: Brightness.light,
+        ),
+      ),
+      home: Scaffold(
+        floatingActionButton: FloatingActionButton(onPressed: () {}),
+        appBar: AppBar(title: const Text('ChitChat')),
+        body: const Center(
+          child: Card(
+            child: Padding(padding: EdgeInsets.all(20), child: CircleAvatar()),
+          ),
+        ),
+      ),
     );
   }
 }
