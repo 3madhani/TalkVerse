@@ -1,3 +1,4 @@
+import 'package:chitchat/features/auth/presentation/views/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class ChitChat extends StatelessWidget {
@@ -7,6 +8,7 @@ class ChitChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -21,15 +23,7 @@ class ChitChat extends StatelessWidget {
           brightness: Brightness.light,
         ),
       ),
-      home: Scaffold(
-        floatingActionButton: FloatingActionButton(onPressed: () {}),
-        appBar: AppBar(title: const Text('ChitChat')),
-        body: const Center(
-          child: Card(
-            child: Padding(padding: EdgeInsets.all(20), child: CircleAvatar()),
-          ),
-        ),
-      ),
+      home: const LoginScreen(),
     );
   }
 }
