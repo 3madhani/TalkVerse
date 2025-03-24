@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
+import 'widgets/app_logo.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -7,12 +8,13 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SvgPicture.asset('assets/images/n_logo.svg', height: 150),
+            const AppLogo(),
             const SizedBox(height: 12),
             Text(
               'Welcome Back',

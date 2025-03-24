@@ -7,23 +7,10 @@ class ChitChat extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepOrange,
-          brightness: Brightness.dark,
-        ),
-      ),
 
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.lightBlueAccent,
-          brightness: Brightness.light,
-        ),
-      ),
-      home: const LoginScreen(),
+      home: LoginScreen(),
     );
   }
 }
