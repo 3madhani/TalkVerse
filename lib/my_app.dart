@@ -18,7 +18,7 @@ class ChitChat extends StatelessWidget {
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.green,
+          seedColor: Colors.indigo,
           brightness: Brightness.dark,
         ),
       ),
