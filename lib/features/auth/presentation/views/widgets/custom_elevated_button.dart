@@ -3,19 +3,24 @@ import 'package:flutter/material.dart';
 import '../../../../../core/utils/constants/colors/colors.dart';
 
 class CustomElevatedButton extends StatelessWidget {
-  const CustomElevatedButton({super.key});
+  final String label;
+  final Function()? onPressed;
+  const CustomElevatedButton({super.key, required this.label, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.all(16),
         backgroundColor: AppColors.primaryColor,
       ),
-      child: const Center(
-        child: Text('LOGIN', style: TextStyle(color: Colors.black)),
+      child: Center(
+        child: Text(
+          label.toUpperCase(),
+          style: const TextStyle(color: Colors.black),
+        ),
       ),
     );
   }

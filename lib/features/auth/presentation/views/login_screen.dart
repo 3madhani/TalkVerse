@@ -1,10 +1,11 @@
 import 'package:chitchat/core/utils/constants/colors/colors.dart';
+import 'package:chitchat/features/auth/presentation/views/forget_password_screen.dart';
 import 'package:chitchat/features/auth/presentation/views/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
 import 'widgets/app_logo.dart';
-import 'widgets/cutom_elevated_button.dart';
+import 'widgets/custom_elevated_button.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -43,7 +44,14 @@ class LoginScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForgetPasswordScreen(),
+                      ),
+                    );
+                  },
                   child: Text(
                     'Forgot Password?',
                     style: Theme.of(context).textTheme.bodyMedium,
@@ -52,7 +60,7 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            const CustomElevatedButton(),
+            CustomElevatedButton(onPressed: () {}, label: 'Login'),
             const SizedBox(height: 16),
             OutlinedButton(
               onPressed: () {},
