@@ -1,4 +1,6 @@
+import 'package:chitchat/features/auth/presentation/views/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 
 import 'widgets/app_logo.dart';
 
@@ -7,6 +9,8 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController emailController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
     return Scaffold(
       appBar: AppBar(),
       body: SingleChildScrollView(
@@ -15,12 +19,23 @@ class LoginScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const AppLogo(),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             Text(
               'Welcome Back',
               style: Theme.of(context).textTheme.headlineLarge,
             ),
-            Text('To ChitChat', style: Theme.of(context).textTheme.titleLarge),
+            Text('To ChitChat', style: Theme.of(context).textTheme.bodyLarge),
+            CustomTextField(
+              label: 'Email',
+              prefixIcon: Iconsax.direct,
+              controller: emailController,
+            ),
+            CustomTextField(
+              obscureText: true,
+              label: 'Password',
+              prefixIcon: Iconsax.password_check,
+              controller: passwordController,
+            ),
           ],
         ),
       ),
