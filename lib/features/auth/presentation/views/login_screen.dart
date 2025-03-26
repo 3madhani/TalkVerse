@@ -4,6 +4,7 @@ import 'package:chitchat/features/auth/presentation/views/widgets/custom_text_fi
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
+import 'setup_profile.dart';
 import 'widgets/app_logo.dart';
 import 'widgets/custom_elevated_button.dart';
 
@@ -60,7 +61,16 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            CustomElevatedButton(onPressed: () {}, label: 'Login'),
+            CustomElevatedButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SetupProfile()),
+                  (route) => false,
+                );
+              },
+              label: 'Login',
+            ),
             const SizedBox(height: 16),
             OutlinedButton(
               onPressed: () {},
