@@ -1,3 +1,4 @@
+import 'package:chitchat/core/utils/helpers/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -29,6 +30,16 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: TextFormField(
+        validator: (value) {
+          if (widget.label == 'Email') {
+            Validator.validateEmail(value);
+          } else if (widget.label == 'Password') {
+            Validator.validatePassword(value);
+          } else {
+            return null; // No validation for other fields
+          }
+          return null;
+        },
         obscureText: widget.obscureText ? _obscureText : false,
         controller: widget.controller,
         decoration: InputDecoration(

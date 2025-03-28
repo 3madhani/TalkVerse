@@ -54,7 +54,8 @@ class LoginScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ForgetPasswordScreen(),
+                              builder:
+                                  (context) => const ForgetPasswordScreen(),
                             ),
                           );
                         },
@@ -68,11 +69,16 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   CustomElevatedButton(
                     onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SetupProfile()),
-                        (route) => false,
-                      );
+                      if (formKey.currentState!.validate()) {
+                        // Perform login action here
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SetupProfile(),
+                          ),
+                          (route) => false,
+                        );
+                      }
                     },
                     label: 'Login',
                   ),
