@@ -1,3 +1,4 @@
+import 'package:chitchat/features/home/presentation/views/home_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -46,7 +47,16 @@ class SetupProfile extends StatelessWidget {
             ),
 
             const SizedBox(height: 16),
-            CustomElevatedButton(onPressed: () {}, label: 'Continue'),
+            CustomElevatedButton(
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeLayout()),
+                  (route) => false,
+                );
+              },
+              label: 'Continue',
+            ),
           ],
         ),
       ),
