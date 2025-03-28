@@ -15,6 +15,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
     return Scaffold(
       appBar: AppBar(),
       body: SingleChildScrollView(
@@ -29,47 +30,54 @@ class LoginScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             Text('To ChitChat', style: Theme.of(context).textTheme.bodyLarge),
-            CustomTextField(
-              label: 'Email',
-              prefixIcon: Iconsax.direct,
-              controller: emailController,
-            ),
-            CustomTextField(
-              obscureText: true,
-              label: 'Password',
-              prefixIcon: Iconsax.password_check,
-              controller: passwordController,
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ForgetPasswordScreen(),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'Forgot Password?',
-                    style: Theme.of(context).textTheme.bodyMedium,
+            Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  CustomTextField(
+                    label: 'Email',
+                    prefixIcon: Iconsax.direct,
+                    controller: emailController,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            CustomElevatedButton(
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SetupProfile()),
-                  (route) => false,
-                );
-              },
-              label: 'Login',
+                  CustomTextField(
+                    obscureText: true,
+                    label: 'Password',
+                    prefixIcon: Iconsax.password_check,
+                    controller: passwordController,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ForgetPasswordScreen(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Forgot Password?',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  CustomElevatedButton(
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SetupProfile()),
+                        (route) => false,
+                      );
+                    },
+                    label: 'Login',
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             OutlinedButton(
