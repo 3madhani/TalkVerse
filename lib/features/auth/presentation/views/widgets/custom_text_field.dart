@@ -1,8 +1,8 @@
-import 'package:chitchat/core/utils/helpers/validator.dart';
+import 'package:chitchat/core/helpers/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../../../core/utils/constants/colors/colors.dart';
+import '../../../../../core/constants/colors/colors.dart';
 
 class CustomTextField extends StatefulWidget {
   final String label;
@@ -32,11 +32,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
       child: TextFormField(
         validator: (value) {
           if (widget.label == 'Email') {
-            Validator.validateEmail(value);
+            return Validator.validateEmail(value); // Fixed return statement
           } else if (widget.label == 'Password') {
-            Validator.validatePassword(value);
-          } else {
-            return null; // No validation for other fields
+            return Validator.validatePassword(value); // Fixed return statement
           }
           return null;
         },
@@ -72,6 +70,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
-    _obscureText = widget.obscureText; // Initialize with the passed value
+    _obscureText = widget.obscureText; // Initialize obscureText value
   }
 }

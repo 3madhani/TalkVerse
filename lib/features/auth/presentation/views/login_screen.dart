@@ -1,4 +1,4 @@
-import 'package:chitchat/core/utils/constants/colors/colors.dart';
+import 'package:chitchat/core/constants/colors/colors.dart';
 import 'package:chitchat/features/auth/presentation/views/forget_password_screen.dart';
 import 'package:chitchat/features/auth/presentation/views/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
