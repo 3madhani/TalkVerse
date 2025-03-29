@@ -1,3 +1,7 @@
+import 'package:chitchat/features/home/presentation/views/chat_screen.dart';
+import 'package:chitchat/features/home/presentation/views/contacts_screen.dart';
+import 'package:chitchat/features/home/presentation/views/groups_screen.dart';
+import 'package:chitchat/features/home/presentation/views/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -8,25 +12,21 @@ class HomeViewModel extends ChangeNotifier {
   final PageController _pageController = PageController(initialPage: 0);
 
   final List<HomeTab> _tabs = [
-    HomeTab(
-      title: 'Chats',
-      icon: Iconsax.message,
-      screen: const Scaffold(body: Center(child: Text('Chats'))),
-    ),
+    HomeTab(title: 'Chats', icon: Iconsax.message, screen: const ChatScreen()),
     HomeTab(
       title: 'Groups',
       icon: Iconsax.messages,
-      screen: const Scaffold(body: Center(child: Text('Groups'))),
+      screen: const GroupsScreen(),
     ),
     HomeTab(
       title: 'Contacts',
       icon: Iconsax.user,
-      screen: const Scaffold(body: Center(child: Text('Contacts'))),
+      screen: const ContactsScreen(),
     ),
     HomeTab(
       title: 'Settings',
       icon: Iconsax.setting,
-      screen: const Scaffold(body: Center(child: Text('Settings'))),
+      screen: const SettingsScreen(),
     ),
   ];
 
