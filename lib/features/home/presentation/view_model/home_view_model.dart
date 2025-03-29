@@ -1,4 +1,4 @@
-import 'package:chitchat/features/home/presentation/views/chat_screen.dart';
+import 'package:chitchat/features/home/presentation/views/chat_home_screen.dart';
 import 'package:chitchat/features/home/presentation/views/contacts_screen.dart';
 import 'package:chitchat/features/home/presentation/views/groups_screen.dart';
 import 'package:chitchat/features/home/presentation/views/settings_screen.dart';
@@ -12,7 +12,11 @@ class HomeViewModel extends ChangeNotifier {
   final PageController _pageController = PageController(initialPage: 0);
 
   final List<HomeTab> _tabs = [
-    HomeTab(title: 'Chats', icon: Iconsax.message, screen: const ChatScreen()),
+    HomeTab(
+      title: 'Chats',
+      icon: Iconsax.message,
+      screen: const ChatHomeScreen(),
+    ),
     HomeTab(
       title: 'Groups',
       icon: Iconsax.messages,
