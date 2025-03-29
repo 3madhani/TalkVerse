@@ -43,9 +43,6 @@ class TextfieldMessage extends StatelessWidget {
                   vertical: 12,
                 ),
               ),
-              onSubmitted: (value) {
-                // Handle message sending logic here
-              },
             ),
           ),
         ),

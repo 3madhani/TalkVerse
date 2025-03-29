@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
+import 'widgets/message_bubble.dart';
 import 'widgets/text_field_message.dart';
 
 class ChatScreen extends StatelessWidget {
@@ -28,9 +29,23 @@ class ChatScreen extends StatelessWidget {
           IconButton(onPressed: () {}, icon: const Icon(Iconsax.more)),
         ],
       ),
-      body: const Padding(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-        child: Column(children: [Spacer(), TextfieldMessage()]),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                shrinkWrap: true,
+                reverse: true,
+                itemCount: 4,
+                itemBuilder: (context, index) => MessageBubble(index: index),
+              ),
+            ),
+
+            const TextfieldMessage(),
+          ],
+        ),
       ),
     );
   }
