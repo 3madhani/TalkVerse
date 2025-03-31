@@ -22,8 +22,6 @@ class ChatScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          // IconButton(onPressed: () {}, icon: const Icon(Iconsax.call)),
-          // IconButton(onPressed: () {}, icon: const Icon(Iconsax.video)),
           IconButton(onPressed: () {}, icon: const Icon(Iconsax.trash)),
           IconButton(onPressed: () {}, icon: const Icon(Iconsax.copy)),
           IconButton(onPressed: () {}, icon: const Icon(Iconsax.more)),
@@ -35,10 +33,9 @@ class ChatScreen extends StatelessWidget {
           children: [
             Expanded(
               child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                shrinkWrap: true,
+                padding: const EdgeInsets.all(0),
                 reverse: true,
-                itemCount: 4,
+                itemCount: 10,
                 itemBuilder: (context, index) => MessageBubble(index: index),
               ),
             ),

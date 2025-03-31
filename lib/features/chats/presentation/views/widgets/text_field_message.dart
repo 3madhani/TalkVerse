@@ -6,47 +6,55 @@ class TextfieldMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: Card(
-            child: TextField(
-              maxLines: 6,
-              minLines: 1,
+        Row(
+          children: [
+            Expanded(
+              child: Card(
+                child: TextField(
+                  maxLines: 6,
+                  minLines: 1,
 
-              decoration: InputDecoration(
-                prefixIcon: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.emoji_emotions_outlined),
-                ),
-                suffixIcon: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
+                  decoration: InputDecoration(
+                    prefixIcon: IconButton(
                       onPressed: () {},
-                      icon: const Icon(Icons.attach_file),
+                      icon: const Icon(Icons.emoji_emotions_outlined),
                     ),
+                    suffixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.attach_file),
+                        ),
 
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.camera_alt_outlined),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.camera_alt_outlined),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                hintText: 'Message',
-                hintStyle: Theme.of(context).textTheme.titleMedium,
+                    hintText: 'Message',
+                    hintStyle: Theme.of(context).textTheme.titleMedium,
 
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+            IconButton.filled(
+              onPressed: () {},
+              icon: const Icon(Iconsax.send_1),
+            ),
+          ],
         ),
-        IconButton.filled(onPressed: () {}, icon: const Icon(Iconsax.send_1)),
+        const SizedBox(height: 10),
       ],
     );
   }
