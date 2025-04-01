@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import 'widgets/message_bubble.dart';
 import 'widgets/text_field_message.dart';
 
 class ChatScreen extends StatelessWidget {
@@ -32,11 +31,46 @@ class ChatScreen extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(0),
-                reverse: true,
-                itemCount: 10,
-                itemBuilder: (context, index) => MessageBubble(index: index),
+              //   child: ListView.builder(
+              //     padding: const EdgeInsets.all(0),
+              //     reverse: true,
+              //     itemCount: 10,
+              //     itemBuilder: (context, index) => MessageBubble(index: index),
+              //   ),
+              child: Center(
+                child: InkResponse(
+                  onTap: () {},
+                  child: Card(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '👋',
+                            style: Theme.of(context).textTheme.displayLarge,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Hello My Friend',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.labelLarge?.copyWith(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
 
