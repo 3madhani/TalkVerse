@@ -11,6 +11,12 @@ class MessageBubble extends StatelessWidget {
       mainAxisAlignment:
           index % 2 == 0 ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
+        index % 2 == 0
+            ? IconButton(
+              onPressed: () {},
+              icon: const Icon(Iconsax.message_edit),
+            )
+            : const SizedBox(),
         Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
@@ -47,12 +53,15 @@ class MessageBubble extends StatelessWidget {
                         context,
                       ).textTheme.labelMedium?.copyWith(color: Colors.grey),
                     ),
+
                     const SizedBox(width: 5),
-                    const Icon(
-                      Iconsax.tick_circle5, // Read status icon
-                      size: 16,
-                      color: Colors.blue,
-                    ),
+                    index % 2 == 0
+                        ? const Icon(
+                          Iconsax.tick_circle5, // Read status icon
+                          size: 16,
+                          color: Colors.blue,
+                        )
+                        : const SizedBox(),
                   ],
                 ),
               ],
