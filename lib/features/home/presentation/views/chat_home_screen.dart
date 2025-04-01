@@ -1,3 +1,5 @@
+import 'package:chitchat/features/auth/presentation/views/widgets/custom_elevated_button.dart';
+import 'package:chitchat/features/auth/presentation/views/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -12,7 +14,43 @@ class ChatHomeScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Chats')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Add your action here
+          showBottomSheet(
+            context: context,
+            builder: (_) {
+              return Container(
+                padding: const EdgeInsets.all(16),
+
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Enter Friend Email',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Iconsax.scan_barcode),
+                        ),
+                      ],
+                    ),
+                    CustomTextField(
+                      label: 'Email',
+                      prefixIcon: Iconsax.direct,
+                      controller: TextEditingController(),
+                    ),
+                    const SizedBox(height: 16),
+                    CustomElevatedButton(
+                      label: 'Create Chat',
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
         },
         child: const Icon(Iconsax.message_add),
       ),
