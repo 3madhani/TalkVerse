@@ -30,7 +30,7 @@ class ChatHomeScreen extends StatelessWidget {
                           'Enter Friend Email',
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
-                        IconButton(
+                        IconButton.filled(
                           onPressed: () {},
                           icon: const Icon(Iconsax.scan_barcode),
                         ),
@@ -43,6 +43,8 @@ class ChatHomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     CustomElevatedButton(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
                       label: 'Create Chat',
                       onPressed: () {},
                     ),
