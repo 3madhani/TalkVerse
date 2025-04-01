@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../groups/presentation/views/create_group_screen.dart';
 import 'widgets/group_card.dart';
 
 class GroupsScreen extends StatelessWidget {
@@ -12,7 +13,10 @@ class GroupsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Groups')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Add your action here
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateGroupScreen()),
+          );
         },
         child: const Icon(Iconsax.message_add_1),
       ),
