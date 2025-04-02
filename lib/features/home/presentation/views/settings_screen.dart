@@ -1,3 +1,4 @@
+import 'package:chitchat/features/settings/presentation/views/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -21,35 +22,56 @@ class SettingsScreen extends StatelessWidget {
                 onPressed: () {},
               ),
             ),
-            const Card(
+            Card(
               elevation: 3,
               child: ListTile(
-                title: Text('Profile'),
-                leading: Icon(Iconsax.user),
-                trailing: Icon(Icons.arrow_forward_ios),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                title: const Text('Profile'),
+                leading: const Icon(Iconsax.user),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  // Navigate to profile screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
+                    ),
+                  );
+                },
               ),
             ),
-            const Card(
+            Card(
               elevation: 3,
               child: ListTile(
-                title: Text('Theme'),
-                leading: Icon(Iconsax.color_swatch),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                title: const Text('Theme'),
+                leading: const Icon(Iconsax.color_swatch),
               ),
             ),
 
             Card(
               elevation: 3,
               child: ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 title: const Text('Dark Mode'),
                 leading: const Icon(Iconsax.moon),
                 trailing: Switch(value: true, onChanged: (value) {}),
               ),
             ),
-            const Card(
+            Card(
               elevation: 3,
               child: ListTile(
-                title: Text('Sign Out'),
-                trailing: Icon(Iconsax.logout_1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                title: const Text('Sign Out'),
+                trailing: const Icon(Iconsax.logout_1),
               ),
             ),
           ],

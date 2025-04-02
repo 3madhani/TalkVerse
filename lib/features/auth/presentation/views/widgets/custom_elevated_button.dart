@@ -18,7 +18,8 @@ class CustomElevatedButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        shadowColor: Colors.indigoAccent,
+        elevation: 3,
+        shadowColor: Theme.of(context).colorScheme.primary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.all(16),
         backgroundColor: backgroundColor,
@@ -26,7 +27,10 @@ class CustomElevatedButton extends StatelessWidget {
       child: Center(
         child: Text(
           label.toUpperCase(),
-          style: const TextStyle(color: Colors.black),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ),
     );
