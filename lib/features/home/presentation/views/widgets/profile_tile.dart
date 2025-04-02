@@ -1,3 +1,4 @@
+import 'package:chitchat/features/settings/presentation/views/qr_code_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -12,7 +13,13 @@ class ProfileTile extends StatelessWidget {
       leading: const CircleAvatar(radius: 30),
       trailing: IconButton(
         icon: const Icon(Iconsax.scan_barcode),
-        onPressed: () {},
+        onPressed: () {
+          // Navigate to QR code screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const QrCodeScreen()),
+          );
+        },
       ),
     );
   }
