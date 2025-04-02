@@ -1,28 +1,35 @@
 import 'package:chitchat/features/auth/presentation/views/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'features/home/presentation/view_model/settings_view_model.dart';
 
 class ChitChat extends StatelessWidget {
   const ChitChat({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.indigo,
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: const LoginScreen(),
+    return Consumer<SettingsViewModel>(
+      builder: (context, settingsViewModel, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          themeMode:
+              settingsViewModel.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: settingsViewModel.selectedColor,
+              brightness: Brightness.light,
+            ),
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: settingsViewModel.selectedColor,
+              brightness: Brightness.dark,
+            ),
+          ),
+          home: const LoginScreen(),
+        );
+      },
     );
   }
 }

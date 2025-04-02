@@ -1,138 +1,83 @@
-import 'package:chitchat/features/auth/presentation/views/widgets/custom_elevated_button.dart';
+import 'package:chitchat/features/settings/presentation/views/widgets/profile_info_card_static.dart'
+    show ProfileInfoCardStatic;
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatefulWidget {
+import '../../../auth/presentation/views/widgets/custom_elevated_button.dart';
+import '../view_model/profile_view_model.dart';
+import 'widgets/profile_info_card.dart';
+import 'widgets/profile_picture.dart';
+
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController aboutController = TextEditingController();
-  bool enableName = false;
-  bool enableAbout = false;
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Center(
-                child: Stack(
+    return ChangeNotifierProvider(
+      create: (_) => ProfileViewModel(),
+      child: Consumer<ProfileViewModel>(
+        builder: (context, viewModel, child) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Profile')),
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SingleChildScrollView(
+                child: Column(
                   children: [
-                    const CircleAvatar(radius: 70),
-                    Positioned(
-                      bottom: -5,
-                      right: -5,
-                      child: IconButton.filled(
-                        onPressed: () {},
-                        icon: const Icon(Iconsax.edit),
-                      ),
+                    // Profile Picture
+                    const ProfilePicture(),
+
+                    const SizedBox(height: 16),
+
+                    // Name Field
+                    ProfileInfoCard(
+                      icon: Iconsax.user_octagon,
+                      label: 'Name',
+                      controller: viewModel.nameController,
+                      isEnabled: viewModel.enableName,
+                      onEdit: viewModel.toggleEditName,
+                    ),
+
+                    // About Field
+                    ProfileInfoCard(
+                      icon: Iconsax.information,
+                      label: 'About',
+                      controller: viewModel.aboutController,
+                      isEnabled: viewModel.enableAbout,
+                      onEdit: viewModel.toggleEditAbout,
+                    ),
+
+                    // Email Info
+                    const ProfileInfoCardStatic(
+                      icon: Iconsax.direct,
+                      title: 'Email',
+                      subtitle: 'qk2Bq@example.com',
+                    ),
+
+                    // Join Date Info
+                    const ProfileInfoCardStatic(
+                      icon: Iconsax.calendar_1,
+                      title: 'Join Date',
+                      subtitle: '2023-10-01',
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // Save Button
+                    CustomElevatedButton(
+                      label: 'Save',
+                      onPressed: viewModel.saveProfile,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              Card(
-                elevation: 3,
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  title: TextField(
-                    enabled: enableName,
-                    controller: nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Name',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(16),
-                    ),
-                  ),
-                  leading: const Icon(Iconsax.user_octagon),
-                  trailing: IconButton(
-                    icon: const Icon(Iconsax.edit),
-                    onPressed: () {
-                      setState(() {
-                        enableName = !enableName;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              Card(
-                elevation: 3,
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  title: TextField(
-                    enabled: enableAbout,
-                    controller: aboutController,
-                    decoration: const InputDecoration(
-                      labelText: 'About',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(16),
-                    ),
-                  ),
-                  leading: const Icon(Iconsax.information),
-                  trailing: IconButton(
-                    icon: const Icon(Iconsax.edit),
-                    onPressed: () {
-                      setState(() {
-                        enableAbout = !enableAbout;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              Card(
-                elevation: 3,
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  title: const Text('Email'),
-                  subtitle: const Text('qk2Bq@example.com'),
-                  leading: const Icon(Iconsax.direct),
-                ),
-              ),
-              Card(
-                elevation: 3,
-                child: ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  title: const Text('Join Date'),
-                  subtitle: const Text('2023-10-01'),
-                  leading: const Icon(Iconsax.calendar_1),
-                ),
-              ),
-              const SizedBox(height: 40),
-              CustomElevatedButton(
-                label: 'Save',
-                onPressed: () {},
-
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
-  }
-
-  @override
-  void initState() {
-    nameController.text = 'John Doe';
-    aboutController.text =
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
-    super.initState();
   }
 }

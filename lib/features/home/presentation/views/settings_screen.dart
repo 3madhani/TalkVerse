@@ -1,7 +1,12 @@
 import 'package:chitchat/features/settings/presentation/views/profile_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:iconsax/iconsax.dart';
+
+import 'widgets/dark_tile.dart';
+import 'widgets/navigation_tile.dart';
+import 'widgets/profile_tile.dart';
+import 'widgets/sign_out_tile.dart';
+import 'widgets/theme_tile.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -14,89 +19,22 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            ListTile(
-              minVerticalPadding: 40,
-              title: const Text('Name'),
-              leading: const CircleAvatar(radius: 30),
-              trailing: IconButton(
-                icon: const Icon(Iconsax.scan_barcode),
-                onPressed: () {},
-              ),
+            const ProfileTile(),
+            NavigationTile(
+              title: 'Profile',
+              icon: Iconsax.user,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfileScreen(),
+                  ),
+                );
+              },
             ),
-            Card(
-              elevation: 3,
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                title: const Text('Profile'),
-                leading: const Icon(Iconsax.user),
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  // Navigate to profile screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfileScreen(),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Card(
-              elevation: 3,
-              child: ListTile(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder:
-                        (context) => AlertDialog(
-                          content: SingleChildScrollView(
-                            child: BlockPicker(
-                              pickerColor: Colors.red,
-                              onColorChanged: (value) {},
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              child: const Text('Done'),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        ),
-                  );
-                },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                title: const Text('Theme'),
-                leading: const Icon(Iconsax.color_swatch),
-              ),
-            ),
-
-            Card(
-              elevation: 3,
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                title: const Text('Dark Mode'),
-                leading: const Icon(Iconsax.moon),
-                trailing: Switch(value: true, onChanged: (value) {}),
-              ),
-            ),
-            Card(
-              elevation: 3,
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                title: const Text('Sign Out'),
-                trailing: const Icon(Iconsax.logout_1),
-              ),
-            ),
+            const ThemeTile(),
+            const DarkModeTile(),
+            const SignOutTile(),
           ],
         ),
       ),

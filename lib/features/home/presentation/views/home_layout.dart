@@ -25,6 +25,12 @@ class HomeLayout extends StatelessWidget {
                   NavigationDestinationLabelBehavior.onlyShowSelected,
               elevation: 0,
               height: 70,
+              backgroundColor:
+                  Theme.of(
+                    context,
+                  ).colorScheme.surface, // Match scaffold background
+              surfaceTintColor:
+                  Colors.transparent, // Prevents shadow or elevation
               destinations:
                   homeViewModel.tabs
                       .map(
