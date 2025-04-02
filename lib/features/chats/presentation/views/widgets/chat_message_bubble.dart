@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-class MessageBubble extends StatelessWidget {
+class ChatMessageBubble extends StatelessWidget {
   final int index;
-  const MessageBubble({super.key, required this.index});
+  const ChatMessageBubble({super.key, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -37,32 +37,35 @@ class MessageBubble extends StatelessWidget {
               maxWidth: MediaQuery.sizeOf(context).width * 0.7,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   "Hello! This is a test message.", // Static message
                   style: TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 5),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "10:30 AM", // Static time
-                      style: Theme.of(
-                        context,
-                      ).textTheme.labelMedium?.copyWith(color: Colors.grey),
-                    ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "10:30 AM", // Static time
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelMedium?.copyWith(color: Colors.grey),
+                      ),
 
-                    const SizedBox(width: 5),
-                    index % 2 == 0
-                        ? const Icon(
-                          Iconsax.tick_circle5, // Read status icon
-                          size: 16,
-                          color: Colors.blue,
-                        )
-                        : const SizedBox(),
-                  ],
+                      const SizedBox(width: 5),
+                      index % 2 == 0
+                          ? const Icon(
+                            Iconsax.tick_circle5, // Read status icon
+                            size: 16,
+                            color: Colors.blue,
+                          )
+                          : const SizedBox(),
+                    ],
+                  ),
                 ),
               ],
             ),

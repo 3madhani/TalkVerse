@@ -1,6 +1,5 @@
+import 'package:chitchat/features/groups/presentation/views/group_screen.dart';
 import 'package:flutter/material.dart';
-
-import '../../../../chats/presentation/views/chat_screen.dart';
 
 class GroupCard extends StatelessWidget {
   const GroupCard({super.key});
@@ -13,7 +12,7 @@ class GroupCard extends StatelessWidget {
           // Navigate to chat screen
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ChatScreen()),
+            MaterialPageRoute(builder: (context) => const GroupScreen()),
           );
         },
         leading: const CircleAvatar(child: Text('G')),

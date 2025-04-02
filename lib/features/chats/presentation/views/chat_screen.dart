@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import 'widgets/text_field_message.dart';
+import '../../../../core/widgets/text_field_message.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
