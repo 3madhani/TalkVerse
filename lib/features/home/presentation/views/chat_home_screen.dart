@@ -14,12 +14,23 @@ class ChatHomeScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Chats')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showBottomSheet(
+          showModalBottomSheet(
+            isScrollControlled: true,
             context: context,
-            builder: (_) {
-              return Container(
-                padding: const EdgeInsets.all(16),
-
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            builder: (context) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom:
+                      MediaQuery.of(
+                        context,
+                      ).viewInsets.bottom, // Avoid keyboard overlap
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -48,6 +59,7 @@ class ChatHomeScreen extends StatelessWidget {
                       label: 'Create Chat',
                       onPressed: () {},
                     ),
+                    const SizedBox(height: 40),
                   ],
                 ),
               );
