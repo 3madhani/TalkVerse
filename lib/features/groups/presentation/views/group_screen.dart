@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../core/widgets/text_field_message.dart';
+import 'group_member_screen.dart';
 
 class GroupScreen extends StatelessWidget {
   const GroupScreen({super.key});
@@ -21,7 +22,19 @@ class GroupScreen extends StatelessWidget {
             ),
           ],
         ),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Iconsax.user))],
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const GroupMemberScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Iconsax.user),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
