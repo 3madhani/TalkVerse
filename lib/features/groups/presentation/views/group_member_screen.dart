@@ -1,3 +1,4 @@
+import 'package:chitchat/features/groups/presentation/views/group_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -10,7 +11,17 @@ class GroupMemberScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Group Members'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Iconsax.user_edit)),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const GroupEditScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Iconsax.user_edit),
+          ),
         ],
       ),
       body: Padding(
