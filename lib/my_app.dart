@@ -2,7 +2,7 @@ import 'package:chitchat/features/auth/presentation/views/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'features/home/presentation/view_model/settings_view_model.dart';
+import 'features/settings/presentation/view_model/settings_view_model.dart';
 
 class ChitChat extends StatelessWidget {
   const ChitChat({super.key});
