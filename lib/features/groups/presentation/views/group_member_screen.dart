@@ -5,6 +5,8 @@ import 'package:iconsax/iconsax.dart';
 class GroupMemberScreen extends StatelessWidget {
   const GroupMemberScreen({super.key});
 
+  static const routeName = '/group-member-screen';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,11 +15,9 @@ class GroupMemberScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(
+              Navigator.pushNamed(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const GroupEditScreen(),
-                ),
+                GroupEditScreen.routeName,
               );
             },
             icon: const Icon(Iconsax.user_edit),

@@ -5,6 +5,8 @@ import '../../../groups/presentation/views/create_group_screen.dart';
 import 'widgets/group_card.dart';
 
 class GroupsScreen extends StatelessWidget {
+  static const routeName = 'groups-screen';
+
   const GroupsScreen({super.key});
 
   @override
@@ -13,10 +15,7 @@ class GroupsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Groups')),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const CreateGroupScreen()),
-          );
+          Navigator.pushNamed(context, CreateGroupScreen.routeName);
         },
         child: const Icon(Iconsax.message_add_1),
       ),

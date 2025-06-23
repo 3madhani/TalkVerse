@@ -39,8 +39,10 @@ class _CustomTextFieldState extends State<CustomTextField> {
           return null;
         },
         obscureText: widget.obscureText ? _obscureText : false,
+
         controller: widget.controller,
         decoration: InputDecoration(
+          errorMaxLines: 2,
           suffixIcon:
               widget.obscureText
                   ? IconButton(

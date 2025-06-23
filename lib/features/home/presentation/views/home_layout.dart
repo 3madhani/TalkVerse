@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../view_model/home_view_model.dart';
 
 class HomeLayout extends StatelessWidget {
+  static const String routeName = 'home-layout';
+
   const HomeLayout({super.key});
 
   @override

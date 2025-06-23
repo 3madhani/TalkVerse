@@ -6,6 +6,8 @@ import 'package:iconsax/iconsax.dart';
 import 'widgets/chat_card.dart';
 
 class ChatHomeScreen extends StatelessWidget {
+  static const routeName = 'chats-home-screen';
+
   const ChatHomeScreen({super.key});
 
   @override

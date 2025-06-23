@@ -178,7 +178,10 @@ class FirebaseAuthService {
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
     await GoogleSignIn().signOut();
-    await FacebookAuth.instance.logOut();
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      await FacebookAuth.instance.logOut();
+    }
   }
 
   Future<void> verifyEmail() async {

@@ -5,6 +5,8 @@ import 'package:iconsax/iconsax.dart';
 class CreateGroupScreen extends StatelessWidget {
   const CreateGroupScreen({super.key});
 
+  static const routeName = '/create-group';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,3 +1,4 @@
+import 'package:chitchat/core/helpers/on_generate_routes.dart';
 import 'package:chitchat/features/auth/presentation/views/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +28,8 @@ class TalkVerse extends StatelessWidget {
               brightness: Brightness.dark,
             ),
           ),
-          home: const LoginScreen(),
+          onGenerateRoute: onGenerateRoutes,
+          initialRoute: LoginScreen.routeName,
         );
       },
     );

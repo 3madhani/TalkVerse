@@ -10,6 +10,8 @@ import 'widgets/contact_card.dart';
 class ContactsScreen extends StatelessWidget {
   const ContactsScreen({super.key});
 
+  static const routeName = 'contacts-screen';
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(

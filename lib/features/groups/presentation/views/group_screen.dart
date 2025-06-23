@@ -6,6 +6,8 @@ import '../../../../core/widgets/text_field_message.dart';
 import 'group_member_screen.dart';
 
 class GroupScreen extends StatelessWidget {
+  static const routeName = 'group-screen';
+
   const GroupScreen({super.key});
 
   @override
@@ -25,12 +27,7 @@ class GroupScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const GroupMemberScreen(),
-                ),
-              );
+              Navigator.pushNamed(context, GroupMemberScreen.routeName);
             },
             icon: const Icon(Iconsax.user),
           ),

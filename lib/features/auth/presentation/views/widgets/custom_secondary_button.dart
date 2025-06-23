@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../../../core/constants/colors/colors.dart';
 
 class CustomSecondaryButton extends StatelessWidget {
-  const CustomSecondaryButton({super.key});
+  final void Function()? onPressed;
+
+  const CustomSecondaryButton({super.key, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.all(16),

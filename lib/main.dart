@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/services/get_it_services.dart';
+import 'core/services/shared_preferences_singleton.dart';
 import 'features/settings/presentation/view_model/settings_view_model.dart';
 import 'firebase_options.dart';
 
@@ -12,6 +14,12 @@ void main() async {
 
   // initialize firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize shared preferences
+  await Prefs.init();
+
+  // intia;ize getIt
+  setupGetIt();
 
   // run app
   runApp(

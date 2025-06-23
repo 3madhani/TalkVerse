@@ -4,6 +4,8 @@ import 'package:iconsax/iconsax.dart';
 import '../../../auth/presentation/views/widgets/custom_text_field.dart';
 
 class GroupEditScreen extends StatelessWidget {
+  static const routeName = '/group-edit-screen';
+
   const GroupEditScreen({super.key});
 
   @override

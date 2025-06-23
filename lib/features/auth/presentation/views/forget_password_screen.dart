@@ -8,6 +8,8 @@ import 'widgets/custom_text_field.dart';
 class ForgetPasswordScreen extends StatelessWidget {
   const ForgetPasswordScreen({super.key});
 
+  static const routeName = 'forget-password-screen';
+
   @override
   Widget build(BuildContext context) {
     TextEditingController emailController = TextEditingController();
