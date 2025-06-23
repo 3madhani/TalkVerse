@@ -11,10 +11,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../errors/exception.dart';
 
 class FirebaseAuthService {
-  Future deleteUser() async {
-    await FirebaseAuth.instance.currentUser!.delete();
-  }
-
   Future<User> createUserWithEmailAndPassword({
     required String email,
     required String password,
@@ -28,31 +24,37 @@ class FirebaseAuthService {
         "FirebaseAuthService.createUserWithEmailAndPassword CustomException: ${e.toString()} code: ${e.code}",
       );
       if (e.code == 'weak-password') {
-        throw CustomException(message: 'كلمة المرور ضعيفة جدا.');
+        throw CustomException(message: 'Your password is too weak.');
       } else if (e.code == 'email-already-in-use') {
         throw CustomException(
           message:
-              'البريد الالكتروني مستخدم مسبقا. يرجى تسجيل الدخول او استخدام بريد اخر',
+              'Your email is already in use. Please use a different email.',
         );
       } else if (e.code == 'invalid-email') {
-        throw CustomException(message: 'البريد الالكتروني غير صالح.');
+        throw CustomException(message: 'Your email is not valid.');
       } else if (e.code == 'network-request-failed') {
-        throw CustomException(message: 'يرجى التحقق من اتصالك بالانترنت.');
+        throw CustomException(
+          message: 'Please check your internet connection.',
+        );
       } else if (e.code == 'operation-not-allowed') {
-        throw CustomException(message: 'حدث خطا غير متوقع يرجى المحاولة لاحقا');
+        throw CustomException(message: 'Unexpected error, try again later.');
       } else if (e.code == 'too-many-requests') {
         throw CustomException(
-          message: 'لقد قمت بعمليات تسجيل دخول كثيرة في فترة قصيرة.',
+          message: 'You have made too many requests. Please try again later.',
         );
       } else {
-        throw CustomException(message: 'حدث خطا غير متوقع يرجى المحاولة لاحقا');
+        throw CustomException(message: 'An error occurred, try again later.');
       }
     } catch (e) {
       log(
         "FirebaseAuthService.createUserWithEmailAndPassword CustomException: ${e.toString()}",
       );
-      throw CustomException(message: 'حدث خطا غير متوقع يرجى المحاولة لاحقا');
+      throw CustomException(message: 'Unexpected error, try again later.');
     }
+  }
+
+  Future deleteUser() async {
+    await FirebaseAuth.instance.currentUser!.delete();
   }
 
   /// Generates a cryptographically secure random nonce, to be included in a
@@ -66,6 +68,9 @@ class FirebaseAuthService {
       (_) => charset[random.nextInt(charset.length)],
     ).join();
   }
+
+  // isLoggedin
+  bool isLoggedIn() => FirebaseAuth.instance.currentUser != null;
 
   /// Returns the sha256 hash of [input] in hex notation.
   String sha256ofString(String input) {
@@ -89,29 +94,29 @@ class FirebaseAuthService {
         "FirebaseAuthService.signInWithEmailAndPassword CustomException: ${e.toString()} code: ${e.code}",
       );
       if (e.code == 'user-not-found') {
-        throw CustomException(message: 'البريد الالكتروني غير موجود.');
+        throw CustomException(message: 'Your email is not registered.');
       } else if (e.code == 'invalid-credential') {
-        throw CustomException(
-          message: "البريد الالكتروني او كلمة المرور غير صحيحة.",
-        );
+        throw CustomException(message: "Your email or password is not valid.");
       } else if (e.code == 'invalid-email') {
-        throw CustomException(message: 'البريد الالكتروني غير صالح.');
+        throw CustomException(message: 'Your email is not valid.');
       } else if (e.code == 'network-request-failed') {
-        throw CustomException(message: 'يرجى التحقق من اتصالك بالانترنت.');
+        throw CustomException(
+          message: 'Please check your internet connection.',
+        );
       } else if (e.code == 'operation-not-allowed') {
-        throw CustomException(message: 'حدث خطا غير متوقع يرجى المحاولة لاحقا');
+        throw CustomException(message: 'This operation is not allowed.');
       } else if (e.code == 'too-many-requests') {
         throw CustomException(
-          message: 'لقد قمت بعمليات تسجيل دخول كثيرة في فترة قصيرة.',
+          message: 'You have made too many requests. Please try again later.',
         );
       } else {
-        throw CustomException(message: 'حدث خطا غير متوقع يرجى المحاولة لاحقا');
+        throw CustomException(message: 'An error occurred, please try again.');
       }
     } catch (e) {
       log(
         "FirebaseAuthService.signInWithEmailAndPassword CustomException: ${e.toString()}",
       );
-      throw CustomException(message: 'حدث خطا غير متوقع يرجى المحاولة لاحقا');
+      throw CustomException(message: 'An error occurred, please try again.');
     }
   }
 
@@ -173,8 +178,10 @@ class FirebaseAuthService {
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
     await GoogleSignIn().signOut();
+    await FacebookAuth.instance.logOut();
   }
 
-  // isLoggedin
-  bool isLoggedIn() => FirebaseAuth.instance.currentUser != null;
+  Future<void> verifyEmail() async {
+    await FirebaseAuth.instance.currentUser!.sendEmailVerification();
+  }
 }
