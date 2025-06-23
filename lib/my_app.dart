@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 
 import 'features/settings/presentation/view_model/settings_view_model.dart';
 
-class ChitChat extends StatelessWidget {
-  const ChitChat({super.key});
+class TalkVerse extends StatelessWidget {
+  const TalkVerse({super.key});
 
   @override
   Widget build(BuildContext context) {

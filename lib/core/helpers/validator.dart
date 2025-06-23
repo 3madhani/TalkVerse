@@ -17,8 +17,18 @@ class Validator {
     if (value == null || value.isEmpty) {
       return 'Password cannot be empty';
     }
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters long';
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    final hasUppercase = value.contains(RegExp(r'[A-Z]'));
+    final hasLowercase = value.contains(RegExp(r'[a-z]'));
+    final hasDigit = value.contains(RegExp(r'\d'));
+    final hasSpecialCharacter = value.contains(
+      RegExp(r'[!@#$%^&*(),.?":{}|<>]'),
+    );
+
+    if (!hasUppercase || !hasLowercase || !hasDigit || !hasSpecialCharacter) {
+      return 'Password must include a capital letter, a number, and a symbol';
     }
     return null;
   }
