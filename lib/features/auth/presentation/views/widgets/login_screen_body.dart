@@ -1,11 +1,11 @@
-import 'package:chitchat/core/constants/colors/colors.dart';
-import 'package:chitchat/features/home/presentation/views/home_layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:provider/provider.dart';
 
+import '../../../../../core/constants/colors/colors.dart';
 import '../../../../../core/utils/app_assets.dart';
-import '../../manager/auth_provider.dart';
+import '../../../../home/presentation/views/home_layout.dart';
+import '../../manager/auth_cubit/auth_cubit.dart';
 import '../forget_password_screen.dart';
 import '../setup_profile.dart';
 import 'app_logo.dart';
@@ -19,6 +19,33 @@ class LoginScreenBody extends StatefulWidget {
 
   @override
   State<LoginScreenBody> createState() => _LoginScreenBodyState();
+}
+
+class VerifyEmailScreen extends StatelessWidget {
+  static const routeName = 'verify_email_screen';
+  const VerifyEmailScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Verify Your Email')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Please check your inbox and verify your email.'),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                context.read<AuthCubit>().checkEmailVerification();
+              },
+              child: const Text('I Verified My Email'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _LoginScreenBodyState extends State<LoginScreenBody> {
@@ -51,119 +78,112 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
               ),
             ],
           ),
-          Consumer<AuthProvider>(
-            builder:
-                (context, authProvider, child) => Form(
+          BlocListener<AuthCubit, AuthState>(
+            listener: (context, state) {
+              if (state is AuthFailure) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+              } else if (state is AuthVerificationRequired) {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  'verify_email_screen', // create a screen for this
+                  (_) => false,
+                  arguments: state.user,
+                );
+              } else if (state is AuthSuccess) {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  state.user.isProfileComplete
+                      ? HomeLayout.routeName
+                      : SetupProfile.routeName,
+                  (_) => false,
+                  arguments: {
+                    'email': state.user.email,
+                    'uId': state.user.uId,
+                    'photoUrl': state.user.photoUrl,
+                  },
+                );
+              }
+            },
+
+            child: BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, state) {
+                final isLoading = state is AuthLoading;
+
+                return Form(
                   key: formKey,
                   child: Column(
                     children: [
-                      Column(
+                      CustomTextField(
+                        label: 'Email',
+                        prefixIcon: Iconsax.direct,
+                        controller: emailController,
+                      ),
+                      CustomTextField(
+                        obscureText: true,
+                        label: 'Password',
+                        prefixIcon: Iconsax.password_check,
+                        controller: passwordController,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          CustomTextField(
-                            label: 'Email',
-                            prefixIcon: Iconsax.direct,
-                            controller: emailController,
-                          ),
-                          CustomTextField(
-                            obscureText: true,
-                            label: 'Password',
-                            prefixIcon: Iconsax.password_check,
-                            controller: passwordController,
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              InkWell(
-                                onTap:
-                                    () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder:
-                                            (_) => const ForgetPasswordScreen(),
-                                      ),
-                                    ),
-                                child: Text(
-                                  'Forgot Password?',
-                                  style: Theme.of(context).textTheme.bodyMedium,
+                          InkWell(
+                            onTap:
+                                () => Navigator.pushNamed(
+                                  context,
+                                  ForgetPasswordScreen.routeName,
                                 ),
-                              ),
-                            ],
+                            child: Text(
+                              'Forgot Password?',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
                           ),
-                          const SizedBox(height: 16),
-                          authProvider.isLoading
-                              ? const CircularProgressIndicator()
-                              : CustomElevatedButton(
-                                onPressed: () => _handleLogin(authProvider),
-                                label: 'Login',
-                              ),
                         ],
                       ),
                       const SizedBox(height: 16),
-                      CustomSecondaryButton(
-                        onPressed: () {
-                          // Optional: go to Sign Up or other flow
-                        },
-                      ),
+                      isLoading
+                          ? const CircularProgressIndicator()
+                          : CustomElevatedButton(
+                            onPressed: () => _handleLogin(context),
+                            label: 'Login',
+                          ),
+                      const SizedBox(height: 16),
+                      isLoading
+                          ? const CircularProgressIndicator()
+                          : CustomSecondaryButton(
+                            onPressed: () => _handleSignUp(context),
+                          ),
                       const SizedBox(height: 40),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SocialButton(
                             icon: Assets.imagesGoogleIcons,
-                            onTap: () async {
-                              final authProvider = context.read<AuthProvider>();
-
-                              await authProvider.signInWithGoogle();
-
-                              if (!mounted) {
-                                return;
-                              }
-
-                              if (authProvider.errorMessage != null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(authProvider.errorMessage!),
-                                  ),
-                                );
-                              } else if (authProvider.isLoggedIn) {
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const HomeLayout(),
-                                  ),
-                                  (_) => false,
-                                );
-                              }
-                            },
+                            onTap:
+                                () =>
+                                    context
+                                        .read<AuthCubit>()
+                                        .signInWithGoogle(),
                           ),
                           const SizedBox(width: 30),
                           SocialButton(
                             icon: Assets.imagesFacebookIcons,
-                            onTap: () async {
-                              await authProvider.signInWithFacebook();
-                              if (authProvider.errorMessage != null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(authProvider.errorMessage!),
-                                  ),
-                                );
-                              } else if (authProvider.isLoggedIn) {
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const SetupProfile(),
-                                  ),
-                                  (_) => false,
-                                );
-                              }
-                            },
+                            onTap:
+                                () =>
+                                    context
+                                        .read<AuthCubit>()
+                                        .signInWithFacebook(),
                           ),
                         ],
                       ),
                     ],
                   ),
-                ),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -177,23 +197,20 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
     super.dispose();
   }
 
-  Future<void> _handleLogin(AuthProvider authProvider) async {
-    if (!formKey.currentState!.validate()) return;
+  void _handleLogin(BuildContext context) {
+    if (formKey.currentState!.validate()) {
+      context.read<AuthCubit>().signIn(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+    }
+  }
 
-    await authProvider.signIn(
-      email: emailController.text.trim(),
-      password: passwordController.text.trim(),
-    );
-
-    if (authProvider.errorMessage != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(authProvider.errorMessage!)));
-    } else if (authProvider.isLoggedIn) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const SetupProfile()),
-        (_) => false,
+  void _handleSignUp(BuildContext context) {
+    if (formKey.currentState!.validate()) {
+      context.read<AuthCubit>().signUp(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
     }
   }

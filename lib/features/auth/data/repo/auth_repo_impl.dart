@@ -23,6 +23,7 @@ class AuthRepoImpl implements AuthRepo {
     required this.firebaseAuthService,
     required this.databaseServices,
   });
+
   @override
   Future addUserData({required UserEntity userEntity}) async {
     await databaseServices.setData(
@@ -36,34 +37,22 @@ class AuthRepoImpl implements AuthRepo {
   Future<Either<Failure, UserEntity>> createUserWithEmailAndPassword({
     required String email,
     required String password,
-    required String name,
   }) async {
     User? user;
     try {
-      await firebaseAuthService.verifyEmail();
-
-      var isEmailVerified =
-          FirebaseAuth.instance.currentUser?.emailVerified ?? false;
-      if (!isEmailVerified) {
-        throw CustomException(
-          message: 'Please verify your email first. Check your inbox.',
-        );
-      }
       user = await firebaseAuthService.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      var userEntity = UserEntity(
-        uId: user.uid,
-        email: email,
-        name: name,
-        photoUrl: '',
+
+      // Send verification email
+      await user.sendEmailVerification();
+
+      return left(
+        const ServerFailure(
+          'Account created. Please verify your email from the inbox before signing in.',
+        ),
       );
-      await addUserData(userEntity: userEntity);
-      return Right(userEntity);
-    } on CustomException catch (e) {
-      await deleteUser(user);
-      return left(ServerFailure(e.message));
     } catch (e) {
       await deleteUser(user);
       log("Error in createUserWithEmailAndPassword: ${e.toString()}");
@@ -93,8 +82,8 @@ class AuthRepoImpl implements AuthRepo {
   }
 
   @override
-  Future<void> sendPasswordResetEmail({required String email}) {
-    throw UnimplementedError();
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
 
   @override
@@ -107,6 +96,11 @@ class AuthRepoImpl implements AuthRepo {
         email: email,
         password: password,
       );
+
+      if (!user.emailVerified) {
+        await FirebaseAuth.instance.signOut();
+        throw CustomException(message: "Please verify your email first.");
+      }
 
       var userEntity = await getUserData(uId: user.uid);
       await saveUserData(userEntity: userEntity);
@@ -204,6 +198,9 @@ class AuthRepoImpl implements AuthRepo {
 
   @override
   Future<void> verifyEmail() async {
-    await firebaseAuthService.verifyEmail();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+    }
   }
 }

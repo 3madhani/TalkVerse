@@ -7,7 +7,9 @@ import 'widgets/setup_profile_body.dart';
 class SetupProfile extends StatelessWidget {
   static const routeName = 'setup-profile';
 
-  const SetupProfile({super.key});
+  final Map<String, String> userData;
+
+  const SetupProfile({super.key, required this.userData});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class SetupProfile extends StatelessWidget {
           ),
         ],
       ),
-      body: SetupProfileBody(),
+      body: SetupProfileBody(userData: userData),
     );
   }
 }

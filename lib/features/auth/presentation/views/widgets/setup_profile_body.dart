@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../../home/presentation/views/home_layout.dart';
+import '../../../../../core/constants/colors/colors.dart';
 import 'custom_elevated_button.dart';
 import 'custom_text_field.dart';
 
-class SetupProfileBody extends StatelessWidget {
-  const SetupProfileBody({super.key});
+class SetupProfileBody extends StatefulWidget {
+  final Map<String, String> userData;
+
+  const SetupProfileBody({super.key, required this.userData});
 
   @override
-  Widget build(BuildContext context) {
-    TextEditingController nameController = TextEditingController();
+  State<SetupProfileBody> createState() => _SetupProfileBodyState();
+}
 
+class _SetupProfileBodyState extends State<SetupProfileBody> {
+  TextEditingController nameController = TextEditingController();
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -19,28 +26,31 @@ class SetupProfileBody extends StatelessWidget {
         children: [
           const SizedBox(height: 20),
           Text('Welcome,', style: Theme.of(context).textTheme.displayMedium),
-          Text('to ChitChat', style: Theme.of(context).textTheme.bodyLarge),
+          Text(
+            'to TalkVerse',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge!.copyWith(color: AppColors.primaryColor),
+          ),
           const SizedBox(height: 16),
           Text(
             'Please Enter Your Name',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          CustomTextField(
-            label: 'Name',
-            prefixIcon: Iconsax.user,
-            controller: nameController,
-          ),
+          Form(
+            key: formKey,
+            child: Column(
+              children: [
+                CustomTextField(
+                  label: 'Name',
+                  prefixIcon: Iconsax.user,
+                  controller: nameController,
+                ),
 
-          const SizedBox(height: 16),
-          CustomElevatedButton(
-            onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                HomeLayout.routeName,
-                (route) => false,
-              );
-            },
-            label: 'Continue',
+                const SizedBox(height: 16),
+                CustomElevatedButton(onPressed: () {}, label: 'Continue'),
+              ],
+            ),
           ),
         ],
       ),

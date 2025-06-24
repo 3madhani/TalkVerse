@@ -1,21 +1,20 @@
-import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/get_it_services.dart';
 import '../../domain/repo/auth_repo.dart';
-import '../manager/auth_provider.dart';
-import 'widgets/login_screen_body.dart';
+import '../manager/auth_cubit/auth_cubit.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
-
   static const String routeName = 'login-screen';
+
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthProvider(authRepo: getIt<AuthRepo>()),
-      child: Scaffold(appBar: AppBar(), body: const LoginScreenBody()),
+    return BlocProvider(
+      create: (context) => AuthCubit(getIt<AuthRepo>()),
+      child: const LoginScreen(),
     );
   }
 }

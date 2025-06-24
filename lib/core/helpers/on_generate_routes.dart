@@ -36,7 +36,12 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
     case ContactsScreen.routeName:
       return MaterialPageRoute(builder: (context) => const ContactsScreen());
     case SetupProfile.routeName:
-      return MaterialPageRoute(builder: (context) => const SetupProfile());
+      return MaterialPageRoute(
+        builder:
+            (context) => SetupProfile(
+              userData: settings.arguments as Map<String, String>,
+            ),
+      );
     case GroupsScreen.routeName:
       return MaterialPageRoute(builder: (context) => const GroupsScreen());
     case CreateGroupScreen.routeName:
