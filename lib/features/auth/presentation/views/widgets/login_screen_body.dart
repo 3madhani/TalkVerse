@@ -7,7 +7,6 @@ import '../../../../../core/utils/app_assets.dart';
 import '../../../../home/presentation/views/home_layout.dart';
 import '../../manager/auth_cubit/auth_cubit.dart';
 import '../forget_password_screen.dart';
-import '../setup_profile.dart';
 import 'app_logo.dart';
 import 'custom_elevated_button.dart';
 import 'custom_secondary_button.dart';
@@ -89,20 +88,18 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
                   context,
                   'verify_email_screen', // create a screen for this
                   (_) => false,
-                  arguments: state.user,
                 );
               } else if (state is AuthSuccess) {
                 Navigator.pushNamedAndRemoveUntil(
                   context,
-                  state.user.isProfileComplete
-                      ? HomeLayout.routeName
-                      : SetupProfile.routeName,
+                  HomeLayout.routeName,
                   (_) => false,
-                  arguments: {
-                    'email': state.user.email,
-                    'uId': state.user.uId,
-                    'photoUrl': state.user.photoUrl,
-                  },
+                );
+              } else if (state is AuthWithSocialSuccess) {
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  HomeLayout.routeName,
+                  (_) => false,
                 );
               }
             },
@@ -162,11 +159,9 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
                         children: [
                           SocialButton(
                             icon: Assets.imagesGoogleIcons,
-                            onTap:
-                                () =>
-                                    context
-                                        .read<AuthCubit>()
-                                        .signInWithGoogle(),
+                            onTap: () {
+                              context.read<AuthCubit>().signInWithGoogle();
+                            },
                           ),
                           const SizedBox(width: 30),
                           SocialButton(

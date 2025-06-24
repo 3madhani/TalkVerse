@@ -1,14 +1,22 @@
 part of 'auth_cubit.dart';
 
-abstract class AuthState extends Equatable {
-  const AuthState();
+class AuthFailure extends AuthState {
+  final String message;
+  const AuthFailure(this.message);
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [message];
 }
 
 class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
+
+abstract class AuthState extends Equatable {
+  const AuthState();
+  @override
+  List<Object?> get props => [];
+}
 
 class AuthSuccess extends AuthState {
   final UserEntity user;
@@ -26,10 +34,10 @@ class AuthVerificationRequired extends AuthState {
   List<Object?> get props => [user];
 }
 
-class AuthFailure extends AuthState {
-  final String message;
-  const AuthFailure(this.message);
+class AuthWithSocialSuccess extends AuthState {
+  final UserEntity user;
+  const AuthWithSocialSuccess(this.user);
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [user];
 }

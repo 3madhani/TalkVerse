@@ -1,8 +1,8 @@
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:chitchat/features/auth/domain/repo/auth_repo.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/model/user_model.dart';
 
 part 'auth_state.dart';
@@ -59,7 +59,7 @@ class AuthCubit extends Cubit<AuthState> {
     final result = await authRepo.signInWithGoogle();
     result.fold(
       (failure) => emit(AuthFailure(failure.message)),
-      (userEntity) => emit(AuthSuccess(userEntity)),
+      (userEntity) => emit(AuthWithSocialSuccess(userEntity)),
     );
   }
 

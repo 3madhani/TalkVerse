@@ -56,7 +56,7 @@ class AuthRepoImpl implements AuthRepo {
     } catch (e) {
       await deleteUser(user);
       log("Error in createUserWithEmailAndPassword: ${e.toString()}");
-      return left(const ServerFailure('Unexpected Error happened.'));
+      return left(ServerFailure(e.toString()));
     }
   }
 

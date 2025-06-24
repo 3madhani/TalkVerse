@@ -24,7 +24,15 @@ class CustomElevatedButton extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         backgroundColor: backgroundColor,
       ),
-      child: Center(child: Text(label.toUpperCase())),
+      child: Center(
+        child: Text(
+          label.toUpperCase(),
+          style: Theme.of(context).textTheme.labelLarge!.copyWith(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 }

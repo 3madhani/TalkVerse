@@ -185,6 +185,17 @@ class FirebaseAuthService {
   }
 
   Future<void> verifyEmail() async {
-    await FirebaseAuth.instance.currentUser!.sendEmailVerification();
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+    }
   }
+
+  Future<void> sendPasswordResetEmail({
+    required String email,
+  }) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
+
 }
