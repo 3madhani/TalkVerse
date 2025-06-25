@@ -11,18 +11,25 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../errors/exception.dart';
 
 class FirebaseAuthService {
+  final _firebaseAuth = FirebaseAuth.instance;
   Future<User> createUserWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
     try {
-      final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      await sendEmailVerification(); // ✅ now it's a method inside the class
+
       return credential.user!;
     } on FirebaseAuthException catch (e) {
       log(
         "FirebaseAuthService.createUserWithEmailAndPassword CustomException: ${e.toString()} code: ${e.code}",
       );
+      // Handle Firebase errors
       if (e.code == 'weak-password') {
         throw CustomException(message: 'Your password is too weak.');
       } else if (e.code == 'email-already-in-use') {
@@ -39,22 +46,20 @@ class FirebaseAuthService {
       } else if (e.code == 'operation-not-allowed') {
         throw CustomException(message: 'Unexpected error, try again later.');
       } else if (e.code == 'too-many-requests') {
-        throw CustomException(
-          message: 'You have made too many requests. Please try again later.',
-        );
+        throw CustomException(message: 'Too many requests. Try again later.');
       } else {
         throw CustomException(message: 'An error occurred, try again later.');
       }
     } catch (e) {
       log(
-        "FirebaseAuthService.createUserWithEmailAndPassword CustomException: ${e.toString()}",
+        "FirebaseAuthService.createUserWithEmailAndPassword Error: ${e.toString()}",
       );
       throw CustomException(message: 'Unexpected error, try again later.');
     }
   }
 
   Future deleteUser() async {
-    await FirebaseAuth.instance.currentUser!.delete();
+    await _firebaseAuth.currentUser!.delete();
   }
 
   /// Generates a cryptographically secure random nonce, to be included in a
@@ -70,7 +75,18 @@ class FirebaseAuthService {
   }
 
   // isLoggedin
-  bool isLoggedIn() => FirebaseAuth.instance.currentUser != null;
+  bool isLoggedIn() => _firebaseAuth.currentUser != null;
+
+  Future<void> sendEmailVerification() async {
+    final user = _firebaseAuth.currentUser;
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+    }
+  }
+
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    await _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
 
   /// Returns the sha256 hash of [input] in hex notation.
   String sha256ofString(String input) {
@@ -84,7 +100,7 @@ class FirebaseAuthService {
     required String password,
   }) async {
     try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -172,30 +188,11 @@ class FirebaseAuthService {
     );
 
     // Once signed in, return the UserCredential
-    return (await FirebaseAuth.instance.signInWithCredential(credential)).user!;
+    return (await _firebaseAuth.signInWithCredential(credential)).user!;
   }
 
   Future<void> signOut() async {
-    await FirebaseAuth.instance.signOut();
+    await _firebaseAuth.signOut();
     await GoogleSignIn().signOut();
-
-    if (Platform.isAndroid || Platform.isIOS) {
-      await FacebookAuth.instance.logOut();
-    }
   }
-
-  Future<void> verifyEmail() async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user != null && !user.emailVerified) {
-      await user.sendEmailVerification();
-    }
-  }
-
-  Future<void> sendPasswordResetEmail({
-    required String email,
-  }) async {
-    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-  }
-
 }

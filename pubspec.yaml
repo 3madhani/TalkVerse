@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  awesome_snackbar_content: ^0.1.6
   cloud_firestore: ^5.6.9
   crypto: ^3.0.6
   cupertino_icons: ^1.0.8
@@ -45,6 +46,7 @@ dependencies:
   get_it: ^8.0.3
   google_sign_in: ^6.3.0
   iconsax: ^0.0.8
+  modal_progress_hud_nsn: ^0.5.1
   path: ^1.9.1
   provider: ^6.1.4
   qr_flutter: ^4.1.0
@@ -76,10 +78,17 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
+  fonts:
+    - family: Cairo
+      fonts:
+        - asset: assets/fonts/Cairo-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Cairo-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Cairo-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Cairo-SemiBold.ttf
+          weight: 600
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

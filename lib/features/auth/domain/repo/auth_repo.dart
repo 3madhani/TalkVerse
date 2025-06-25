@@ -4,9 +4,11 @@ import 'package:dartz/dartz.dart';
 import '../entities/user_entity.dart';
 
 abstract class AuthRepo {
-  Future addUserData({required UserEntity userEntity});
+  Future<Either<Failure, UserEntity>> addUserData({
+    required UserEntity userEntity,
+  });
 
-  Future<Either<Failure, UserEntity>> createUserWithEmailAndPassword({
+  Future<Either<Failure, void>> createUserWithEmailAndPassword({
     required String email,
     required String password,
   });

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../manager/auth_cubit/auth_cubit.dart';
 import 'login_screen.dart';
 import 'widgets/setup_profile_body.dart';
 
 class SetupProfile extends StatelessWidget {
   static const routeName = 'setup-profile';
 
-  final Map<String, String> userData;
-
-  const SetupProfile({super.key, required this.userData});
+  const SetupProfile({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,17 +18,14 @@ class SetupProfile extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (route) => false,
-              );
+              context.read<AuthCubit>().signOut();
+              Navigator.pushReplacementNamed(context, LoginScreen.routeName);
             },
             icon: const Icon(Iconsax.logout_1),
           ),
         ],
       ),
-      body: SetupProfileBody(userData: userData),
+      body: const SetupProfileBody(),
     );
   }
 }

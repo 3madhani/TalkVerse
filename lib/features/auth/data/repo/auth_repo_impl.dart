@@ -25,16 +25,25 @@ class AuthRepoImpl implements AuthRepo {
   });
 
   @override
-  Future addUserData({required UserEntity userEntity}) async {
-    await databaseServices.setData(
-      path: BackendEndPoints.addUsers,
-      data: UserModel.fromEntity(userEntity).toJson(),
-      documentId: userEntity.uId,
-    );
+  Future<Either<Failure, UserEntity>> addUserData({
+    required UserEntity userEntity,
+  }) async {
+    try {
+      await databaseServices.setData(
+        path: BackendEndPoints.addUsers,
+        data: UserModel.fromEntity(userEntity).toJson(),
+        documentId: userEntity.uId,
+      );
+
+      return Right(userEntity);
+    } on Exception catch (e) {
+      log("Error in addUserData: ${e.toString()}");
+      return left(ServerFailure(e.toString()));
+    }
   }
 
   @override
-  Future<Either<Failure, UserEntity>> createUserWithEmailAndPassword({
+  Future<Either<Failure, void>> createUserWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -48,13 +57,9 @@ class AuthRepoImpl implements AuthRepo {
       // Send verification email
       await user.sendEmailVerification();
 
-      return left(
-        const ServerFailure(
-          'Account created. Please verify your email from the inbox before signing in.',
-        ),
-      );
+      return right(null); // ✅ correct: operation successful
     } catch (e) {
-      await deleteUser(user);
+      if (user != null) await deleteUser(user);
       log("Error in createUserWithEmailAndPassword: ${e.toString()}");
       return left(ServerFailure(e.toString()));
     }

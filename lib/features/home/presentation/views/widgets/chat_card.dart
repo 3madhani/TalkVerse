@@ -22,7 +22,7 @@ class ChatCard extends StatelessWidget {
         trailing: const Badge(
           padding: EdgeInsets.all(6),
           largeSize: 30,
-          label: Text(' 1'),
+          label: Text('1'),
         ),
       ),
     );

@@ -3,14 +3,14 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../settings/presentation/view_model/settings_view_model.dart';
+import '../../view_model/theme_view_model.dart';
 
 class ThemeTile extends StatelessWidget {
   const ThemeTile({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<SettingsViewModel>(context);
+    final viewModel = Provider.of<ThemeViewModel>(context);
 
     return Card(
       elevation: 3,
@@ -23,7 +23,7 @@ class ThemeTile extends StatelessWidget {
     );
   }
 
-  void _showColorPicker(BuildContext context, SettingsViewModel viewModel) {
+  void _showColorPicker(BuildContext context, ThemeViewModel viewModel) {
     showDialog(
       context: context,
       builder:
@@ -36,7 +36,7 @@ class ThemeTile extends StatelessWidget {
             ),
             actions: [
               TextButton(
-                child: const Text('Done'),
+                child: const Text('Done', style: TextStyle(fontSize: 16)),
                 onPressed: () {
                   Navigator.pop(context);
                 },

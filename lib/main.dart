@@ -1,11 +1,14 @@
 import 'package:chitchat/my_app.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'core/services/get_it_services.dart';
 import 'core/services/shared_preferences_singleton.dart';
-import 'features/settings/presentation/view_model/settings_view_model.dart';
+import 'features/auth/domain/repo/auth_repo.dart';
+import 'features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
+import 'features/home/presentation/view_model/theme_view_model.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -24,9 +27,12 @@ void main() async {
   // run app
   runApp(
     // wrap app with provider
-    ChangeNotifierProvider(
-      create: (context) => SettingsViewModel(),
-      child: const TalkVerse(),
+    BlocProvider(
+      create: (context) => AuthCubit(getIt<AuthRepo>()),
+      child: ChangeNotifierProvider(
+        create: (context) => ThemeViewModel(),
+        child: const TalkVerse(),
+      ),
     ),
   );
 }
