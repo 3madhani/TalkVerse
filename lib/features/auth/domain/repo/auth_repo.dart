@@ -17,7 +17,7 @@ abstract class AuthRepo {
 
   Future saveUserData({required UserEntity userEntity});
 
-  Future<void> sendPasswordResetEmail({required String email});
+  Future<Either<Failure, void>> sendPasswordResetEmail({required String email});
 
   Future<Either<Failure, UserEntity>> signInWithEmailAndPassword({
     required String email,

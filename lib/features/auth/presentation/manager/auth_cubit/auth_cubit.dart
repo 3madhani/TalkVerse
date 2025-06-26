@@ -55,6 +55,21 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  Future<void> sendResetPasswordEmail({required String email}) async {
+    emit(const AuthLoading());
+
+    final result = await authRepo.sendPasswordResetEmail(email: email);
+
+    result.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (_) => emit(
+        const SendResetPasswordSuccess(
+          "Password reset email sent successfully.",
+        ),
+      ),
+    );
+  }
+
   Future<void> signIn({required String email, required String password}) async {
     emit(const AuthLoading());
 

@@ -80,7 +80,7 @@ class _VerifyEmailListener extends StatelessWidget {
       listener: (context, state) {
         if (state is AuthFailure) {
           AppSnackBar.showError(context, state.message);
-        } else if (state is AuthSuccess) {
+        } else if (state is SendResetPasswordSuccess) {
           Navigator.pushNamedAndRemoveUntil(
             context,
             SetupProfile.routeName,

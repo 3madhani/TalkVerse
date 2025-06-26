@@ -30,7 +30,7 @@ class AppSnackBar {
       elevation: 0,
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 4),
       content: AwesomeSnackbarContent(
         title: title,
         message: message,

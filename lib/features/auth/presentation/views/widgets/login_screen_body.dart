@@ -70,6 +70,7 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
       inAsyncCall: isLoading,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -143,6 +144,7 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    formKey.currentState?.dispose();
     super.dispose();
   }
 

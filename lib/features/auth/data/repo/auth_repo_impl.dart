@@ -87,8 +87,16 @@ class AuthRepoImpl implements AuthRepo {
   }
 
   @override
-  Future<void> sendPasswordResetEmail({required String email}) async {
-    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  Future<Either<Failure, void>> sendPasswordResetEmail({
+    required String email,
+  }) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      return const Right(null); // ✅ correct: operation successful
+    } on Exception catch (e) {
+      log("Error in sendPasswordResetEmail: ${e.toString()}");
+      return left(ServerFailure(e.toString()));
+    }
   }
 
   @override
