@@ -1,4 +1,4 @@
-# chitchat
+# TalkVerse
 
 A new Flutter project.
 

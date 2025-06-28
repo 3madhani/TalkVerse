@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TalkVerse</string>
+    <string name="facebook_app_id">1085290613494337</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">e1f990c118e3678f99bc1fe1dee20714</string>
+
+</resources>
+

@@ -1,5 +1,6 @@
 import 'package:chitchat/core/errors/failure.dart';
 import 'package:dartz/dartz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../entities/user_entity.dart';
 
@@ -8,7 +9,7 @@ abstract class AuthRepo {
     required UserEntity userEntity,
   });
 
-  Future<Either<Failure, void>> createUserWithEmailAndPassword({
+  Future<Either<Failure, User>> createUserWithEmailAndPassword({
     required String email,
     required String password,
   });
@@ -29,5 +30,4 @@ abstract class AuthRepo {
   Future<Either<Failure, UserEntity>> signInWithGoogle();
 
   Future<Either<Failure, void>> signOut();
-  Future<void> verifyEmail();
 }

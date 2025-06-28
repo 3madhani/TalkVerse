@@ -27,7 +27,7 @@ class _AuthListener extends StatelessWidget {
       listener: (context, state) {
         if (state is AuthFailure) {
           AppSnackBar.showError(context, state.message);
-        } else if (state is SendResetPasswordSuccess) {
+        } else if (state is AuthSuccess) {
           AppSnackBar.showSuccess(context, 'Profile setup successful!');
           Navigator.pushNamedAndRemoveUntil(
             context,
@@ -118,6 +118,11 @@ class _SetupProfileBodyState extends State<SetupProfileBody> {
         email: state.user.email,
         uId: state.user.uId,
         photoUrl: '',
+        aboutMe: '',
+        online: true,
+        createdAt: DateTime.now().toIso8601String(),
+        lastSeen: DateTime.now().toIso8601String(),
+        pushToken: '',
       );
       context.read<AuthCubit>().addUserToFirebase(user);
     }

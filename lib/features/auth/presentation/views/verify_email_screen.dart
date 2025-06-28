@@ -10,7 +10,8 @@ class VerifyEmailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Verify Your Email')),
+      appBar: AppBar(title: const Text('Verify Email'), centerTitle: true),
+
       body: const VerifyEmailScreenBody(),
     );
   }

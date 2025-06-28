@@ -104,7 +104,15 @@ class FirebaseAuthService {
         email: email,
         password: password,
       );
-      return credential.user!;
+
+      final user = credential.user;
+      if (user != null && !user.emailVerified) {
+        await _firebaseAuth.signOut(); // force sign out
+        throw CustomException(
+          message: 'Please verify your email before logging in.',
+        );
+      }
+      return user!;
     } on FirebaseAuthException catch (e) {
       log(
         "FirebaseAuthService.signInWithEmailAndPassword CustomException: ${e.toString()} code: ${e.code}",

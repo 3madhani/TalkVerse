@@ -43,7 +43,7 @@ class AuthRepoImpl implements AuthRepo {
   }
 
   @override
-  Future<Either<Failure, void>> createUserWithEmailAndPassword({
+  Future<Either<Failure, User>> createUserWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -54,10 +54,7 @@ class AuthRepoImpl implements AuthRepo {
         password: password,
       );
 
-      // Send verification email
-      await user.sendEmailVerification();
-
-      return right(null); // ✅ correct: operation successful
+      return right(user); // ✅ correct: operation successful
     } catch (e) {
       if (user != null) await deleteUser(user);
       log("Error in createUserWithEmailAndPassword: ${e.toString()}");
@@ -206,14 +203,6 @@ class AuthRepoImpl implements AuthRepo {
           'Unexpected Error happened while signing out, try again later.',
         ),
       );
-    }
-  }
-
-  @override
-  Future<void> verifyEmail() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null && !user.emailVerified) {
-      await user.sendEmailVerification();
     }
   }
 }

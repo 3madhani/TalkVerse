@@ -35,11 +35,7 @@ class _AuthListener extends StatelessWidget {
         if (state is AuthFailure) {
           AppSnackBar.showError(context, state.message);
         } else if (state is AuthVerificationRequired) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            VerifyEmailScreen.routeName,
-            (_) => false,
-          );
+          Navigator.pushNamed(context, VerifyEmailScreen.routeName);
         } else if (state is AuthSuccess || state is AuthWithSocialSuccess) {
           Navigator.pushNamedAndRemoveUntil(
             context,
