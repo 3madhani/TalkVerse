@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:chitchat/core/constants/backend/backend_end_points.dart';
 import 'package:chitchat/core/errors/failure.dart';
-import 'package:chitchat/core/services/firestore_services.dart';
+import 'package:chitchat/core/services/database_services.dart';
 import 'package:chitchat/features/auth/data/model/user_model.dart';
 import 'package:chitchat/features/home/data/models/chat_room_model.dart';
 import 'package:chitchat/features/home/domain/entities/chat_room_entity.dart';
@@ -11,15 +11,15 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatRoomRepoImpl implements ChatRoomRepo {
-  final FireStoreServices fireStoreServices;
+  final DatabaseServices databaseServices;
   final String userId = FirebaseAuth.instance.currentUser!.uid;
 
-  ChatRoomRepoImpl({required this.fireStoreServices});
+  ChatRoomRepoImpl({required this.databaseServices});
 
   @override
   Future<Either<Failure, void>> createChatRoom(String email) async {
     try {
-      final userDataList = await fireStoreServices.getData(
+      final userDataList = await databaseServices.getData(
         path: BackendEndPoints.getUser,
         queryParameters: {"where": "email", "isEqualTo": email},
       );
@@ -39,7 +39,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
         members: [userId, otherUser.uId],
       );
 
-      await fireStoreServices.setData(
+      await databaseServices.setData(
         path: BackendEndPoints.chatRooms,
         data: chatRoom.toJson(),
         documentId: chatRoomId,
@@ -55,7 +55,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
   @override
   Future<Either<Failure, void>> deleteChatRoom(String chatRoomId) async {
     try {
-      await fireStoreServices.deleteData(
+      await databaseServices.deleteData(
         path: BackendEndPoints.chatRooms,
         documentId: chatRoomId,
       );
@@ -71,7 +71,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
     required String userId,
   }) {
     try {
-      return fireStoreServices
+      return databaseServices
           .streamData(
             path: BackendEndPoints.chatRooms,
             queryParameters: {"field": "members", "arrayContains": userId},
@@ -100,7 +100,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
 
   Future<bool> isExist(String chatRoomId) async {
     try {
-      final chatRoomData = await fireStoreServices.getData(
+      final chatRoomData = await databaseServices.getData(
         path: BackendEndPoints.chatRooms,
         documentId: chatRoomId,
       );

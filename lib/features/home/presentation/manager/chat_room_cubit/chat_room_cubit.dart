@@ -10,7 +10,7 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
 
   ChatRoomCubit(this.chatRoomRepo) : super(ChatRoomInitial());
 
-  Future<void> createChatRoom(String email) async {
+  Future<void> createChatRoom({ required String email}) async {
     emit(ChatRoomLoading());
     final result = await chatRoomRepo.createChatRoom(email);
     result.fold(
