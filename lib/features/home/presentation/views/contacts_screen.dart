@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../auth/presentation/views/widgets/custom_elevated_button.dart';
 import '../../../auth/presentation/views/widgets/custom_text_field.dart';
-import '../view_model/contacts_view_model.dart';
+import '../manager/contacts_view_model.dart';
 import 'widgets/contact_card.dart';
 
 class ContactsScreen extends StatelessWidget {

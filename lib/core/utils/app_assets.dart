@@ -2,6 +2,10 @@
 class Assets {
   Assets._();
   
+  /// Assets for imagesAppLogo
+  /// assets/images/app_logo.svg
+  static const String imagesAppLogo = "assets/images/app_logo.svg";
+
   /// Assets for imagesFacebookIcons
   /// assets/images/facebook_Icons.svg
   static const String imagesFacebookIcons = "assets/images/facebook_Icons.svg";
@@ -9,9 +13,5 @@ class Assets {
   /// Assets for imagesGoogleIcons
   /// assets/images/google_Icons.svg
   static const String imagesGoogleIcons = "assets/images/google_Icons.svg";
-
-  /// Assets for imagesNLogo
-  /// assets/images/n_logo.svg
-  static const String imagesNLogo = "assets/images/n_logo.svg";
 }
 

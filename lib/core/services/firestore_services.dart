@@ -27,6 +27,7 @@ class FireStoreServices implements DatabaseServices {
       // If documentId is not provided, fetch the entire collection
       Query<Map<String, dynamic>> querySnapshot = firestore.collection(path);
       if (queryParameters != null) {
+
         // Apply query parameters if provided
         if (queryParameters["orderBy"] != null) {
           var orderBy = queryParameters["orderBy"];
@@ -40,6 +41,13 @@ class FireStoreServices implements DatabaseServices {
         if (queryParameters["limit"] != null) {
           var limit = queryParameters["limit"];
           querySnapshot = querySnapshot.limit(limit);
+        }
+
+        if (queryParameters["where"] != null &&
+            queryParameters["isEqualTo"] != null) {
+          var where = queryParameters["where"];
+          var isEqualTo = queryParameters["isEqualTo"];
+          querySnapshot = querySnapshot.where(where, isEqualTo: isEqualTo);
         }
       }
       var querySnapshotResult = await querySnapshot.get();
@@ -60,8 +68,7 @@ class FireStoreServices implements DatabaseServices {
       await firestore.collection(path).add(data);
     }
   }
-
-  @override
+@override
   Stream streamData({
     required String path,
     Map<String, dynamic>? queryParameters,
@@ -71,9 +78,10 @@ class FireStoreServices implements DatabaseServices {
       // Return a stream for a single document
       return firestore.collection(path).doc(documentId).snapshots();
     } else {
-      // Return a stream for the whole collection
       Query<Map<String, dynamic>> querySnapshot = firestore.collection(path);
+
       if (queryParameters != null) {
+        // Order by
         if (queryParameters["orderBy"] != null) {
           var orderBy = queryParameters["orderBy"];
           var descending = queryParameters["descending"] ?? false;
@@ -83,12 +91,30 @@ class FireStoreServices implements DatabaseServices {
           );
         }
 
+        // Limit
         if (queryParameters["limit"] != null) {
           var limit = queryParameters["limit"];
           querySnapshot = querySnapshot.limit(limit);
         }
+
+        // Where equal
+        if (queryParameters["where"] != null &&
+            queryParameters["isEqualTo"] != null) {
+          var where = queryParameters["where"];
+          var isEqualTo = queryParameters["isEqualTo"];
+          querySnapshot = querySnapshot.where(where, isEqualTo: isEqualTo);
+        }
+
+        // Where arrayContains
+        if (queryParameters["arrayContains"] != null &&
+            queryParameters["field"] != null) {
+          var field = queryParameters["field"];
+          var value = queryParameters["arrayContains"];
+          querySnapshot = querySnapshot.where(field, arrayContains: value);
+        }
       }
 
+      // Return the stream
       return querySnapshot.snapshots().map(
         (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
       );
@@ -103,6 +129,21 @@ class FireStoreServices implements DatabaseServices {
   }) async {
     if (documentId != null) {
       await firestore.collection(path).doc(documentId).update(data);
+    }
+  }
+  
+  @override
+  Future<void> deleteData({required String path, String? documentId}) async {
+    if (documentId != null) {
+      await firestore.collection(path).doc(documentId).delete();
+    }
+    else {
+      // If no documentId is provided, delete the entire collection
+      var collection = firestore.collection(path);
+      var querySnapshot = await collection.get();
+      for (var doc in querySnapshot.docs) {
+        await doc.reference.delete();
+      }
     }
   }
 }

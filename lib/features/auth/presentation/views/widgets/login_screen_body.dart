@@ -70,7 +70,7 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 70),
             const AppLogo(),
             const SizedBox(height: 20),
             Text(
@@ -89,7 +89,13 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            Text(
+              "Your voice, Your verse.",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
             const _AuthListener(), // clean listener
             Form(
               key: formKey,

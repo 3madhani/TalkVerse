@@ -4,6 +4,11 @@ abstract class DatabaseServices {
     required String documentId,
   });
 
+  Future<void> deleteData({
+    required String path,
+    String? documentId,
+  });
+
   Future<dynamic> getData({
     required String path,
     String? documentId,

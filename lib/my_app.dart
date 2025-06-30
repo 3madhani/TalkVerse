@@ -4,7 +4,7 @@ import 'package:chitchat/features/auth/presentation/views/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'features/home/presentation/view_model/theme_view_model.dart';
+import 'features/home/presentation/manager/theme_view_model.dart';
 import 'features/home/presentation/views/home_layout.dart';
 
 class TalkVerse extends StatelessWidget {

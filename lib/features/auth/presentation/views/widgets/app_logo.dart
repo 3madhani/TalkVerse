@@ -1,3 +1,4 @@
+import 'package:chitchat/core/utils/app_assets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -9,7 +10,7 @@ class AppLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
-      'assets/images/n_logo.svg',
+      Assets.imagesAppLogo,
       height: 150,
       colorFilter: const ColorFilter.mode(
         AppColors.primaryColor,

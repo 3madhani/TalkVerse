@@ -1,4 +1,3 @@
-import 'package:chitchat/features/auth/presentation/views/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -36,11 +35,6 @@ class SettingsScreenBody extends StatelessWidget {
           GestureDetector(
             onTap: () {
               context.read<AuthCubit>().signOut();
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                LoginScreen.routeName,
-                (route) => false,
-              );
             },
             child: const SignOutTile(),
           ),
