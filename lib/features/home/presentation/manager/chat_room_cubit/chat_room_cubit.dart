@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/repo/chat_room_repo.dart';
@@ -10,12 +11,18 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
 
   ChatRoomCubit(this.chatRoomRepo) : super(ChatRoomInitial());
 
-  Future<void> createChatRoom({ required String email}) async {
+  @override
+  Future<void> close() {
+    _subscription?.cancel();
+    return super.close();
+  }
+
+  Future<void> createChatRoom({required String email}) async {
     emit(ChatRoomLoading());
     final result = await chatRoomRepo.createChatRoom(email);
     result.fold(
       (failure) => emit(ChatRoomError(failure.message)),
-      (_) => emit(ChatRoomSuccess()),
+      (success) => emit(ChatRoomSuccess(success)),
     );
   }
 
@@ -24,7 +31,7 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     final result = await chatRoomRepo.deleteChatRoom(chatRoomId);
     result.fold(
       (failure) => emit(ChatRoomError(failure.message)),
-      (_) => emit(ChatRoomSuccess()),
+      (success) => emit(ChatRoomSuccess(success)),
     );
   }
 
@@ -40,11 +47,5 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
         (chatRooms) => emit(ChatRoomListLoaded(chatRooms)),
       );
     });
-  }
-
-  @override
-  Future<void> close() {
-    _subscription?.cancel();
-    return super.close();
   }
 }

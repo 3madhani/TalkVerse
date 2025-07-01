@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../chats/presentation/views/chat_screen.dart';
+import '../../../domain/entities/chat_room_entity.dart';
 
 class ChatCard extends StatelessWidget {
-  const ChatCard({super.key});
+  final ChatRoomEntity chatRoom;
+
+  const ChatCard({super.key, required this.chatRoom});
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +20,13 @@ class ChatCard extends StatelessWidget {
           );
         },
         leading: const CircleAvatar(),
-        title: const Text('Chat'),
-        subtitle: const Text('Last message from Chat '),
+        title: Text(chatRoom.id),
+        subtitle: Text(
+          chatRoom.lastMessage,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyMedium?.color,
+          ),
+        ),
         trailing: const Badge(
           padding: EdgeInsets.all(6),
           largeSize: 30,

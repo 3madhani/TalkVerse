@@ -1,5 +1,7 @@
+import 'package:chitchat/core/widgets/app_snack_bar.dart';
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -32,14 +34,18 @@ class _BodyOfFloatingActionButtonState
       child: BlocConsumer<ChatRoomCubit, ChatRoomState>(
         listener: (context, state) {
           if (state is ChatRoomSuccess) {
-            Navigator.of(context).pop(); // Close bottom sheet
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("✅ Chat room created successfully")),
+            context.read<ChatRoomCubit>().listenToUserChatRooms(
+              FirebaseAuth.instance.currentUser!.uid,
             );
+            Navigator.of(context).pop(); // Close bottom sheet
+            if (state.message.contains("already exists")) {
+              AppSnackBar.showWarning(context, state.message);
+            } else {
+              AppSnackBar.showSuccess(context, state.message);
+            }
           } else if (state is ChatRoomError) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text("❌ ${state.message}")));
+            Navigator.of(context).pop(); // Close bottom sheet
+            AppSnackBar.showError(context, state.message);
           }
         },
         builder: (context, state) {

@@ -106,6 +106,7 @@ class FirebaseAuthService {
       );
 
       final user = credential.user;
+
       if (user != null && !user.emailVerified) {
         await _firebaseAuth.signOut(); // force sign out
         throw CustomException(
@@ -119,7 +120,7 @@ class FirebaseAuthService {
       );
       if (e.code == 'user-not-found') {
         throw CustomException(message: 'Your email is not registered.');
-      } else if (e.code == 'invalid-credential') {
+      } else if (e.code.toLowerCase().contains('invalid')) {
         throw CustomException(message: "Your email or password is not valid.");
       } else if (e.code == 'invalid-email') {
         throw CustomException(message: 'Your email is not valid.');

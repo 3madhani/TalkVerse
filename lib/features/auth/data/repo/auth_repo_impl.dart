@@ -106,7 +106,6 @@ class AuthRepoImpl implements AuthRepo {
         email: email,
         password: password,
       );
-
       if (!user.emailVerified) {
         await FirebaseAuth.instance.signOut();
         throw CustomException(message: "Please verify your email first.");

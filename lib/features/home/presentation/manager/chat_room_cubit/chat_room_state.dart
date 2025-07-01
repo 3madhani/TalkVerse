@@ -12,7 +12,11 @@ class ChatRoomInitial extends ChatRoomState {}
 
 class ChatRoomLoading extends ChatRoomState {}
 
-class ChatRoomSuccess extends ChatRoomState {}
+class ChatRoomSuccess extends ChatRoomState {
+  final String message;
+
+  const ChatRoomSuccess(this.message);
+}
 
 class ChatRoomError extends ChatRoomState {
   final String message;

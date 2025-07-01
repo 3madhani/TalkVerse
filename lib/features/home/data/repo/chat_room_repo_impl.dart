@@ -12,13 +12,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatRoomRepoImpl implements ChatRoomRepo {
   final DatabaseServices databaseServices;
-  final String userId = FirebaseAuth.instance.currentUser!.uid;
 
   ChatRoomRepoImpl({required this.databaseServices});
 
   @override
-  Future<Either<Failure, void>> createChatRoom(String email) async {
+  Future<Either<Failure, String>> createChatRoom(String email) async {
     try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        return const Left(ServerFailure("User not logged in"));
+      }
+      final userId = user.uid;
+
       final userDataList = await databaseServices.getData(
         path: BackendEndPoints.getUser,
         queryParameters: {"where": "email", "isEqualTo": email},
@@ -32,7 +37,9 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
       final chatRoomId = _generateChatRoomId(userId, otherUser.uId);
 
       final exists = await isExist(chatRoomId);
-      if (exists) return const Right(null);
+      if (exists) {
+        return const Right("Chat room already exists, can't create again");
+      }
 
       final chatRoom = ChatRoomModel(
         id: chatRoomId,
@@ -45,7 +52,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
         documentId: chatRoomId,
       );
 
-      return const Right(null);
+      return const Right("Chat room created successfully");
     } catch (e, stackTrace) {
       log("🔥 Error in createChatRoom: $e", stackTrace: stackTrace);
       return const Left(ServerFailure("Failed to create chat room"));
@@ -53,13 +60,13 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
   }
 
   @override
-  Future<Either<Failure, void>> deleteChatRoom(String chatRoomId) async {
+  Future<Either<Failure, String>> deleteChatRoom(String chatRoomId) async {
     try {
       await databaseServices.deleteData(
         path: BackendEndPoints.chatRooms,
         documentId: chatRoomId,
       );
-      return const Right(null);
+      return const Right("Chat room deleted successfully");
     } catch (e, stackTrace) {
       log("🔥 Error in deleteChatRoom: $e", stackTrace: stackTrace);
       return const Left(ServerFailure("Failed to delete chat room"));
@@ -74,7 +81,12 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
       return databaseServices
           .streamData(
             path: BackendEndPoints.chatRooms,
-            queryParameters: {"field": "members", "arrayContains": userId},
+            queryParameters: {
+              "field": "members",
+              "arrayContains": userId,
+              "orderBy": "lastMessageTime",
+              "descending": true,
+            },
           )
           .map((dataList) {
             try {

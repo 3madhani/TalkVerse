@@ -14,6 +14,20 @@ class FireStoreServices implements DatabaseServices {
   }
 
   @override
+  Future<void> deleteData({required String path, String? documentId}) async {
+    if (documentId != null) {
+      await firestore.collection(path).doc(documentId).delete();
+    } else {
+      // If no documentId is provided, delete the entire collection
+      var collection = firestore.collection(path);
+      var querySnapshot = await collection.get();
+      for (var doc in querySnapshot.docs) {
+        await doc.reference.delete();
+      }
+    }
+  }
+
+  @override
   Future<dynamic> getData({
     required String path,
     String? documentId,
@@ -27,7 +41,6 @@ class FireStoreServices implements DatabaseServices {
       // If documentId is not provided, fetch the entire collection
       Query<Map<String, dynamic>> querySnapshot = firestore.collection(path);
       if (queryParameters != null) {
-
         // Apply query parameters if provided
         if (queryParameters["orderBy"] != null) {
           var orderBy = queryParameters["orderBy"];
@@ -68,7 +81,8 @@ class FireStoreServices implements DatabaseServices {
       await firestore.collection(path).add(data);
     }
   }
-@override
+
+  @override
   Stream streamData({
     required String path,
     Map<String, dynamic>? queryParameters,
@@ -81,22 +95,6 @@ class FireStoreServices implements DatabaseServices {
       Query<Map<String, dynamic>> querySnapshot = firestore.collection(path);
 
       if (queryParameters != null) {
-        // Order by
-        if (queryParameters["orderBy"] != null) {
-          var orderBy = queryParameters["orderBy"];
-          var descending = queryParameters["descending"] ?? false;
-          querySnapshot = querySnapshot.orderBy(
-            orderBy,
-            descending: descending,
-          );
-        }
-
-        // Limit
-        if (queryParameters["limit"] != null) {
-          var limit = queryParameters["limit"];
-          querySnapshot = querySnapshot.limit(limit);
-        }
-
         // Where equal
         if (queryParameters["where"] != null &&
             queryParameters["isEqualTo"] != null) {
@@ -111,6 +109,21 @@ class FireStoreServices implements DatabaseServices {
           var field = queryParameters["field"];
           var value = queryParameters["arrayContains"];
           querySnapshot = querySnapshot.where(field, arrayContains: value);
+        }
+        // Order by
+        if (queryParameters["orderBy"] != null) {
+          var orderBy = queryParameters["orderBy"];
+          var descending = queryParameters["descending"] ?? false;
+          querySnapshot = querySnapshot.orderBy(
+            orderBy,
+            descending: descending,
+          );
+        }
+
+        // Limit
+        if (queryParameters["limit"] != null) {
+          var limit = queryParameters["limit"];
+          querySnapshot = querySnapshot.limit(limit);
         }
       }
 
@@ -129,21 +142,6 @@ class FireStoreServices implements DatabaseServices {
   }) async {
     if (documentId != null) {
       await firestore.collection(path).doc(documentId).update(data);
-    }
-  }
-  
-  @override
-  Future<void> deleteData({required String path, String? documentId}) async {
-    if (documentId != null) {
-      await firestore.collection(path).doc(documentId).delete();
-    }
-    else {
-      // If no documentId is provided, delete the entire collection
-      var collection = firestore.collection(path);
-      var querySnapshot = await collection.get();
-      for (var doc in querySnapshot.docs) {
-        await doc.reference.delete();
-      }
     }
   }
 }

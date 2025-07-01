@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../auth/presentation/manager/auth_cubit/auth_cubit.dart';
+import '../../../../auth/presentation/views/login_screen.dart';
 import '../../../../settings/presentation/views/profile_screen.dart';
 import 'dark_tile.dart';
 import 'navigation_tile.dart';
@@ -35,6 +36,11 @@ class SettingsScreenBody extends StatelessWidget {
           GestureDetector(
             onTap: () {
               context.read<AuthCubit>().signOut();
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                LoginScreen.routeName,
+                (route) => false,
+              );
             },
             child: const SignOutTile(),
           ),

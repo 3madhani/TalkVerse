@@ -11,6 +11,15 @@ class AppSnackBar {
     );
   }
 
+  static void showWarning(BuildContext context, String message) {
+    _show(
+      context,
+      title: 'Warning!',
+      message: message,
+      contentType: ContentType.warning,
+    );
+  }
+
   static void showSuccess(BuildContext context, String message) {
     _show(
       context,

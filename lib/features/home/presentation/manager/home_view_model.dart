@@ -2,10 +2,15 @@ import 'package:chitchat/features/home/presentation/views/chat_home_screen.dart'
 import 'package:chitchat/features/home/presentation/views/contacts_screen.dart';
 import 'package:chitchat/features/home/presentation/views/groups_screen.dart';
 import 'package:chitchat/features/home/presentation/views/settings_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../../core/services/get_it_services.dart';
 import '../../data/models/home_tab.dart';
+import '../../domain/repo/chat_room_repo.dart';
+import 'chat_room_cubit/chat_room_cubit.dart';
 
 class HomeViewModel extends ChangeNotifier {
   int _currentIndex = 0;
@@ -15,7 +20,13 @@ class HomeViewModel extends ChangeNotifier {
     HomeTab(
       title: 'Chats',
       icon: Iconsax.message,
-      screen: const ChatHomeScreen(),
+      screen: BlocProvider(
+        create:
+            (_) => ChatRoomCubit(getIt<ChatRoomRepo>())
+              ..listenToUserChatRooms(FirebaseAuth.instance.currentUser!.uid),
+
+        child: const ChatHomeScreen(),
+      ),
     ),
     HomeTab(
       title: 'Groups',
