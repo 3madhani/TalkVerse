@@ -20,9 +20,9 @@ class ChatCard extends StatelessWidget {
           );
         },
         leading: const CircleAvatar(),
-        title: Text(chatRoom.id),
+        title: Text(chatRoom.roomName),
         subtitle: Text(
-          chatRoom.lastMessage,
+          chatRoom.lastMessage ?? chatRoom.aboutMe,
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyMedium?.color,
           ),

@@ -31,11 +31,12 @@ class ChatHomeScreenBody extends StatelessWidget {
               itemBuilder: (context, index) {
                 return ChatCard(
                   chatRoom: ChatRoomEntity(
+                    aboutMe: '',
+                    roomName: 'Loading...',
                     id: '',
                     lastMessage: '',
                     createdAt: '',
                     members: [],
-                    lastMessageSender: '',
                     lastMessageTime: '',
                   ),
                 );

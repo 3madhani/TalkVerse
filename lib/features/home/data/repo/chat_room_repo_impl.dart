@@ -42,6 +42,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
       }
 
       final chatRoom = ChatRoomModel(
+        roomName: otherUser.name!,
         id: chatRoomId,
         members: [userId, otherUser.uId],
       );
