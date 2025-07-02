@@ -85,6 +85,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
             queryParameters: {
               "field": "members",
               "arrayContains": userId,
+              // Optional: keep Firestore-side ordering if possible
               "orderBy": "lastMessageTime",
               "descending": true,
             },
@@ -95,9 +96,25 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
                   (dataList as List)
                       .cast<Map<String, dynamic>>()
                       .map((json) => ChatRoomModel.fromJson(json).toEntity())
-                      .toList();
+                      .toList()
+                      .cast<ChatRoomEntity>();
 
-              return Right(List<ChatRoomEntity>.from(chatRooms));
+              chatRooms.sort((a, b) {
+                final aTime =
+                    (a.lastMessageTime != null && a.lastMessageTime!.isNotEmpty)
+                        ? DateTime.tryParse(a.lastMessageTime!)
+                        : DateTime.tryParse(a.createdAt);
+
+                final bTime =
+                    (b.lastMessageTime != null && b.lastMessageTime!.isNotEmpty)
+                        ? DateTime.tryParse(b.lastMessageTime!)
+                        : DateTime.tryParse(b.createdAt);
+
+                return (bTime ?? DateTime.fromMillisecondsSinceEpoch(0))
+                    .compareTo(aTime ?? DateTime.fromMillisecondsSinceEpoch(0));
+              });
+
+              return Right(chatRooms);
             } catch (e) {
               log("🔥 Error mapping chat rooms: $e");
               return const Left(ServerFailure("Failed to map chat rooms"));

@@ -23,15 +23,21 @@ class ChatCard extends StatelessWidget {
         title: Text(chatRoom.roomName),
         subtitle: Text(
           chatRoom.lastMessage ?? chatRoom.aboutMe,
-          style: TextStyle(
-            color: Theme.of(context).textTheme.bodyMedium?.color,
-          ),
+          style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color),
         ),
-        trailing: const Badge(
-          padding: EdgeInsets.all(6),
-          largeSize: 30,
-          label: Text('1'),
-        ),
+        trailing:
+            chatRoom.lastMessage != null
+                ? const Badge(
+                  padding: EdgeInsets.all(6),
+                  largeSize: 30,
+                  label: Text('1'),
+                )
+                : Text(
+                  chatRoom.formatDate(),
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
+                  ),
+                ),
       ),
     );
   }

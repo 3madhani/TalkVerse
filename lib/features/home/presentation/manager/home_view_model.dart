@@ -21,13 +21,23 @@ class HomeViewModel extends ChangeNotifier {
       title: 'Chats',
       icon: Iconsax.message,
       screen: BlocProvider(
-        create:
-            (_) => ChatRoomCubit(getIt<ChatRoomRepo>())
-              ..listenToUserChatRooms(FirebaseAuth.instance.currentUser!.uid),
+        create: (context) {
+          final cubit = ChatRoomCubit(getIt<ChatRoomRepo>());
 
+          final uid = FirebaseAuth.instance.currentUser!.uid;
+
+          // 👇 Async init
+          Future.microtask(() async {
+            await cubit.loadCachedChatRooms();
+            cubit.listenToUserChatRooms(uid);
+          });
+
+          return cubit;
+        },
         child: const ChatHomeScreen(),
       ),
     ),
+
     HomeTab(
       title: 'Groups',
       icon: Iconsax.messages,
