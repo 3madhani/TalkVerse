@@ -11,12 +11,16 @@ class ChatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 1,
+
       child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         onTap: () {
           // Navigate to chat screen
-          Navigator.push(
+          Navigator.pushNamed(
             context,
-            MaterialPageRoute(builder: (context) => const ChatScreen()),
+            ChatScreen.routeName,
+            arguments: chatRoom,
           );
         },
         leading: const CircleAvatar(),

@@ -4,10 +4,12 @@ import '../../features/auth/presentation/views/forget_password_screen.dart';
 import '../../features/auth/presentation/views/login_screen.dart';
 import '../../features/auth/presentation/views/setup_profile.dart';
 import '../../features/auth/presentation/views/verify_email_screen.dart';
+import '../../features/chats/presentation/views/chat_screen.dart';
 import '../../features/groups/presentation/views/create_group_screen.dart';
 import '../../features/groups/presentation/views/group_edit_screen.dart';
 import '../../features/groups/presentation/views/group_member_screen.dart';
 import '../../features/groups/presentation/views/group_screen.dart';
+import '../../features/home/domain/entities/chat_room_entity.dart';
 import '../../features/home/presentation/views/chat_home_screen.dart';
 import '../../features/home/presentation/views/contacts_screen.dart';
 import '../../features/home/presentation/views/groups_screen.dart';
@@ -31,6 +33,12 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
     case ForgetPasswordScreen.routeName:
       return MaterialPageRoute(
         builder: (context) => const ForgetPasswordScreen(),
+      );
+    case ChatScreen.routeName:
+      return MaterialPageRoute(
+        builder:
+            (context) =>
+                ChatScreen(chatRoom: settings.arguments as ChatRoomEntity),
       );
     case SettingsScreen.routeName:
       return MaterialPageRoute(builder: (context) => const SettingsScreen());

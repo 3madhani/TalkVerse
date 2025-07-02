@@ -1,10 +1,13 @@
+import 'package:chitchat/features/home/domain/entities/chat_room_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../core/widgets/text_field_message.dart';
 
 class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
+  static const String routeName = 'chat-screen';
+  final ChatRoomEntity chatRoom;
+  const ChatScreen({super.key, required this.chatRoom});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +16,7 @@ class ChatScreen extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Emad'),
+            Text(chatRoom.roomName),
             Text(
               'Last seen at 10:00 am',
               style: Theme.of(context).textTheme.labelLarge,
@@ -52,14 +55,16 @@ class ChatScreen extends StatelessWidget {
                         children: [
                           Text(
                             '👋',
-                            style: Theme.of(context).textTheme.displayLarge,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.headlineLarge!.copyWith(fontSize: 100),
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Hello My Friend',
+                            'Hi, My Friend',
                             style: Theme.of(
                               context,
-                            ).textTheme.labelLarge?.copyWith(
+                            ).textTheme.titleMedium?.copyWith(
                               color:
                                   Theme.of(
                                     context,
