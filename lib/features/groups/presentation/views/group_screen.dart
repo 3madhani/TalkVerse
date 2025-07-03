@@ -83,7 +83,11 @@ class GroupScreen extends StatelessWidget {
             //     ),
             //   ),
             // ),
-            const TextfieldMessage(),
+            TextfieldMessage(
+              isSendEnabled: true,
+              controller: TextEditingController(),
+              onPressedSend: () {},
+            ),
           ],
         ),
       ),

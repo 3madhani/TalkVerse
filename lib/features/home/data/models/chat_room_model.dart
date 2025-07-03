@@ -27,7 +27,7 @@ class ChatRoomModel {
       members: List<String>.from(json['members'] ?? []),
       lastMessage: json['lastMessage'],
       lastMessageTime: json['lastMessageTime'],
-      createdAt: json['createdAt'] ?? DateTime.now().toIso8601String(),
+      createdAt: json['createdAt'],
     );
   }
 
@@ -50,7 +50,7 @@ class ChatRoomModel {
       'members': members,
       'lastMessage': lastMessage,
       'lastMessageTime': lastMessageTime,
-      'createdAt': DateTime.now().toIso8601String(),
+      'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
       'aboutMe': aboutMe ?? 'Hi, I am using TalkVerse!',
     };
   }

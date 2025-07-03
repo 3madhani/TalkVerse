@@ -7,24 +7,21 @@ class ProfileViewModel extends ChangeNotifier {
   bool _enableName = false;
   bool _enableAbout = false;
 
-  bool get enableName => _enableName;
-  bool get enableAbout => _enableAbout;
-
   ProfileViewModel() {
     // Initialize with default values
     nameController.text = 'John Doe';
     aboutController.text =
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
   }
+  bool get enableAbout => _enableAbout;
 
-  void toggleEditName() {
-    _enableName = !_enableName;
-    notifyListeners();
-  }
+  bool get enableName => _enableName;
 
-  void toggleEditAbout() {
-    _enableAbout = !_enableAbout;
-    notifyListeners();
+  @override
+  void dispose() {
+    nameController.dispose();
+    aboutController.dispose();
+    super.dispose();
   }
 
   void saveProfile() {
@@ -34,10 +31,13 @@ class ProfileViewModel extends ChangeNotifier {
     );
   }
 
-  @override
-  void dispose() {
-    nameController.dispose();
-    aboutController.dispose();
-    super.dispose();
+  void toggleEditAbout() {
+    _enableAbout = !_enableAbout;
+    notifyListeners();
+  }
+
+  void toggleEditName() {
+    _enableName = !_enableName;
+    notifyListeners();
   }
 }

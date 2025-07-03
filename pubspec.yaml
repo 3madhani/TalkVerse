@@ -53,6 +53,7 @@ dependencies:
   qr_flutter: ^4.1.0
   shared_preferences: ^2.5.3
   skeletonizer: ^2.0.1
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.14.4
@@ -113,5 +114,6 @@ flutter_assets:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/logo/chat.png"
+  image_path: "assets/logo/wechat-logo.png"
+  remove_alpha_ios: true
   min_sdk_android: 21 # android min sdk min:16, default 21

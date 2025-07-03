@@ -32,8 +32,8 @@ class UserModel extends UserEntity {
   factory UserModel.fromFirebaseUser(User user) {
     return UserModel(
       aboutMe: '',
-      createdAt: DateTime.now().toIso8601String(),
-      lastSeen: DateTime.now().toIso8601String(),
+      createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
+      lastSeen: DateTime.now().millisecondsSinceEpoch.toString(),
       pushToken: '',
       online: true,
       uId: user.uid,

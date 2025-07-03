@@ -5,7 +5,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
 import '../../../auth/presentation/views/widgets/custom_elevated_button.dart';
-import '../view_model/profile_view_model.dart';
+import '../manager/profile_view_model.dart';
 import 'widgets/profile_info_card.dart';
 import 'widgets/profile_picture.dart';
 

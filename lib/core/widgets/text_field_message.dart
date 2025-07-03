@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
 class TextfieldMessage extends StatelessWidget {
-  const TextfieldMessage({super.key});
+  final void Function()? onPressedSend;
+  final TextEditingController controller;
+  final bool isSendEnabled;
+
+  const TextfieldMessage({
+    super.key,
+    required this.onPressedSend,
+    required this.controller,
+    required this.isSendEnabled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,9 +22,11 @@ class TextfieldMessage extends StatelessWidget {
             Expanded(
               child: Card(
                 child: TextField(
+                  controller: controller,
+                  keyboardType: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
                   maxLines: 6,
                   minLines: 1,
-
                   decoration: InputDecoration(
                     prefixIcon: IconButton(
                       onPressed: () {},
@@ -29,7 +40,6 @@ class TextfieldMessage extends StatelessWidget {
                           onPressed: () {},
                           icon: const Icon(Icons.attach_file),
                         ),
-
                         IconButton(
                           onPressed: () {},
                           icon: const Icon(Icons.camera_alt_outlined),
@@ -38,7 +48,6 @@ class TextfieldMessage extends StatelessWidget {
                     ),
                     hintText: 'Message',
                     hintStyle: Theme.of(context).textTheme.titleMedium,
-
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -49,7 +58,7 @@ class TextfieldMessage extends StatelessWidget {
               ),
             ),
             IconButton.filled(
-              onPressed: () {},
+              onPressed: isSendEnabled ? onPressedSend : null,
               icon: const Icon(Iconsax.send_1),
             ),
           ],

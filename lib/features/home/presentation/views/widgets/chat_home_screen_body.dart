@@ -34,7 +34,7 @@ class ChatHomeScreenBody extends StatelessWidget {
         if (state is ChatRoomLoading && cachedRooms.isEmpty) {
           return Skeletonizer(
             child: ListView.builder(
-              itemCount: 10,
+              itemCount: 1,
               itemBuilder: (context, index) {
                 return ChatCard(
                   chatRoom: ChatRoomEntity(
