@@ -30,16 +30,27 @@ class ChatRoomEntity {
       createdAt: json['createdAt'],
     );
   }
-
-String formatDate() {
+  String formatDate() {
     final rawDate =
         (lastMessageTime != null && lastMessageTime!.isNotEmpty)
             ? lastMessageTime
             : createdAt;
 
+    if (rawDate == null || rawDate.isEmpty) return 'Unknown';
+
     try {
-      final date = DateTime.parse(rawDate!).toLocal();
-      return DateFormat('MMM dd, yyyy').format(date); // ➜ Jul 02, 2025
+      DateTime date;
+
+      // Check if it's a numeric timestamp (millisecondsSinceEpoch)
+      if (RegExp(r'^\d+$').hasMatch(rawDate)) {
+        date = DateTime.fromMillisecondsSinceEpoch(int.parse(rawDate));
+      } else {
+        date = DateTime.parse(rawDate);
+      }
+
+      return DateFormat(
+        'MMM dd, yyyy',
+      ).format(date.toLocal()); // ➜ Jul 02, 2025
     } catch (e) {
       return 'Unknown';
     }

@@ -15,10 +15,7 @@ class ProfileTile extends StatelessWidget {
         icon: const Icon(Iconsax.scan_barcode),
         onPressed: () {
           // Navigate to QR code screen
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const QrCodeScreen()),
-          );
+          Navigator.pushNamed(context, QrCodeScreen.routeName);
         },
       ),
     );

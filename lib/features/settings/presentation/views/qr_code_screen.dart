@@ -15,6 +15,7 @@ class QrCodeScreen extends StatelessWidget {
           child: Column(
             children: [
               Card(
+                elevation: 5,
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Card(

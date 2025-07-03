@@ -75,6 +75,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
   }
 
   @override
+  @override
   Stream<Either<Failure, List<ChatRoomEntity>>> fetchUserChatRooms({
     required String userId,
   }) {
@@ -85,7 +86,6 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
             queryParameters: {
               "field": "members",
               "arrayContains": userId,
-              // Optional: keep Firestore-side ordering if possible
               "orderBy": "lastMessageTime",
               "descending": true,
             },
@@ -99,19 +99,31 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
                       .toList()
                       .cast<ChatRoomEntity>();
 
+              // ✅ Helper to safely parse both ISO and timestamp strings
+              DateTime parseFlexibleDate(String? value, String fallback) {
+                try {
+                  if (value == null || value.isEmpty) {
+                    value = fallback;
+                  }
+
+                  // Handle timestamp (e.g. "1751585133279")
+                  if (RegExp(r'^\d+$').hasMatch(value)) {
+                    return DateTime.fromMillisecondsSinceEpoch(
+                      int.parse(value),
+                    );
+                  }
+
+                  return DateTime.parse(value);
+                } catch (_) {
+                  return DateTime.fromMillisecondsSinceEpoch(0);
+                }
+              }
+
+              // ✅ Sort using createdAt or lastMessageTime
               chatRooms.sort((a, b) {
-                final aTime =
-                    (a.lastMessageTime != null && a.lastMessageTime!.isNotEmpty)
-                        ? DateTime.tryParse(a.lastMessageTime!)
-                        : DateTime.tryParse(a.createdAt);
-
-                final bTime =
-                    (b.lastMessageTime != null && b.lastMessageTime!.isNotEmpty)
-                        ? DateTime.tryParse(b.lastMessageTime!)
-                        : DateTime.tryParse(b.createdAt);
-
-                return (bTime ?? DateTime.fromMillisecondsSinceEpoch(0))
-                    .compareTo(aTime ?? DateTime.fromMillisecondsSinceEpoch(0));
+                final aTime = parseFlexibleDate(a.lastMessageTime, a.createdAt);
+                final bTime = parseFlexibleDate(b.lastMessageTime, b.createdAt);
+                return bTime.compareTo(aTime);
               });
 
               return Right(chatRooms);

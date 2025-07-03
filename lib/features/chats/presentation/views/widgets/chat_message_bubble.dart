@@ -27,6 +27,7 @@ class ChatMessageBubble extends StatelessWidget {
         child: IntrinsicWidth(
           child: ConstrainedBox(
             constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width * 0.17,
               maxWidth: MediaQuery.of(context).size.width * 0.75,
             ),
             child: Container(
@@ -89,10 +90,24 @@ class ChatMessageBubble extends StatelessWidget {
     );
   }
 
-  // Formats the time from ISO date string to HH:mm format
-  String _formatTime(String isoDateTime) {
+  String _formatTime(dynamic dateInput) {
     try {
-      final date = DateTime.parse(isoDateTime).toLocal();
+      DateTime date;
+
+      // Case 1: Timestamp in milliseconds (as int or string)
+      if (dateInput is int) {
+        date = DateTime.fromMillisecondsSinceEpoch(dateInput).toLocal();
+      } else if (dateInput is String && RegExp(r'^\d+$').hasMatch(dateInput)) {
+        date =
+            DateTime.fromMillisecondsSinceEpoch(int.parse(dateInput)).toLocal();
+      }
+      // Case 2: ISO 8601 string
+      else if (dateInput is String) {
+        date = DateTime.parse(dateInput).toLocal();
+      } else {
+        return '';
+      }
+
       final hour = date.hour.toString().padLeft(2, '0');
       final minute = date.minute.toString().padLeft(2, '0');
       return '$hour:$minute';

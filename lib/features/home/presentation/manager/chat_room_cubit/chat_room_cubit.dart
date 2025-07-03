@@ -40,42 +40,6 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     );
   }
 
-  /// ✅ Load from SharedPreferences on app start
-  Future<void> loadCachedChatRooms() async {
-    final cachedJson = Prefs.getString('cachedChatRooms');
-    if (cachedJson.isNotEmpty) {
-      try {
-        final List decoded = jsonDecode(cachedJson);
-        final cachedRooms =
-            decoded
-                .map((e) => ChatRoomEntity.fromJson(e))
-                .toList()
-                .cast<ChatRoomEntity>();
-
-        // 🔽 Sort by lastMessageTime or createdAt
-        cachedRooms.sort((a, b) {
-          final aTime =
-              (a.lastMessageTime != null && a.lastMessageTime!.isNotEmpty)
-                  ? DateTime.tryParse(a.lastMessageTime!)
-                  : DateTime.tryParse(a.createdAt);
-
-          final bTime =
-              (b.lastMessageTime != null && b.lastMessageTime!.isNotEmpty)
-                  ? DateTime.tryParse(b.lastMessageTime!)
-                  : DateTime.tryParse(b.createdAt);
-
-          return (bTime ?? DateTime(0)).compareTo(aTime ?? DateTime(0));
-        });
-
-        chatRoomsCache = cachedRooms;
-        emit(ChatRoomListLoaded(cachedRooms));
-      } catch (e) {
-        emit(const ChatRoomError('Failed to load cached chat rooms.'));
-      }
-    }
-  }
-
-  /// ✅ Used after loading cached data (no loading state if cache is used)
   void listenToUserChatRooms(String userId) async {
     if (chatRoomsCache.isNotEmpty) {
       emit(ChatRoomListLoaded(chatRoomsCache)); // use existing cache
@@ -89,23 +53,29 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     ) async {
       await either.fold(
         (failure) async {
-          // fallback if stream fails
           emit(ChatRoomError(failure.message));
         },
         (chatRooms) async {
+          // 🔽 Safe parser for both timestamps and ISO strings
+          DateTime parseTime(String? value, String fallback) {
+            if (value == null || value.isEmpty) value = fallback;
+
+            if (RegExp(r'^\d+$').hasMatch(value)) {
+              try {
+                return DateTime.fromMillisecondsSinceEpoch(int.parse(value));
+              } catch (_) {
+                return DateTime.fromMillisecondsSinceEpoch(0);
+              }
+            }
+            return DateTime.tryParse(value) ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+          }
+
           // 🔽 Sort
           chatRooms.sort((a, b) {
-            final aTime =
-                (a.lastMessageTime != null && a.lastMessageTime!.isNotEmpty)
-                    ? DateTime.tryParse(a.lastMessageTime!)
-                    : DateTime.tryParse(a.createdAt);
-
-            final bTime =
-                (b.lastMessageTime != null && b.lastMessageTime!.isNotEmpty)
-                    ? DateTime.tryParse(b.lastMessageTime!)
-                    : DateTime.tryParse(b.createdAt);
-
-            return (bTime ?? DateTime(0)).compareTo(aTime ?? DateTime(0));
+            final aTime = parseTime(a.lastMessageTime, a.createdAt);
+            final bTime = parseTime(b.lastMessageTime, b.createdAt);
+            return bTime.compareTo(aTime);
           });
 
           chatRoomsCache = chatRooms;
@@ -117,5 +87,47 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
         },
       );
     });
+  }
+
+  /// ✅ Load from SharedPreferences on app start
+  Future<void> loadCachedChatRooms() async {
+    final cachedJson = Prefs.getString('cachedChatRooms');
+    if (cachedJson.isNotEmpty) {
+      try {
+        final List decoded = jsonDecode(cachedJson);
+        final cachedRooms =
+            decoded
+                .map((e) => ChatRoomEntity.fromJson(e))
+                .toList()
+                .cast<ChatRoomEntity>();
+
+        // ✅ Safe parser: handles both ISO strings and millisecond timestamps
+        DateTime parseFlexibleDate(String? value, String fallback) {
+          try {
+            if (value == null || value.isEmpty) value = fallback;
+
+            if (RegExp(r'^\d+$').hasMatch(value)) {
+              return DateTime.fromMillisecondsSinceEpoch(int.parse(value));
+            }
+
+            return DateTime.parse(value);
+          } catch (_) {
+            return DateTime.fromMillisecondsSinceEpoch(0);
+          }
+        }
+
+        // ✅ Sort by lastMessageTime or createdAt
+        cachedRooms.sort((a, b) {
+          final aTime = parseFlexibleDate(a.lastMessageTime, a.createdAt);
+          final bTime = parseFlexibleDate(b.lastMessageTime, b.createdAt);
+          return bTime.compareTo(aTime);
+        });
+
+        chatRoomsCache = cachedRooms;
+        emit(ChatRoomListLoaded(cachedRooms));
+      } catch (e) {
+        emit(const ChatRoomError('Failed to load cached chat rooms.'));
+      }
+    }
   }
 }
