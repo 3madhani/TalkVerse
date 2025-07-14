@@ -1,7 +1,9 @@
 // chat_message_cubit.dart
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:chitchat/core/images_repo/images_repo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/services/shared_preferences_singleton.dart';
@@ -11,10 +13,11 @@ import 'chat_message_state.dart';
 
 class ChatMessageCubit extends Cubit<ChatMessageState> {
   final ChatMessageRepo chatMessageRepo;
-
+  final ImagesRepo imagesRepo;
   StreamSubscription? _subscription;
 
-  ChatMessageCubit(this.chatMessageRepo) : super(ChatMessageInitial());
+  ChatMessageCubit(this.chatMessageRepo, this.imagesRepo)
+    : super(ChatMessageInitial());
 
   @override
   Future<void> close() {
@@ -67,17 +70,37 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
   Future<void> sendMessage({
     required String roomId,
     required String receiverId,
-    required String message,
+    String? message,
+    File? image,
+    String? messageType,
   }) async {
-    final result = await chatMessageRepo.sendMessage(
-      roomId: roomId,
-      receiverId: receiverId,
-      message: message,
-    );
+    emit(ChatMessageLoading());
+    if (messageType == 'image') {
+      final result = await imagesRepo.uploadImage(image: image!, path: roomId);
+      result.fold((failure) => emit(ChatMessageFailure(failure.message)), (
+        imageUrl,
+      ) async {
+        await chatMessageRepo.sendMessage(
+          roomId: roomId,
+          receiverId: receiverId,
+          message: imageUrl,
+          messageType: messageType,
+        );
+      });
+    } else {
+      final result = await chatMessageRepo.sendMessage(
+        roomId: roomId,
+        receiverId: receiverId,
+        message: message!,
+        messageType: messageType,
+      );
 
-    result.fold(
-      (failure) => emit(ChatMessageFailure(failure.message)),
-      (_) {}, // no need to emit anything; fetchMessages stream handles updates
-    );
+      result.fold(
+        (failure) => emit(ChatMessageFailure(failure.message)),
+        (
+          _,
+        ) {}, // no need to emit anything; fetchMessages stream handles updates
+      );
+    }
   }
 }

@@ -80,6 +80,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
     required String receiverId,
     required String message,
     required String roomId,
+    String? messageType ,
   }) async {
     try {
       final path =
@@ -93,7 +94,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
         senderId: FirebaseAuth.instance.currentUser!.uid,
         recieverId: receiverId,
         isRead: false,
-        type: 'text',
+        type: messageType ?? 'text',
       );
       await databaseServices.setData(
         path: path,

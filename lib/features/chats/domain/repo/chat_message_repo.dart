@@ -8,6 +8,7 @@ abstract class ChatMessageRepo {
     required String receiverId,
     required String message,
     required String roomId,
+    String? messageType,
   });
 
   Future<Either<Failure, void>> deleteMessage({

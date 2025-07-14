@@ -5,12 +5,13 @@ class TextfieldMessage extends StatelessWidget {
   final void Function()? onPressedSend;
   final TextEditingController controller;
   final bool isSendEnabled;
+  final void Function()? onPressedImage;
 
   const TextfieldMessage({
     super.key,
     required this.onPressedSend,
     required this.controller,
-    required this.isSendEnabled,
+    required this.isSendEnabled, this.onPressedImage,
   });
 
   @override
@@ -32,20 +33,11 @@ class TextfieldMessage extends StatelessWidget {
                       onPressed: () {},
                       icon: const Icon(Icons.emoji_emotions_outlined),
                     ),
-                    suffixIcon: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.attach_file),
-                        ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.camera_alt_outlined),
-                        ),
-                      ],
+                    suffixIcon: IconButton(
+                      onPressed: onPressedImage,
+                      icon: const Icon(Iconsax.camera),
                     ),
+
                     hintText: 'Message',
                     hintStyle: Theme.of(context).textTheme.titleMedium,
                     border: InputBorder.none,
