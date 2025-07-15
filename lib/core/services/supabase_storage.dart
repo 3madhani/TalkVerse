@@ -12,13 +12,14 @@ class SupabaseStorage implements StorageServices {
   Future<String> uploadImageToStorage(String path, File file) async {
     // Ensure the bucket exists
     String ext = file.path.split('.').last;
-    final res = await _supabase.client.storage
-        .from("chat-images")
-        .upload("$path/${DateTime.now().millisecondsSinceEpoch}.$ext", file);
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final filename = "$path/$timestamp.$ext";
 
-    final String imageUrl = _supabase.client.storage
+    await _supabase.client.storage.from("chat-images").upload(filename, file);
+
+    final imageUrl = _supabase.client.storage
         .from("chat-images")
-        .getPublicUrl("$path/${DateTime.now().millisecondsSinceEpoch}.$ext.");
+        .getPublicUrl(filename);
 
     return imageUrl;
   }

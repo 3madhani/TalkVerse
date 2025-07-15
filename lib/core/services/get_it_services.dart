@@ -7,6 +7,8 @@ import '../../features/chats/data/repos/chat_message_repo_impl.dart';
 import '../../features/chats/domain/repo/chat_message_repo.dart';
 import '../../features/home/data/repo/chat_room_repo_impl.dart';
 import '../../features/home/domain/repo/chat_room_repo.dart';
+import '../images_repo/images_repo.dart';
+import '../images_repo/images_repo_impl.dart';
 import 'database_services.dart';
 import 'firebase_auth_service.dart';
 import 'firestore_services.dart';
@@ -18,6 +20,10 @@ void setupGetIt() {
   getIt.registerSingleton<StorageServices>(SupabaseStorage());
   getIt.registerSingleton<FirebaseAuthService>(FirebaseAuthService());
   getIt.registerSingleton<DatabaseServices>(FireStoreServices());
+
+  getIt.registerSingleton<ImagesRepo>(
+    ImagesRepoImpl(storageServices: getIt.get<StorageServices>()),
+  );
 
   getIt.registerSingleton<AuthRepo>(
     AuthRepoImpl(
