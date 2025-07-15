@@ -23,7 +23,7 @@ void main() async {
   await SupabaseStorage.initSupabase();
 
   // Create Supabase bucket
-  await SupabaseStorage.createBucket("chat-images");
+  // await SupabaseStorage.createBucket("chat-images");
   // Initialize shared preferences
   await Prefs.init();
 

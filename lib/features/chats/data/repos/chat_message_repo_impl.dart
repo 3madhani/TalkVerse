@@ -76,11 +76,28 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
   }
 
   @override
+  Future<Either<Failure, void>> readMessage({
+    required String chatId,
+    required String messageId,
+    required bool isRead,
+  }) async {
+    try {
+      final path =
+          '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}/$messageId';
+
+      await databaseServices.updateData(path: path, data: {'isRead': isRead});
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> sendMessage({
     required String receiverId,
     required String message,
     required String roomId,
-    String? messageType ,
+    String? messageType,
   }) async {
     try {
       final path =

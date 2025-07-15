@@ -16,6 +16,11 @@ abstract class ChatMessageRepo {
     required String messageId,
   });
 
+  Future<Either<Failure, void>> readMessage({
+    required String chatId,
+    required String messageId,
+    required bool isRead,
+  });
   Stream<Either<Failure, List<MessageEntity>>> fetchMessages({
     required String chatId,
     String? lastMessageId,

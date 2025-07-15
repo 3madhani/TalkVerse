@@ -67,6 +67,37 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
     });
   }
 
+  Future<void> deleteMessageFromChat({
+    required String chatId,
+    required String messageId,
+  }) async {
+    final result = await chatMessageRepo.deleteMessage(
+      chatId: chatId,
+      messageId: messageId,
+    );
+
+    result.fold(
+      (failure) => emit(ChatMessageFailure(failure.message)),
+      (_) {}, // fetchMessages will handle the update
+    );
+  }
+
+  Future<void> readMessage({
+    required String chatId,
+    required String messageId,
+    required bool isRead,
+  }) async {
+    final result = await chatMessageRepo.readMessage(
+      chatId: chatId,
+      messageId: messageId,
+      isRead: isRead,
+    );
+    result.fold(
+      (failure) => emit(ChatMessageFailure(failure.message)),
+      (_) {}, // No need to emit anything; fetchMessages stream handles updates
+    );
+  }
+
   Future<void> sendMessage({
     required String roomId,
     required String receiverId,

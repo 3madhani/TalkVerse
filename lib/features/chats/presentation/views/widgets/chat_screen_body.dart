@@ -57,6 +57,7 @@ class ChatScreenBody extends StatelessWidget {
                         return ChatMessageBubble(
                           message: message,
                           isSender: isSender,
+                          chatId: chatRoom.id,
                         );
                       },
                     );

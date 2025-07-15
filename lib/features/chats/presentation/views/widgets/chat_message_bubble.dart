@@ -1,29 +1,59 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../domain/entities/message_entity.dart';
+import '../../manager/chat_cubit/chat_message_cubit.dart';
 
-class ChatMessageBubble extends StatelessWidget {
+class ChatMessageBubble extends StatefulWidget {
+  static const double horizontalPadding = 8.0;
+  static const double verticalPadding = 4.0;
+
   final MessageEntity message;
-  final bool isSender;
+  final String chatId;
 
+  final bool isSender;
   const ChatMessageBubble({
     super.key,
     required this.message,
-    required this.isSender,
+    required this.isSender, required this.chatId,
   });
 
   @override
+  State<ChatMessageBubble> createState() => _ChatMessageBubbleState();
+}
+
+class _ChatMessageBubbleState extends State<ChatMessageBubble> {
+  @override
+  void initState() {
+    if (!widget.isSender){
+      context.read<ChatMessageCubit>().readMessage(
+        chatId: widget.chatId,
+        messageId: widget.message.messageId,
+        isRead: true,
+      );
+
+    }
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final backgroundColor =
-        isSender
-            ? Theme.of(context).colorScheme.primaryContainer
-            : Theme.of(context).colorScheme.secondaryContainer;
+        widget.isSender
+            ? theme.colorScheme.primaryContainer
+            : theme.colorScheme.secondaryContainer;
+
+    final messageTextColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: ChatMessageBubble.horizontalPadding,
+        vertical: ChatMessageBubble.verticalPadding,
+      ),
       child: Align(
-        alignment: isSender ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: widget.isSender ? Alignment.centerRight : Alignment.centerLeft,
         child: IntrinsicWidth(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -34,50 +64,86 @@ class ChatMessageBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(isSender ? 16 : 0),
-                  bottomRight: Radius.circular(isSender ? 0 : 16),
+                  topLeft: const Radius.circular(12),
+                  topRight: const Radius.circular(12),
+                  bottomLeft: Radius.circular(widget.isSender ? 12 : 0),
+                  bottomRight: Radius.circular(widget.isSender ? 0 : 12),
                 ),
               ),
               child: Stack(
                 children: [
-                  /// Message text with padding for time
                   Padding(
-                    padding: const EdgeInsets.only(
-                      left: 12,
-                      right: 12,
-                      top: 12,
-                      bottom: 22,
+                    padding: EdgeInsets.fromLTRB(
+                      widget.message.type == 'text' ? 7 : 4,
+                      widget.message.type == 'text' ? 7 : 4,
+                      widget.message.type == 'text' ? 8 : 4,
+                      widget.message.type == 'text' ? 18 : 4,
                     ),
-                    child: Text(
-                      message.message,
-                      style: const TextStyle(fontSize: 15),
-                    ),
+                    child:
+                        widget.message.type == 'text'
+                            ? Text(
+                              widget.message.message,
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: messageTextColor,
+                              ),
+                            )
+                            : ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CachedNetworkImage(
+                                imageUrl: widget.message.message,
+                                fit: BoxFit.cover,
+                                placeholder:
+                                    (context, url) => Container(
+                                      height: 180,
+                                      color: Colors.grey.shade300,
+                                      alignment: Alignment.center,
+                                      child: const CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                errorWidget:
+                                    (context, url, error) => const Icon(
+                                      Icons.error,
+                                      color: Colors.red,
+                                    ),
+                              ),
+                            ),
                   ),
 
-                  /// Time and read icon at bottom-right
+                  /// Time and read status
                   Positioned(
-                    bottom: 6,
-                    right: 10,
+                    bottom: 4,
+                    right: 8,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _formatTime(message.createdAt),
-                          style: Theme.of(
-                            context,
-                          ).textTheme.labelSmall?.copyWith(color: Colors.grey),
+                          _formatTime(widget.message.createdAt),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color:
+                                widget.message.type == 'text'
+                                    ? Colors.grey.shade600
+                                    : Colors.black,
+                          ),
                         ),
-                        const SizedBox(width: 4),
-                        if (isSender)
+                        if (widget.isSender) ...[
+                          const SizedBox(width: 4),
                           Icon(
-                            message.isRead
+                            widget.message.isRead
                                 ? Iconsax.tick_circle5
                                 : Iconsax.tick_circle,
-                            size: 16,
-                            color: message.isRead ? Colors.blue : Colors.grey,
+                            size: 13,
+                            color:
+                                widget.message.type == 'text'
+                                    ? widget.message.isRead
+                                        ? Colors.green
+                                        : Colors.grey.shade600
+                                    : widget.message.isRead
+                                    ? Colors.green
+                                    : Colors.black,
                           ),
+                        ],
                       ],
                     ),
                   ),
@@ -94,23 +160,18 @@ class ChatMessageBubble extends StatelessWidget {
     try {
       DateTime date;
 
-      // Case 1: Timestamp in milliseconds (as int or string)
       if (dateInput is int) {
         date = DateTime.fromMillisecondsSinceEpoch(dateInput).toLocal();
       } else if (dateInput is String && RegExp(r'^\d+$').hasMatch(dateInput)) {
         date =
             DateTime.fromMillisecondsSinceEpoch(int.parse(dateInput)).toLocal();
-      }
-      // Case 2: ISO 8601 string
-      else if (dateInput is String) {
+      } else if (dateInput is String) {
         date = DateTime.parse(dateInput).toLocal();
       } else {
         return '';
       }
 
-      final hour = date.hour.toString().padLeft(2, '0');
-      final minute = date.minute.toString().padLeft(2, '0');
-      return '$hour:$minute';
+      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     } catch (_) {
       return '';
     }
