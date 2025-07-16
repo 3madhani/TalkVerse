@@ -83,9 +83,13 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
   }) async {
     try {
       final path =
-          '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}/$messageId';
+          '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}/';
 
-      await databaseServices.updateData(path: path, data: {'isRead': isRead});
+      await databaseServices.updateData(
+        path: path,
+        documentId: messageId,
+        data: {'isRead': isRead},
+      );
       return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

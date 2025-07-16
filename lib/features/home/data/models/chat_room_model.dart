@@ -2,7 +2,7 @@ import '../../domain/entities/chat_room_entity.dart';
 
 class ChatRoomModel {
   String id;
-  String roomName;
+  Map<String, String> roomNames; // Map<userId, roomName>
   List<String> members;
   String? createdAt;
   String? lastMessage;
@@ -13,44 +13,45 @@ class ChatRoomModel {
     this.aboutMe,
     required this.id,
     required this.members,
+    required this.roomNames,
     this.lastMessage,
     this.lastMessageTime,
     this.createdAt,
-    required this.roomName,
   });
 
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
     return ChatRoomModel(
       aboutMe: json['aboutMe'],
-      roomName: json['roomName'],
       id: json['id'],
       members: List<String>.from(json['members'] ?? []),
+      roomNames: Map<String, String>.from(json['roomNames'] ?? {}),
       lastMessage: json['lastMessage'],
       lastMessageTime: json['lastMessageTime'],
       createdAt: json['createdAt'],
     );
   }
 
-  toEntity() {
+  ChatRoomEntity toEntity(String currentUserId) {
     return ChatRoomEntity(
-      aboutMe: aboutMe!,
-      roomName: roomName,
+      aboutMe: aboutMe ?? '',
+      roomName: roomNames[currentUserId] ?? 'Unknown',
       id: id,
       members: members,
       lastMessageTime: lastMessageTime,
       lastMessage: lastMessage,
-      createdAt: createdAt!,
+      createdAt: createdAt ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'roomName': roomName,
+      'roomNames': roomNames,
       'members': members,
       'lastMessage': lastMessage,
       'lastMessageTime': lastMessageTime,
-      'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
+      'createdAt':
+          createdAt ?? DateTime.now().millisecondsSinceEpoch.toString(),
       'aboutMe': aboutMe ?? 'Hi, I am using TalkVerse!',
     };
   }

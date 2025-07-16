@@ -4,6 +4,7 @@ class Assets {
   /// assets/images/app_logo.svg
   static const String imagesAppLogo = "assets/images/app_logo.svg";
 
+
   /// Assets for imagesFacebookIcons
   /// assets/images/facebook_Icons.svg
   static const String imagesFacebookIcons = "assets/images/facebook_Icons.svg";

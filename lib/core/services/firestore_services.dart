@@ -89,13 +89,19 @@ class FireStoreServices implements DatabaseServices {
     String? documentId,
   }) {
     if (documentId != null) {
-      // Return a stream for a single document
-      return firestore.collection(path).doc(documentId).snapshots();
+      return firestore.collection(path).doc(documentId).snapshots().map((
+        snapshot,
+      ) {
+        final data = snapshot.data();
+        if (data != null) {
+          data['messageId'] = snapshot.id;
+        }
+        return data;
+      });
     } else {
       Query<Map<String, dynamic>> querySnapshot = firestore.collection(path);
 
       if (queryParameters != null) {
-        // Where equal
         if (queryParameters["where"] != null &&
             queryParameters["isEqualTo"] != null) {
           var where = queryParameters["where"];
@@ -103,14 +109,13 @@ class FireStoreServices implements DatabaseServices {
           querySnapshot = querySnapshot.where(where, isEqualTo: isEqualTo);
         }
 
-        // Where arrayContains
         if (queryParameters["arrayContains"] != null &&
             queryParameters["field"] != null) {
           var field = queryParameters["field"];
           var value = queryParameters["arrayContains"];
           querySnapshot = querySnapshot.where(field, arrayContains: value);
         }
-        // Order by
+
         if (queryParameters["orderBy"] != null) {
           var orderBy = queryParameters["orderBy"];
           var descending = queryParameters["descending"] ?? false;
@@ -120,17 +125,21 @@ class FireStoreServices implements DatabaseServices {
           );
         }
 
-        // Limit
         if (queryParameters["limit"] != null) {
           var limit = queryParameters["limit"];
           querySnapshot = querySnapshot.limit(limit);
         }
       }
 
-      // Return the stream
-      return querySnapshot.snapshots().map(
-        (snapshot) => snapshot.docs.map((doc) => doc.data()).toList(),
-      );
+      return querySnapshot.snapshots(includeMetadataChanges: true).map((
+        snapshot,
+      ) {
+        return snapshot.docs.map((doc) {
+          final data = doc.data();
+          data['messageId'] = doc.id; // ✅ Important!
+          return data;
+        }).toList();
+      });
     }
   }
 

@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:iconsax/iconsax.dart';
 
 import '../../../domain/entities/message_entity.dart';
 import '../../manager/chat_cubit/chat_message_cubit.dart';
@@ -17,7 +17,8 @@ class ChatMessageBubble extends StatefulWidget {
   const ChatMessageBubble({
     super.key,
     required this.message,
-    required this.isSender, required this.chatId,
+    required this.isSender,
+    required this.chatId,
   });
 
   @override
@@ -25,18 +26,6 @@ class ChatMessageBubble extends StatefulWidget {
 }
 
 class _ChatMessageBubbleState extends State<ChatMessageBubble> {
-  @override
-  void initState() {
-    if (!widget.isSender){
-      context.read<ChatMessageCubit>().readMessage(
-        chatId: widget.chatId,
-        messageId: widget.message.messageId,
-        isRead: true,
-      );
-
-    }
-    super.initState();
-  }
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -53,7 +42,8 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
         vertical: ChatMessageBubble.verticalPadding,
       ),
       child: Align(
-        alignment: widget.isSender ? Alignment.centerRight : Alignment.centerLeft,
+        alignment:
+            widget.isSender ? Alignment.centerRight : Alignment.centerLeft,
         child: IntrinsicWidth(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -66,8 +56,20 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(12),
                   topRight: const Radius.circular(12),
-                  bottomLeft: Radius.circular(widget.isSender ? 12 : 0),
-                  bottomRight: Radius.circular(widget.isSender ? 0 : 12),
+                  bottomLeft: Radius.circular(
+                    widget.isSender
+                        ? 12
+                        : widget.message.type == 'text'
+                        ? 0
+                        : 12,
+                  ),
+                  bottomRight: Radius.circular(
+                    widget.isSender
+                        ? widget.message.type == 'text'
+                            ? 0
+                            : 12
+                        : 12,
+                  ),
                 ),
               ),
               child: Stack(
@@ -93,15 +95,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                               child: CachedNetworkImage(
                                 imageUrl: widget.message.message,
                                 fit: BoxFit.cover,
-                                placeholder:
-                                    (context, url) => Container(
-                                      height: 180,
-                                      color: Colors.grey.shade300,
-                                      alignment: Alignment.center,
-                                      child: const CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
+
                                 errorWidget:
                                     (context, url, error) => const Icon(
                                       Icons.error,
@@ -128,11 +122,11 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                           ),
                         ),
                         if (widget.isSender) ...[
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 2),
                           Icon(
                             widget.message.isRead
-                                ? Iconsax.tick_circle5
-                                : Iconsax.tick_circle,
+                                ? Icons.check_circle
+                                : Icons.check_circle_outline,
                             size: 13,
                             color:
                                 widget.message.type == 'text'
@@ -154,6 +148,18 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    if (widget.message.recieverId == FirebaseAuth.instance.currentUser?.uid) {
+      context.read<ChatMessageCubit>().readMessage(
+        chatId: widget.chatId,
+        messageId: widget.message.messageId,
+        isRead: true,
+      );
+    }
+    super.initState();
   }
 
   String _formatTime(dynamic dateInput) {

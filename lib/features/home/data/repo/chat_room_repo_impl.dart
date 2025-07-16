@@ -42,9 +42,14 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
       }
 
       final chatRoom = ChatRoomModel(
-        roomName: otherUser.name!,
         id: chatRoomId,
         members: [userId, otherUser.uId],
+        roomNames: {
+          userId: otherUser.name!, // For creator, show other user's name
+          otherUser.uId:
+              user.displayName ??
+              "Unknown", // For recipient, show creator's name
+        },
       );
 
       await databaseServices.setData(
@@ -75,7 +80,6 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
   }
 
   @override
-  @override
   Stream<Either<Failure, List<ChatRoomEntity>>> fetchUserChatRooms({
     required String userId,
   }) {
@@ -95,7 +99,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
               final chatRooms =
                   (dataList as List)
                       .cast<Map<String, dynamic>>()
-                      .map((json) => ChatRoomModel.fromJson(json).toEntity())
+                      .map((json) => ChatRoomModel.fromJson(json).toEntity(userId))
                       .toList()
                       .cast<ChatRoomEntity>();
 

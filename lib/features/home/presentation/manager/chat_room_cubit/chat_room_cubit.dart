@@ -40,38 +40,34 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     );
   }
 
-  void listenToUserChatRooms(String userId) async {
+  void listenToUserChatRooms(String userId) {
     if (chatRoomsCache.isNotEmpty) {
-      emit(ChatRoomListLoaded(chatRoomsCache)); // use existing cache
+      emit(ChatRoomListLoaded(chatRoomsCache));
     } else {
-      emit(ChatRoomLoading()); // only show loading if no cache
+      emit(ChatRoomLoading());
     }
 
     _subscription?.cancel();
     _subscription = chatRoomRepo.fetchUserChatRooms(userId: userId).listen((
       either,
-    ) async {
-      await either.fold(
-        (failure) async {
+    ) {
+      either.fold(
+        (failure) {
           emit(ChatRoomError(failure.message));
         },
         (chatRooms) async {
-          // 🔽 Safe parser for both timestamps and ISO strings
-          DateTime parseTime(String? value, String fallback) {
-            if (value == null || value.isEmpty) value = fallback;
-
+          // ✅ Safe date parser
+          DateTime parseTime(String? value, String? fallback) {
+            value ??= fallback ?? '';
             if (RegExp(r'^\d+$').hasMatch(value)) {
-              try {
-                return DateTime.fromMillisecondsSinceEpoch(int.parse(value));
-              } catch (_) {
-                return DateTime.fromMillisecondsSinceEpoch(0);
-              }
+              return DateTime.fromMillisecondsSinceEpoch(
+                int.tryParse(value) ?? 0,
+              );
             }
             return DateTime.tryParse(value) ??
                 DateTime.fromMillisecondsSinceEpoch(0);
           }
 
-          // 🔽 Sort
           chatRooms.sort((a, b) {
             final aTime = parseTime(a.lastMessageTime, a.createdAt);
             final bTime = parseTime(b.lastMessageTime, b.createdAt);
