@@ -10,6 +10,7 @@ class ChatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var of = Theme.of(context);
     return Card(
       elevation: 1,
 
@@ -27,20 +28,29 @@ class ChatCard extends StatelessWidget {
         title: Text(chatRoom.roomName),
         subtitle: Text(
           chatRoom.lastMessage ?? chatRoom.aboutMe,
-          style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color),
+          style: TextStyle(color: of.textTheme.bodySmall?.color),
         ),
         trailing:
             chatRoom.lastMessage != null
-                ? const Badge(
-                  padding: EdgeInsets.all(6),
-                  largeSize: 30,
-                  label: Text('1'),
+                ? SizedBox(
+                  width: 25,
+                  height: 25,
+                  child: Badge(
+                    backgroundColor: of.colorScheme.primary,
+                    label: const Text(
+                      '33',
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 )
                 : Text(
-                  chatRoom.formatDate(),
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.bodyMedium?.color,
-                  ),
+                  chatRoom.formatDateAndTime(),
+                  style: TextStyle(color: of.textTheme.bodyMedium?.color),
                 ),
       ),
     );

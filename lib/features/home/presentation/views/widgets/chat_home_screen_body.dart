@@ -41,7 +41,7 @@ class ChatHomeScreenBody extends StatelessWidget {
                     aboutMe: '',
                     roomName: 'Loading...',
                     id: '',
-                    lastMessage: '',
+                    lastMessage: null,
                     createdAt: '',
                     members: [],
                     lastMessageTime: '',

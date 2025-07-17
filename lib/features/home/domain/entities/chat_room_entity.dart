@@ -30,7 +30,8 @@ class ChatRoomEntity {
       createdAt: json['createdAt'],
     );
   }
-  String formatDate() {
+
+  String formatDateAndTime() {
     final rawDate =
         (lastMessageTime != null && lastMessageTime!.isNotEmpty)
             ? lastMessageTime
@@ -48,9 +49,27 @@ class ChatRoomEntity {
         date = DateTime.parse(rawDate);
       }
 
-      return DateFormat(
-        'MMM dd, yyyy',
-      ).format(date.toLocal()); // ➜ Jul 02, 2025
+      final now = DateTime.now();
+      final localDate = date.toLocal();
+
+      final isToday =
+          now.year == localDate.year &&
+          now.month == localDate.month &&
+          now.day == localDate.day;
+
+      final yesterday = now.subtract(const Duration(days: 1));
+      final isYesterday =
+          yesterday.year == localDate.year &&
+          yesterday.month == localDate.month &&
+          yesterday.day == localDate.day;
+
+      if (isToday) {
+        return DateFormat('h:mm a').format(localDate); // ➜ 3:45 PM
+      } else if (isYesterday) {
+        return 'Yesterday';
+      } else {
+        return DateFormat('MMM dd, yyyy').format(localDate); // ➜ Jul 02, 2025
+      }
     } catch (e) {
       return 'Unknown';
     }

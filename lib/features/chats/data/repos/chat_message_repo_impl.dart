@@ -107,9 +107,9 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
       final path =
           '${BackendEndPoints.chatRooms}/$roomId/${BackendEndPoints.chatMessages}';
       final messageId = const Uuid().v1();
-
+      final messageTime = DateTime.now().millisecondsSinceEpoch.toString();
       final messageModel = MessageModel(
-        createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
+        createdAt: messageTime,
         messageId: messageId,
         message: message,
         senderId: FirebaseAuth.instance.currentUser!.uid,
@@ -121,6 +121,14 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
         path: path,
         data: messageModel.toJson(),
         documentId: messageId,
+      );
+      await databaseServices.updateData(
+        path: BackendEndPoints.chatRooms,
+        documentId: roomId,
+        data: {
+          'lastMessage': messageType == 'image' ? 'Image' : message,
+          'lastMessageTime': messageTime,
+        },
       );
       return const Right(null);
     } catch (e) {
