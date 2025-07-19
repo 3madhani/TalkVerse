@@ -58,17 +58,16 @@ class _SendMessageFieldState extends State<SendMessageField> {
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         if (context.mounted) {
-              final receiverId = widget.chatRoom.members.firstWhere(
+          final receiverId = widget.chatRoom.members.firstWhere(
             (id) => id != FirebaseAuth.instance.currentUser?.uid,
             orElse: () => '', // fallback in case of single-user room
           );
           context.read<ChatMessageCubit>().sendMessage(
             roomId: widget.chatRoom.id,
             receiverId: receiverId,
-            
             image: File(image.path),
             messageType: 'image',
-              );
+          );
         }
       }
     } catch (e) {

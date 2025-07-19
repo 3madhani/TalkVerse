@@ -7,6 +7,7 @@ abstract class DatabaseServices {
   Future<void> deleteData({
     required String path,
     String? documentId,
+    Map<String, dynamic>? queryParameters,
   });
 
   Future<dynamic> getData({

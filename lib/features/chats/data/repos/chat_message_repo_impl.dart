@@ -22,9 +22,15 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
   Future<Either<Failure, void>> deleteMessage({
     required String chatId,
     required String messageId,
-  }) {
-    // TODO: implement deleteMessage
-    throw UnimplementedError();
+  }) async {
+    try {
+      final path =
+          '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}';
+      await databaseServices.deleteData(path: path, documentId: messageId);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   @override
@@ -44,11 +50,8 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
       await for (final data in stream) {
         if (data is List) {
           final messages = data.map((e) => MessageModel.fromJson(e)).toList();
-
-          // ✅ Save messages locally to SharedPreferences
           final jsonList = data.map((e) => jsonEncode(e)).toList();
           await Prefs.setString(_cachedMessagesKey, jsonList.join('||'));
-
           yield Right(messages);
         } else {
           yield const Left(
@@ -57,7 +60,6 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
         }
       }
     } catch (e) {
-      // On error: try loading from cache
       final cached = Prefs.getString(_cachedMessagesKey);
       if (cached.isNotEmpty) {
         try {
@@ -84,7 +86,6 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
     try {
       final path =
           '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}/';
-
       await databaseServices.updateData(
         path: path,
         documentId: messageId,
@@ -108,6 +109,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
           '${BackendEndPoints.chatRooms}/$roomId/${BackendEndPoints.chatMessages}';
       final messageId = const Uuid().v1();
       final messageTime = DateTime.now().millisecondsSinceEpoch.toString();
+
       final messageModel = MessageModel(
         createdAt: messageTime,
         messageId: messageId,
@@ -117,11 +119,13 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
         isRead: false,
         type: messageType ?? 'text',
       );
+
       await databaseServices.setData(
         path: path,
         data: messageModel.toJson(),
         documentId: messageId,
       );
+
       await databaseServices.updateData(
         path: BackendEndPoints.chatRooms,
         documentId: roomId,
@@ -130,6 +134,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
           'lastMessageTime': messageTime,
         },
       );
+
       return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

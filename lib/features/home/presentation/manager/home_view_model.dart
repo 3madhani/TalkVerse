@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../../core/images_repo/images_repo.dart';
 import '../../../../core/services/get_it_services.dart';
+import '../../../chats/domain/repo/chat_message_repo.dart';
+import '../../../chats/presentation/manager/chat_cubit/chat_message_cubit.dart';
 import '../../data/models/home_tab.dart';
 import '../../domain/repo/chat_room_repo.dart';
 import 'chat_room_cubit/chat_room_cubit.dart';
@@ -20,20 +23,31 @@ class HomeViewModel extends ChangeNotifier {
     HomeTab(
       title: 'Chats',
       icon: Iconsax.message,
-      screen: BlocProvider(
-        create: (context) {
-          final cubit = ChatRoomCubit(getIt<ChatRoomRepo>());
+      screen: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) {
+              final cubit = ChatRoomCubit(getIt<ChatRoomRepo>());
 
-          final uid = FirebaseAuth.instance.currentUser!.uid;
+              final uid = FirebaseAuth.instance.currentUser!.uid;
 
-          // 👇 Async init
-          Future.microtask(() async {
-            await cubit.loadCachedChatRooms();
-            cubit.listenToUserChatRooms(uid);
-          });
+              // 👇 Async init
+              Future.microtask(() async {
+                await cubit.loadCachedChatRooms();
+                cubit.listenToUserChatRooms(uid);
+              });
 
-          return cubit;
-        },
+              return cubit;
+            },
+          ),
+          BlocProvider(
+            create:
+                (context) => ChatMessageCubit(
+                  getIt<ChatMessageRepo>(),
+                  getIt<ImagesRepo>(),
+                ),
+          ),
+        ],
         child: const ChatHomeScreen(),
       ),
     ),

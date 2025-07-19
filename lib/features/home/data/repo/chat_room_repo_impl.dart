@@ -1,14 +1,15 @@
 import 'dart:developer';
 
-import 'package:chitchat/core/constants/backend/backend_end_points.dart';
-import 'package:chitchat/core/errors/failure.dart';
-import 'package:chitchat/core/services/database_services.dart';
-import 'package:chitchat/features/auth/data/model/user_model.dart';
-import 'package:chitchat/features/home/data/models/chat_room_model.dart';
-import 'package:chitchat/features/home/domain/entities/chat_room_entity.dart';
-import 'package:chitchat/features/home/domain/repo/chat_room_repo.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+import '../../../../core/constants/backend/backend_end_points.dart';
+import '../../../../core/errors/failure.dart';
+import '../../../../core/services/database_services.dart';
+import '../../../auth/data/model/user_model.dart';
+import '../../domain/entities/chat_room_entity.dart';
+import '../../domain/repo/chat_room_repo.dart';
+import '../models/chat_room_model.dart';
 
 class ChatRoomRepoImpl implements ChatRoomRepo {
   final DatabaseServices databaseServices;
@@ -22,22 +23,21 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
       if (user == null) {
         return const Left(ServerFailure("User not logged in"));
       }
-      final userId = user.uid;
 
-      final userDataList = await databaseServices.getData(
+      final userId = user.uid;
+      final users = await databaseServices.getData(
         path: BackendEndPoints.getUser,
         queryParameters: {"where": "email", "isEqualTo": email},
       );
 
-      if (userDataList == null || userDataList.isEmpty) {
+      if (users == null || users.isEmpty) {
         return const Left(ServerFailure("User not found"));
       }
 
-      final otherUser = UserModel.fromJson(userDataList.first);
+      final otherUser = UserModel.fromJson(users.first);
       final chatRoomId = _generateChatRoomId(userId, otherUser.uId);
 
-      final exists = await isExist(chatRoomId);
-      if (exists) {
+      if (await isExist(chatRoomId)) {
         return const Right("Chat room already exists, can't create again");
       }
 
@@ -45,10 +45,8 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
         id: chatRoomId,
         members: [userId, otherUser.uId],
         roomNames: {
-          userId: otherUser.name!, // For creator, show other user's name
-          otherUser.uId:
-              user.displayName ??
-              "Unknown", // For recipient, show creator's name
+          userId: otherUser.name ?? "User",
+          otherUser.uId: user.displayName ?? "Unknown",
         },
       );
 
@@ -59,8 +57,8 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
       );
 
       return const Right("Chat room created successfully");
-    } catch (e, stackTrace) {
-      log("🔥 Error in createChatRoom: $e", stackTrace: stackTrace);
+    } catch (e, stack) {
+      log("🔥 createChatRoom error: $e", stackTrace: stack);
       return const Left(ServerFailure("Failed to create chat room"));
     }
   }
@@ -73,8 +71,8 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
         documentId: chatRoomId,
       );
       return const Right("Chat room deleted successfully");
-    } catch (e, stackTrace) {
-      log("🔥 Error in deleteChatRoom: $e", stackTrace: stackTrace);
+    } catch (e, stack) {
+      log("🔥 deleteChatRoom error: $e", stackTrace: stack);
       return const Left(ServerFailure("Failed to delete chat room"));
     }
   }
@@ -94,72 +92,58 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
               "descending": true,
             },
           )
-          .map((dataList) {
+          .map((list) {
             try {
-              final chatRooms =
-                  (dataList as List)
+              final rooms =
+                  (list as List)
                       .cast<Map<String, dynamic>>()
-                      .map((json) => ChatRoomModel.fromJson(json).toEntity(userId))
-                      .toList()
-                      .cast<ChatRoomEntity>();
+                      .map((e) => ChatRoomModel.fromJson(e).toEntity(userId))
+                      .toList();
 
-              // ✅ Helper to safely parse both ISO and timestamp strings
-              DateTime parseFlexibleDate(String? value, String fallback) {
-                try {
-                  if (value == null || value.isEmpty) {
-                    value = fallback;
-                  }
-
-                  // Handle timestamp (e.g. "1751585133279")
-                  if (RegExp(r'^\d+$').hasMatch(value)) {
-                    return DateTime.fromMillisecondsSinceEpoch(
-                      int.parse(value),
-                    );
-                  }
-
-                  return DateTime.parse(value);
-                } catch (_) {
-                  return DateTime.fromMillisecondsSinceEpoch(0);
-                }
-              }
-
-              // ✅ Sort using createdAt or lastMessageTime
-              chatRooms.sort((a, b) {
-                final aTime = parseFlexibleDate(a.lastMessageTime, a.createdAt);
-                final bTime = parseFlexibleDate(b.lastMessageTime, b.createdAt);
+              rooms.sort((a, b) {
+                final aTime = _parseDate(a.lastMessageTime, a.createdAt);
+                final bTime = _parseDate(b.lastMessageTime, b.createdAt);
                 return bTime.compareTo(aTime);
               });
 
-              return Right(chatRooms);
+              return Right(rooms);
             } catch (e) {
-              log("🔥 Error mapping chat rooms: $e");
+              log("🔥 mapping chat rooms error: $e");
               return const Left(ServerFailure("Failed to map chat rooms"));
             }
           });
-    } catch (e, stackTrace) {
-      log("🔥 Error in fetchUserChatRooms: $e", stackTrace: stackTrace);
-      return Stream.value(
-        const Left(ServerFailure("Failed to fetch chat rooms")),
-      );
+    } catch (e, stack) {
+      log("🔥 fetchUserChatRooms error: $e", stackTrace: stack);
+      return Stream.value(const Left(ServerFailure("Fetch failed")));
     }
   }
 
   Future<bool> isExist(String chatRoomId) async {
     try {
-      final chatRoomData = await databaseServices.getData(
+      final result = await databaseServices.getData(
         path: BackendEndPoints.chatRooms,
         documentId: chatRoomId,
       );
-      return chatRoomData != null && chatRoomData.isNotEmpty;
-    } catch (e, stackTrace) {
-      log("🔥 Error in isExist: $e", stackTrace: stackTrace);
+      return result != null && result.isNotEmpty;
+    } catch (e, stack) {
+      log("🔥 isExist error: $e", stackTrace: stack);
       return false;
     }
   }
 
-  /// Consistently generate the same chatRoomId for any pair of users
   String _generateChatRoomId(String uid1, String uid2) {
-    final sorted = [uid1, uid2]..sort((a, b) => a.compareTo(b));
+    final sorted = [uid1, uid2]..sort();
     return sorted.join('_');
+  }
+
+  DateTime _parseDate(String? value, String fallback) {
+    try {
+      value ??= fallback;
+      return RegExp(r'^\d+$').hasMatch(value)
+          ? DateTime.fromMillisecondsSinceEpoch(int.parse(value))
+          : DateTime.parse(value);
+    } catch (_) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
   }
 }

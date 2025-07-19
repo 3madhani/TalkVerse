@@ -1,11 +1,10 @@
-// chat_message_cubit.dart
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:chitchat/core/images_repo/images_repo.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../core/images_repo/images_repo.dart';
 import '../../../../../core/services/shared_preferences_singleton.dart';
 import '../../../data/models/message_model.dart';
 import '../../../domain/repo/chat_message_repo.dart';
@@ -33,30 +32,22 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
       chatId: chatId,
       messageId: messageId,
     );
-
-    result.fold(
-      (failure) => emit(ChatMessageFailure(failure.message)),
-      (_) {}, // fetchMessages will reflect the deletion
-    );
+    result.fold((failure) => emit(ChatMessageFailure(failure.message)), (_) {});
   }
 
   void fetchMessages(String chatId) {
     emit(ChatMessageLoading());
 
-    // Load cached messages first
     final cached = Prefs.getString('cached_chat_messages');
     if (cached.isNotEmpty) {
       try {
         final jsonList = cached.split('||').map((e) => jsonDecode(e)).toList();
         final messages = jsonList.map((e) => MessageModel.fromJson(e)).toList();
         emit(ChatMessageLoaded(messages));
-      } catch (_) {
-        // ignore cache decoding errors
-      }
+      } catch (_) {}
     }
 
-    _subscription?.cancel(); // Cancel previous subscription
-
+    _subscription?.cancel();
     _subscription = chatMessageRepo.fetchMessages(chatId: chatId).listen((
       result,
     ) {
@@ -65,6 +56,20 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
         (messages) => emit(ChatMessageLoaded(messages)),
       );
     });
+  }
+
+  void markMessageAsReadLocally(String messageId) {
+    final currentState = state;
+    if (currentState is ChatMessageLoaded) {
+      final updatedMessages =
+          currentState.messages.map((msg) {
+            if (msg.messageId == messageId) {
+              return msg.copyWith(isRead: true);
+            }
+            return msg;
+          }).toList();
+      emit(ChatMessageLoaded(updatedMessages));
+    }
   }
 
   Future<void> readMessage({
@@ -79,7 +84,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
     );
     result.fold(
       (failure) => emit(ChatMessageFailure(failure.message)),
-      (_) {}, // No need to emit anything; fetchMessages stream handles updates
+      (_) => markMessageAsReadLocally(messageId),
     );
   }
 
@@ -91,6 +96,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
     String? messageType,
   }) async {
     emit(ChatMessageLoading());
+
     if (messageType == 'image') {
       final result = await imagesRepo.uploadImage(image: image!, path: roomId);
       result.fold((failure) => emit(ChatMessageFailure(failure.message)), (
@@ -110,12 +116,9 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
         message: message!,
         messageType: messageType,
       );
-
       result.fold(
         (failure) => emit(ChatMessageFailure(failure.message)),
-        (
-          _,
-        ) {}, // no need to emit anything; fetchMessages stream handles updates
+        (_) {},
       );
     }
   }

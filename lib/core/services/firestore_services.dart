@@ -14,16 +14,28 @@ class FireStoreServices implements DatabaseServices {
   }
 
   @override
-  Future<void> deleteData({required String path, String? documentId}) async {
+  Future<void> deleteData({
+    required String path,
+    String? documentId,
+    Map<String, dynamic>? queryParameters,
+  }) async {
     if (documentId != null) {
       await firestore.collection(path).doc(documentId).delete();
     } else {
-      // If no documentId is provided, delete the entire collection
-      var collection = firestore.collection(path);
-      var querySnapshot = await collection.get();
-      for (var doc in querySnapshot.docs) {
-        await doc.reference.delete();
+      Query<Map<String, dynamic>> querySnapshot = firestore.collection(path);
+      if (queryParameters != null) {
+        if (queryParameters["where"] != null &&
+            queryParameters["isEqualTo"] != null) {
+          var where = queryParameters["where"];
+          var isEqualTo = queryParameters["isEqualTo"];
+          querySnapshot = querySnapshot..where(where, isEqualTo: isEqualTo);
+        }
       }
+      await querySnapshot.get().then((snapshot) async {
+        for (var doc in snapshot.docs) {
+          await doc.reference.delete();
+        }
+      });
     }
   }
 

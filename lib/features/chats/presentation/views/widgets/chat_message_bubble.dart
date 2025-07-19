@@ -12,8 +12,8 @@ class ChatMessageBubble extends StatefulWidget {
 
   final MessageEntity message;
   final String chatId;
-
   final bool isSender;
+
   const ChatMessageBubble({
     super.key,
     required this.message,
@@ -29,12 +29,30 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isText = widget.message.type == 'text';
+
     final backgroundColor =
         widget.isSender
             ? theme.colorScheme.primaryContainer
             : theme.colorScheme.secondaryContainer;
 
     final messageTextColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
+
+    final borderRadius = BorderRadius.only(
+      topLeft: const Radius.circular(12),
+      topRight: const Radius.circular(12),
+      bottomLeft: Radius.circular(widget.isSender || !isText ? 12 : 0),
+      bottomRight: Radius.circular(!widget.isSender || !isText ? 12 : 0),
+    );
+
+    final timeColor = isText ? Colors.grey.shade600 : Colors.black;
+
+    final iconColor =
+        widget.message.isRead
+            ? Colors.green
+            : isText
+            ? Colors.grey.shade600
+            : Colors.black;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -53,36 +71,19 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
             child: Container(
               decoration: BoxDecoration(
                 color: backgroundColor,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(12),
-                  topRight: const Radius.circular(12),
-                  bottomLeft: Radius.circular(
-                    widget.isSender
-                        ? 12
-                        : widget.message.type == 'text'
-                        ? 0
-                        : 12,
-                  ),
-                  bottomRight: Radius.circular(
-                    widget.isSender
-                        ? widget.message.type == 'text'
-                            ? 0
-                            : 12
-                        : 12,
-                  ),
-                ),
+                borderRadius: borderRadius,
               ),
               child: Stack(
                 children: [
                   Padding(
                     padding: EdgeInsets.fromLTRB(
-                      widget.message.type == 'text' ? 7 : 4,
-                      widget.message.type == 'text' ? 7 : 4,
-                      widget.message.type == 'text' ? 8 : 4,
-                      widget.message.type == 'text' ? 18 : 4,
+                      isText ? 7 : 4,
+                      isText ? 7 : 4,
+                      isText ? 8 : 4,
+                      isText ? 18 : 4,
                     ),
                     child:
-                        widget.message.type == 'text'
+                        isText
                             ? Text(
                               widget.message.message,
                               style: TextStyle(
@@ -95,7 +96,6 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                               child: CachedNetworkImage(
                                 imageUrl: widget.message.message,
                                 fit: BoxFit.cover,
-
                                 errorWidget:
                                     (context, url, error) => const Icon(
                                       Icons.error,
@@ -105,7 +105,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                             ),
                   ),
 
-                  /// Time and read status
+                  // Time and read status
                   Positioned(
                     bottom: 4,
                     right: 8,
@@ -115,10 +115,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                         Text(
                           _formatTime(widget.message.createdAt),
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color:
-                                widget.message.type == 'text'
-                                    ? Colors.grey.shade600
-                                    : Colors.black,
+                            color: timeColor,
                           ),
                         ),
                         if (widget.isSender) ...[
@@ -128,14 +125,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                                 ? Icons.check_circle
                                 : Icons.check_circle_outline,
                             size: 13,
-                            color:
-                                widget.message.type == 'text'
-                                    ? widget.message.isRead
-                                        ? Colors.green
-                                        : Colors.grey.shade600
-                                    : widget.message.isRead
-                                    ? Colors.green
-                                    : Colors.black,
+                            color: iconColor,
                           ),
                         ],
                       ],
@@ -152,13 +142,17 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
 
   @override
   void initState() {
-    if (widget.message.recieverId == FirebaseAuth.instance.currentUser?.uid) {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final isReceiver = widget.message.recieverId == currentUserId;
+
+    if (isReceiver && !widget.message.isRead) {
       context.read<ChatMessageCubit>().readMessage(
         chatId: widget.chatId,
         messageId: widget.message.messageId,
         isRead: true,
       );
     }
+
     super.initState();
   }
 

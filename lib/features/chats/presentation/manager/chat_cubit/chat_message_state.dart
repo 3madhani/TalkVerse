@@ -19,6 +19,10 @@ class ChatMessageLoaded extends ChatMessageState {
 
   @override
   List<Object?> get props => [messages];
+
+  // Getter for unread messages
+  List<MessageEntity> get unreadMessages =>
+      messages.where((msg) => msg.isRead == false).toList();
 }
 
 class ChatMessageFailure extends ChatMessageState {
