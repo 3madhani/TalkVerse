@@ -22,7 +22,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
 
   Set<String> get selectedMessageIds => _selectedMessageIds;
 
-void clearSelection() {
+  void clearSelection() {
     if (state is ChatMessageLoaded) {
       final current = state as ChatMessageLoaded;
       _selectedMessageIds.clear();
@@ -153,5 +153,4 @@ void clearSelection() {
       emit(ChatMessageLoaded(current.messages, selectedMessageIds: selected));
     }
   }
-
 }

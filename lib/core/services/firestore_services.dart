@@ -1,3 +1,4 @@
+import 'package:chitchat/core/errors/failure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'database_services.dart';
@@ -16,49 +17,61 @@ class FireStoreServices implements DatabaseServices {
   @override
   Future<void> deleteData({
     required String path,
-    String? documentId,
+    dynamic documentId,
     Map<String, dynamic>? queryParameters,
   }) async {
     final collectionRef = firestore.collection(path);
 
-    // Delete by document ID
-    if (documentId != null) {
-      final docRef = collectionRef.doc(documentId);
-
-      // 🔥 First delete all messages in the subcollection 'messages'
-      final messagesRef = docRef.collection('Messages');
+    Future<void> deleteMessagesSubcollection(DocumentReference docRef) async {
+      final messagesRef = docRef.collection('messages'); // 🧠 Consistent casing
       final messagesSnapshot = await messagesRef.get();
-      for (var doc in messagesSnapshot.docs) {
-        await doc.reference.delete();
+      for (var messageDoc in messagesSnapshot.docs) {
+        await messageDoc.reference.delete();
       }
+    }
 
-      // ✅ Then delete the chat room document itself
-      await docRef.delete();
-    } else {
-      // Delete based on query
-      Query<Map<String, dynamic>> query = collectionRef;
+    try {
+      if (documentId != null) {
+        // Handle single document deletion
+        if (documentId is String) {
+          final docRef = collectionRef.doc(documentId);
 
-      if (queryParameters != null) {
-        if (queryParameters["where"] != null &&
-            queryParameters["isEqualTo"] != null) {
-          var where = queryParameters["where"];
-          var isEqualTo = queryParameters["isEqualTo"];
-          query = query.where(where, isEqualTo: isEqualTo);
+          // 🔥 Delete messages subcollection first
+          await deleteMessagesSubcollection(docRef);
+
+          // ✅ Delete the main document
+          await docRef.delete();
+        } else if (documentId is List<String>) {
+          for (var docId in documentId) {
+            final docRef = collectionRef.doc(docId);
+            await deleteMessagesSubcollection(docRef);
+            await docRef.delete();
+          }
+        } else {
+          throw ArgumentError('documentId must be a String or List<String>');
+        }
+      } else {
+        // 🔍 Query-based deletion
+        Query<Map<String, dynamic>> query = collectionRef;
+
+        if (queryParameters != null &&
+            queryParameters['where'] != null &&
+            queryParameters['isEqualTo'] != null) {
+          query = query.where(
+            queryParameters['where'],
+            isEqualTo: queryParameters['isEqualTo'],
+          );
+        }
+
+        final snapshot = await query.get();
+
+        for (var doc in snapshot.docs) {
+          await deleteMessagesSubcollection(doc.reference);
+          await doc.reference.delete();
         }
       }
-
-      final snapshot = await query.get();
-      for (var doc in snapshot.docs) {
-        // 🔥 First delete subcollection 'messages'
-        final messagesRef = doc.reference.collection('messages');
-        final messagesSnapshot = await messagesRef.get();
-        for (var messageDoc in messagesSnapshot.docs) {
-          await messageDoc.reference.delete();
-        }
-
-        // ✅ Delete main doc
-        await doc.reference.delete();
-      }
+    } catch (e) {
+      throw ServerFailure('Failed to delete data: $e');
     }
   }
 

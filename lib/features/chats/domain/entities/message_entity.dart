@@ -17,7 +17,6 @@ class MessageEntity {
     required this.type,
   });
 
-
   MessageEntity copyWith({
     String? messageId,
     String? message,
