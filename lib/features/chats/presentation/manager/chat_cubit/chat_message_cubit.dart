@@ -15,8 +15,20 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
   final ImagesRepo imagesRepo;
   StreamSubscription? _subscription;
 
+  final Set<String> _selectedMessageIds = {};
+
   ChatMessageCubit(this.chatMessageRepo, this.imagesRepo)
     : super(ChatMessageInitial());
+
+  Set<String> get selectedMessageIds => _selectedMessageIds;
+
+void clearSelection() {
+    if (state is ChatMessageLoaded) {
+      final current = state as ChatMessageLoaded;
+      _selectedMessageIds.clear();
+      emit(ChatMessageLoaded(current.messages, selectedMessageIds: {}));
+    }
+  }
 
   @override
   Future<void> close() {
@@ -122,4 +134,24 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
       );
     }
   }
+
+  void toggleMessageSelection(String id) {
+    if (state is ChatMessageLoaded) {
+      final current = state as ChatMessageLoaded;
+      final selected = Set<String>.from(_selectedMessageIds);
+
+      if (selected.contains(id)) {
+        selected.remove(id);
+      } else {
+        selected.add(id);
+      }
+
+      _selectedMessageIds
+        ..clear()
+        ..addAll(selected);
+
+      emit(ChatMessageLoaded(current.messages, selectedMessageIds: selected));
+    }
+  }
+
 }
