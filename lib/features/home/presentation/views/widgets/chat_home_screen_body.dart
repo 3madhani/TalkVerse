@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../domain/entities/chat_room_entity.dart';
 import '../../manager/chat_room_cubit/chat_room_state.dart';
 import 'chat_card.dart';
@@ -12,7 +13,14 @@ class ChatHomeScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChatRoomCubit, ChatRoomState>(
+    return BlocConsumer<ChatRoomCubit, ChatRoomState>(
+      listener: (context, state) {
+        if (state is ChatRoomError) {
+          AppSnackBar.showError(context, state.message);
+        } else if (state is ChatRoomSuccess) {
+          AppSnackBar.showSuccess(context, state.message);
+        }
+      },
       builder: (context, state) {
         final chatRoomCubit = context.read<ChatRoomCubit>();
         final cachedRooms = chatRoomCubit.chatRoomsCache;

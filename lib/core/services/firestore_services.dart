@@ -19,23 +19,46 @@ class FireStoreServices implements DatabaseServices {
     String? documentId,
     Map<String, dynamic>? queryParameters,
   }) async {
+    final collectionRef = firestore.collection(path);
+
+    // Delete by document ID
     if (documentId != null) {
-      await firestore.collection(path).doc(documentId).delete();
+      final docRef = collectionRef.doc(documentId);
+
+      // 🔥 First delete all messages in the subcollection 'messages'
+      final messagesRef = docRef.collection('Messages');
+      final messagesSnapshot = await messagesRef.get();
+      for (var doc in messagesSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // ✅ Then delete the chat room document itself
+      await docRef.delete();
     } else {
-      Query<Map<String, dynamic>> querySnapshot = firestore.collection(path);
+      // Delete based on query
+      Query<Map<String, dynamic>> query = collectionRef;
+
       if (queryParameters != null) {
         if (queryParameters["where"] != null &&
             queryParameters["isEqualTo"] != null) {
           var where = queryParameters["where"];
           var isEqualTo = queryParameters["isEqualTo"];
-          querySnapshot = querySnapshot..where(where, isEqualTo: isEqualTo);
+          query = query.where(where, isEqualTo: isEqualTo);
         }
       }
-      await querySnapshot.get().then((snapshot) async {
-        for (var doc in snapshot.docs) {
-          await doc.reference.delete();
+
+      final snapshot = await query.get();
+      for (var doc in snapshot.docs) {
+        // 🔥 First delete subcollection 'messages'
+        final messagesRef = doc.reference.collection('messages');
+        final messagesSnapshot = await messagesRef.get();
+        for (var messageDoc in messagesSnapshot.docs) {
+          await messageDoc.reference.delete();
         }
-      });
+
+        // ✅ Delete main doc
+        await doc.reference.delete();
+      }
     }
   }
 

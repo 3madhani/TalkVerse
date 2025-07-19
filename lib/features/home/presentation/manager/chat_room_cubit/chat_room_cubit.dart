@@ -32,11 +32,26 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
   }
 
   Future<void> deleteChatRoom(String chatRoomId) async {
-    emit(ChatRoomLoading());
+    // 1. Optimistically remove the chat room from the local cache
+    final updatedCache = List<ChatRoomEntity>.from(chatRoomsCache);
+    updatedCache.removeWhere((room) => room.id == chatRoomId);
+
+    // 2. Update the cache and emit new state
+    chatRoomsCache = updatedCache;
+    await _cacheChatRooms(chatRoomsCache); // ✅ Add this line
+    emit(ChatRoomListLoaded(chatRoomsCache));
+
+    // 3. Proceed to delete the chat room from Firestore
     final result = await chatRoomRepo.deleteChatRoom(chatRoomId);
+
     result.fold(
-      (failure) => emit(ChatRoomError(failure.message)),
-      (message) => emit(ChatRoomSuccess(message)),
+      (failure) {
+        // Optional: Handle failure, maybe re-add the item to the cache
+        emit(ChatRoomError(failure.message));
+      },
+      (message) {
+        emit(ChatRoomSuccess(message));
+      },
     );
   }
 
@@ -80,6 +95,11 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     }
   }
 
+  Future<void> _cacheChatRooms(List<ChatRoomEntity> rooms) async {
+    final jsonList = rooms.map((e) => e.toJson()).toList();
+    await Prefs.setString('cachedChatRooms', jsonEncode(jsonList));
+  }
+
   List<ChatRoomEntity> _sortChatRooms(List<ChatRoomEntity> rooms) {
     DateTime parse(String? value, String fallback) {
       try {
@@ -99,10 +119,5 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     });
 
     return rooms;
-  }
-
-  Future<void> _cacheChatRooms(List<ChatRoomEntity> rooms) async {
-    final jsonList = rooms.map((e) => e.toJson()).toList();
-    await Prefs.setString('cachedChatRooms', jsonEncode(jsonList));
   }
 }
