@@ -7,6 +7,6 @@ class AppLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(Assets.imagesAppLogo, height: 150);
+    return SvgPicture.asset(Assets.imagesWechatLogo, height: 130);
   }
 }
