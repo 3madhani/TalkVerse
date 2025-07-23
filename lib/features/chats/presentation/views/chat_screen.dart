@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -50,15 +52,31 @@ class ChatScreen extends StatelessWidget {
                           icon: const Icon(Iconsax.trash),
                           onPressed: () {
                             context.read<ChatMessageCubit>().deleteMessage(
+                              receiverId: chatRoom.members.firstWhere(
+                                (id) =>
+                                    id !=
+                                    FirebaseAuth.instance.currentUser?.uid,
+                              ),
                               chatId: chatRoom.id,
-                              messageId: state.selectedMessageIds.first,
+                              messageId: state.selectedMessageIds.toList(),
                             );
                           },
                         ),
                         IconButton(
-                          icon: const Icon(Iconsax.forward_square),
+                          icon: const Icon(Iconsax.copy),
                           onPressed: () {
-                            // Handle forward
+                            Clipboard.setData(
+                              ClipboardData(
+                                text: state.messages
+                                    .where(
+                                      (msg) => state.selectedMessageIds
+                                          .contains(msg.messageId),
+                                    )
+                                    .map((msg) => msg.message)
+                                    .join('\n'),
+                              ),
+                            );
+                            context.read<ChatMessageCubit>().clearSelection();
                           },
                         ),
                         IconButton(

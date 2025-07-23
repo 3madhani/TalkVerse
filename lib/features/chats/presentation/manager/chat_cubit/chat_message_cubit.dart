@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/images_repo/images_repo.dart';
-import '../../../../../core/services/shared_preferences_singleton.dart';
-import '../../../data/models/message_model.dart';
 import '../../../domain/repo/chat_message_repo.dart';
 import 'chat_message_state.dart';
 
@@ -38,27 +35,25 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
 
   Future<void> deleteMessage({
     required String chatId,
-    required String messageId,
+    required String receiverId,
+    required List<String> messageId,
   }) async {
     final result = await chatMessageRepo.deleteMessage(
       chatId: chatId,
       messageId: messageId,
     );
-    result.fold((failure) => emit(ChatMessageFailure(failure.message)), (_) {});
+
+    result.fold((failure) => emit(ChatMessageFailure(failure.message)), (_) {
+      sendMessage(
+        roomId: chatId,
+        receiverId: receiverId,
+        message: 'Message deleted',
+        messageType: 'text',
+      );
+    });
   }
 
   void fetchMessages(String chatId) {
-    emit(ChatMessageLoading());
-
-    final cached = Prefs.getString('cached_chat_messages');
-    if (cached.isNotEmpty) {
-      try {
-        final jsonList = cached.split('||').map((e) => jsonDecode(e)).toList();
-        final messages = jsonList.map((e) => MessageModel.fromJson(e)).toList();
-        emit(ChatMessageLoaded(messages));
-      } catch (_) {}
-    }
-
     _subscription?.cancel();
     _subscription = chatMessageRepo.fetchMessages(chatId: chatId).listen((
       result,
@@ -107,8 +102,6 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
     File? image,
     String? messageType,
   }) async {
-    emit(ChatMessageLoading());
-
     if (messageType == 'image') {
       final result = await imagesRepo.uploadImage(image: image!, path: roomId);
       result.fold((failure) => emit(ChatMessageFailure(failure.message)), (

@@ -13,24 +13,31 @@ import '../../../../core/services/shared_preferences_singleton.dart';
 import '../../domain/repo/chat_message_repo.dart';
 
 class ChatMessageRepoImpl implements ChatMessageRepo {
-  static const String _cachedMessagesKey = 'cached_chat_messages';
-
   final DatabaseServices databaseServices;
   ChatMessageRepoImpl({required this.databaseServices});
 
   @override
   Future<Either<Failure, void>> deleteMessage({
     required String chatId,
-    required String messageId,
+    required List<String> messageId,
   }) async {
+    final path =
+        '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}';
+
     try {
-      final path =
-          '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}';
-      await databaseServices.deleteData(path: path, documentId: messageId);
+      for (final id in messageId) {
+        await databaseServices.deleteData(path: path, documentId: id);
+      }
+
+      await _updateCacheAfterDeletion(chatId, messageId);
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure('Delete failed: ${e.toString()}'));
     }
+  }
+
+  Future<void> deleteMessagesForChat(String chatId) async {
+    await Prefs.remove(_chatCacheKey(chatId));
   }
 
   @override
@@ -42,6 +49,11 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
         '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}';
 
     try {
+      final cachedMessages = await _loadCachedMessages(chatId);
+      if (cachedMessages.isNotEmpty) {
+        yield Right(cachedMessages);
+      }
+
       final stream = databaseServices.streamData(
         path: path,
         queryParameters: {'orderBy': 'createdAt', 'descending': true},
@@ -50,29 +62,27 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
       await for (final data in stream) {
         if (data is List) {
           final messages = data.map((e) => MessageModel.fromJson(e)).toList();
+
           final jsonList = data.map((e) => jsonEncode(e)).toList();
-          await Prefs.setString(_cachedMessagesKey, jsonList.join('||'));
+          await Prefs.setString(_chatCacheKey(chatId), jsonList.join('||'));
+
           yield Right(messages);
         } else {
           yield const Left(
-            ServerFailure('Unexpected data type from Firestore stream.'),
+            ServerFailure('Unexpected data from Firestore stream.'),
           );
         }
       }
     } catch (e) {
-      final cached = Prefs.getString(_cachedMessagesKey);
-      if (cached.isNotEmpty) {
-        try {
-          final jsonList =
-              cached.split('||').map((e) => jsonDecode(e)).toList();
-          final messages =
-              jsonList.map((e) => MessageModel.fromJson(e)).toList();
-          yield Right(messages);
-        } catch (_) {
-          yield const Left(ServerFailure('Failed to decode cached messages.'));
+      try {
+        final fallback = await _loadCachedMessages(chatId);
+        if (fallback.isNotEmpty) {
+          yield Right(fallback);
+        } else {
+          yield Left(ServerFailure('Stream and cache failed: ${e.toString()}'));
         }
-      } else {
-        yield Left(ServerFailure(e.toString()));
+      } catch (_) {
+        yield const Left(ServerFailure('Failed to decode cached messages.'));
       }
     }
   }
@@ -86,14 +96,16 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
     try {
       final path =
           '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}/';
+
       await databaseServices.updateData(
         path: path,
         documentId: messageId,
         data: {'isRead': isRead},
       );
+
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure('Read update failed: ${e.toString()}'));
     }
   }
 
@@ -137,7 +149,40 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
 
       return const Right(null);
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure('Send failed: ${e.toString()}'));
     }
+  }
+
+  String _chatCacheKey(String chatId) => 'cached_chat_messages_$chatId';
+
+  Future<List<MessageModel>> _loadCachedMessages(String chatId) async {
+    try {
+      final cached = Prefs.getString(_chatCacheKey(chatId));
+      if (cached.isEmpty) return [];
+
+      final jsonList = cached.split('||').map((e) => jsonDecode(e)).toList();
+      return jsonList.map((e) => MessageModel.fromJson(e)).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> _updateCacheAfterDeletion(
+    String chatId,
+    List<String> messageIds,
+  ) async {
+    final cached = Prefs.getString(_chatCacheKey(chatId));
+    if (cached.isEmpty) return;
+
+    try {
+      final jsonList = cached.split('||').map((e) => jsonDecode(e)).toList();
+      final filtered =
+          jsonList
+              .where((msg) => !messageIds.contains(msg['messageId']))
+              .toList();
+
+      final updatedCache = filtered.map((e) => jsonEncode(e)).join('||');
+      await Prefs.setString(_chatCacheKey(chatId), updatedCache);
+    } catch (_) {}
   }
 }

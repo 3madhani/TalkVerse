@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Prefs {
@@ -32,11 +33,40 @@ class Prefs {
     return _instance.getString(_keyPrimaryColor) ?? '#2196F3'; // default color
   }
 
-  // Optional: general methods
+  // Generic access
   static bool getBool(String key) => _instance.getBool(key) ?? false;
   static String getString(String key) => _instance.getString(key) ?? '';
   static Future<void> setBool(String key, bool value) async =>
       await _instance.setBool(key, value);
   static Future<void> setString(String key, String value) async =>
       await _instance.setString(key, value);
+  static Future<void> remove(String key) async => await _instance.remove(key);
+
+  // ===== Extended Cache Management =====
+
+  /// Get JSON-decoded map from a cached string value
+  static Map<String, dynamic> getJsonMap(String key) {
+    final raw = getString(key);
+    if (raw.isEmpty) return {};
+    try {
+      return jsonDecode(raw);
+    } catch (_) {
+      return {};
+    }
+  }
+
+  /// Save JSON-encodable map to string
+  static Future<void> setJsonMap(String key, Map<String, dynamic> map) async {
+    await setString(key, jsonEncode(map));
+  }
+
+  /// Remove an entry from a cached JSON map and save it back
+  static Future<void> removeFromJsonMap(
+    String key,
+    String mapKeyToRemove,
+  ) async {
+    final map = getJsonMap(key);
+    map.remove(mapKeyToRemove);
+    await setJsonMap(key, map);
+  }
 }

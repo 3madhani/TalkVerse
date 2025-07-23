@@ -23,7 +23,7 @@ class FireStoreServices implements DatabaseServices {
     final collectionRef = firestore.collection(path);
 
     Future<void> deleteMessagesSubcollection(DocumentReference docRef) async {
-      final messagesRef = docRef.collection('messages'); // 🧠 Consistent casing
+      final messagesRef = docRef.collection('Messages'); // 🧠 Consistent casing
       final messagesSnapshot = await messagesRef.get();
       for (var messageDoc in messagesSnapshot.docs) {
         await messageDoc.reference.delete();

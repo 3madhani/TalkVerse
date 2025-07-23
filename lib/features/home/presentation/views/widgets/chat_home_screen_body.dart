@@ -26,7 +26,7 @@ class ChatHomeScreenBody extends StatelessWidget {
         final cachedRooms = chatRoomCubit.chatRoomsCache;
 
         // ✅ Case 1: Render actual chat room list from cache or loaded state
-        if (state is ChatRoomListLoaded || cachedRooms.isNotEmpty) {
+        if (state is ChatRoomListLoaded && cachedRooms.isNotEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: ListView.builder(

@@ -60,7 +60,6 @@ class ChatScreenBody extends StatelessWidget {
                   if (messages.isEmpty) {
                     final receiverId = chatRoom.members.firstWhere(
                       (id) => id != userId,
-                      orElse: () => '',
                     );
 
                     return StartMessageCard(

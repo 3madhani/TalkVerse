@@ -72,7 +72,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
       }
     } catch (e) {
       if (context.mounted) {
-        AppSnackBar.showWarning(context, "فشل اختيار الصورة: $e");
+        AppSnackBar.showWarning(context, "Failed to pick image: $e");
       }
     }
   }

@@ -32,27 +32,15 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
   }
 
   Future<void> deleteChatRoom(String chatRoomId) async {
-    // 1. Optimistically remove the chat room from the local cache
-    final updatedCache = List<ChatRoomEntity>.from(chatRoomsCache);
-    updatedCache.removeWhere((room) => room.id == chatRoomId);
-
-    // 2. Update the cache and emit new state
-    chatRoomsCache = updatedCache;
-    await _cacheChatRooms(chatRoomsCache); // ✅ Add this line
-    emit(ChatRoomListLoaded(chatRoomsCache));
-
-    // 3. Proceed to delete the chat room from Firestore
+    emit(ChatRoomLoading());
     final result = await chatRoomRepo.deleteChatRoom(chatRoomId);
-
-    result.fold(
-      (failure) {
-        // Optional: Handle failure, maybe re-add the item to the cache
-        emit(ChatRoomError(failure.message));
-      },
-      (message) {
-        emit(ChatRoomSuccess(message));
-      },
-    );
+    result.fold((failure) => emit(ChatRoomError(failure.message)), (
+      message,
+    ) async {
+      // Reload cached rooms after successful deletion
+      await loadCachedChatRooms();
+      emit(ChatRoomSuccess(message));
+    });
   }
 
   void listenToUserChatRooms(String userId) {
@@ -91,7 +79,7 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
       chatRoomsCache = _sortChatRooms(cachedRooms);
       emit(ChatRoomListLoaded(chatRoomsCache));
     } catch (_) {
-      emit(const ChatRoomError('Failed to load cached chat rooms.'));
+      emit(const ChatRoomError('Failed to load cached chat rooms'));
     }
   }
 
@@ -104,7 +92,7 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     DateTime parse(String? value, String fallback) {
       try {
         value ??= fallback;
-        return RegExp(r'^\d+$').hasMatch(value)
+        return RegExp(r'^\d+\$').hasMatch(value)
             ? DateTime.fromMillisecondsSinceEpoch(int.parse(value))
             : DateTime.parse(value);
       } catch (_) {

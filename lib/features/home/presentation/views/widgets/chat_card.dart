@@ -60,6 +60,7 @@ class _ChatCardState extends State<ChatCard> {
                       title: const Text('Delete Chat'),
                       content: const Text(
                         'Are you sure you want to delete this chat?',
+                        style: TextStyle(fontSize: 16),
                       ),
                       actions: [
                         TextButton(
@@ -103,7 +104,8 @@ class _ChatCardState extends State<ChatCard> {
               style: TextStyle(color: theme.textTheme.bodySmall?.color),
             ),
             trailing:
-                unreadCount > 0
+                context.watch<ChatMessageCubit>().state is ChatMessageLoaded &&
+                        unreadCount > 0
                     ? SizedBox(
                       width: 25,
                       height: 25,

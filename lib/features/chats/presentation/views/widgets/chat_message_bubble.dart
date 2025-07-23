@@ -98,9 +98,18 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                               )
                               : ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
+                                clipBehavior: Clip.antiAlias,
                                 child: CachedNetworkImage(
                                   imageUrl: widget.message.message,
                                   fit: BoxFit.cover,
+                                  placeholder:
+                                      (context, url) => const SizedBox(
+                                        height: 100,
+                                        width: 100,
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ),
                                   errorWidget:
                                       (context, url, error) => const Icon(
                                         Icons.error,
@@ -126,11 +135,13 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
 
   @override
   void initState() {
-    context.read<ChatMessageCubit>().readMessage(
-      chatId: widget.chatId,
-      messageId: widget.message.messageId,
-      isRead: true,
-    );
+    if (!widget.isSender) {
+      context.read<ChatMessageCubit>().readMessage(
+        chatId: widget.chatId,
+        messageId: widget.message.messageId,
+        isRead: true,
+      );
+    }
     super.initState();
   }
 

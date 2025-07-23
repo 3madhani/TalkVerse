@@ -13,7 +13,7 @@ abstract class ChatMessageRepo {
 
   Future<Either<Failure, void>> deleteMessage({
     required String chatId,
-    required String messageId,
+    required List<String> messageId,
   });
 
   Future<Either<Failure, void>> readMessage({

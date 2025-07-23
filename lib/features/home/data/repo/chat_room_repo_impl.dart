@@ -1,11 +1,12 @@
+// Updated ChatRoomRepoImpl with proper cache cleanup
+import 'dart:convert';
 import 'dart:developer';
-
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import '../../../../core/constants/backend/backend_end_points.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/services/database_services.dart';
+import '../../../../core/services/shared_preferences_singleton.dart';
 import '../../../auth/data/model/user_model.dart';
 import '../../domain/entities/chat_room_entity.dart';
 import '../../domain/repo/chat_room_repo.dart';
@@ -66,10 +67,24 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
   @override
   Future<Either<Failure, String>> deleteChatRoom(String chatRoomId) async {
     try {
+      // Delete chat room from Firestore
       await databaseServices.deleteData(
         path: BackendEndPoints.chatRooms,
         documentId: chatRoomId,
       );
+
+      // Delete messages cache
+      await Prefs.remove('messages_$chatRoomId');
+
+      // Update cached chat rooms
+      final cachedJson = Prefs.getString('cachedChatRooms');
+      if (cachedJson.isNotEmpty) {
+        final List<dynamic> decoded = jsonDecode(cachedJson);
+        final updatedList =
+            decoded.where((e) => e['id'] != chatRoomId).toList();
+        await Prefs.setString('cachedChatRooms', jsonEncode(updatedList));
+      }
+
       return const Right("Chat room deleted successfully");
     } catch (e, stack) {
       log("🔥 deleteChatRoom error: $e", stackTrace: stack);
@@ -139,7 +154,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
   DateTime _parseDate(String? value, String fallback) {
     try {
       value ??= fallback;
-      return RegExp(r'^\d+$').hasMatch(value)
+      return RegExp(r'^\d+\$').hasMatch(value)
           ? DateTime.fromMillisecondsSinceEpoch(int.parse(value))
           : DateTime.parse(value);
     } catch (_) {

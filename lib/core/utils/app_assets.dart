@@ -1,7 +1,5 @@
 // ignore_for_file: prefer_single_quotes
 class Assets {
-  Assets._();
-  
   /// Assets for imagesAppLogo
   /// assets/images/app-logo.svg
   static const String imagesAppLogo = "assets/images/app-logo.svg";
@@ -17,5 +15,6 @@ class Assets {
   /// Assets for imagesWechatLogo
   /// assets/images/wechat-logo.svg
   static const String imagesWechatLogo = "assets/images/wechat-logo.svg";
-}
 
+  Assets._();
+}
