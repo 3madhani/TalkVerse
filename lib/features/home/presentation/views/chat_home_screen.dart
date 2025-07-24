@@ -1,8 +1,11 @@
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../../core/widgets/app_snack_bar.dart';
+import '../manager/chat_room_cubit/chat_room_state.dart';
 import 'widgets/body_of_floating_action_button.dart';
 import 'widgets/chat_home_screen_body.dart';
 
@@ -16,6 +19,7 @@ class ChatHomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Chats')),
       floatingActionButton: FloatingActionButton(
+        // inside ChatHomeScreen's onPressed in floatingActionButton
         onPressed: () {
           showModalBottomSheet(
             isScrollControlled: true,
@@ -23,14 +27,46 @@ class ChatHomeScreen extends StatelessWidget {
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             ),
-            builder: (bottomSheetContext) {
+            builder: (ctx) {
               return BlocProvider.value(
                 value: context.read<ChatRoomCubit>(),
-                child: const BodyOfFloatingActionButton(),
+                child: BlocConsumer<ChatRoomCubit, ChatRoomState>(
+                  listener: (context, state) {
+                    if (state is ChatRoomSuccess) {
+                      Navigator.pop(context);
+                      if (state.message.contains("already exists")) {
+                        AppSnackBar.showWarning(context, state.message);
+                      } else {
+                        AppSnackBar.showSuccess(context, state.message);
+                      }
+
+                      context.read<ChatRoomCubit>().listenToUserChatRooms(
+                        FirebaseAuth.instance.currentUser!.uid,
+                      );
+                    } else if (state is ChatRoomError) {
+                      Navigator.pop(context);
+                      AppSnackBar.showError(context, state.message);
+                    }
+                  },
+                  builder: (context, state) {
+                    return BodyOfBottomSheet(
+                      label:
+                          state is ChatRoomLoading
+                              ? 'Creating...'
+                              : 'Create Chat',
+                      onAddUser: (ctx, email) {
+                        context.read<ChatRoomCubit>().createChatRoom(
+                          email: email,
+                        );
+                      },
+                    );
+                  },
+                ),
               );
             },
           );
         },
+
         child: const Icon(Iconsax.message_add),
       ),
       body: const ChatHomeScreenBody(),

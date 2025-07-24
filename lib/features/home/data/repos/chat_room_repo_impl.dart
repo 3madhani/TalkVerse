@@ -9,7 +9,7 @@ import '../../../../core/services/database_services.dart';
 import '../../../../core/services/shared_preferences_singleton.dart';
 import '../../../auth/data/model/user_model.dart';
 import '../../domain/entities/chat_room_entity.dart';
-import '../../domain/repo/chat_room_repo.dart';
+import '../../domain/repos/chat_room_repo.dart';
 import '../models/chat_room_model.dart';
 
 class ChatRoomRepoImpl implements ChatRoomRepo {

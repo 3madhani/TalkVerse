@@ -12,8 +12,10 @@ import '../../../../core/services/get_it_services.dart';
 import '../../../chats/domain/repo/chat_message_repo.dart';
 import '../../../chats/presentation/manager/chat_cubit/chat_message_cubit.dart';
 import '../../data/models/home_tab.dart';
-import '../../domain/repo/chat_room_repo.dart';
+import '../../domain/repos/chat_room_repo.dart';
+import '../../domain/repos/contacts_repo.dart';
 import 'chat_room_cubit/chat_room_cubit.dart';
+import 'contacts_cubit/contacts_cubit.dart';
 
 class HomeViewModel extends ChangeNotifier {
   int _currentIndex = 0;
@@ -57,10 +59,14 @@ class HomeViewModel extends ChangeNotifier {
       icon: Iconsax.messages,
       screen: const GroupsScreen(),
     ),
+
     HomeTab(
       title: 'Contacts',
       icon: Iconsax.user,
-      screen: const ContactsScreen(),
+      screen: BlocProvider<ContactsCubit>(
+        create: (context) => ContactsCubit(contactsRepo: getIt<ContactsRepo>()),
+        child: const ContactsScreen(),
+      ),
     ),
     HomeTab(
       title: 'Settings',

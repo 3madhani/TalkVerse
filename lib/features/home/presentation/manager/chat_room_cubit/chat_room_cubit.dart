@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/services/shared_preferences_singleton.dart';
 import '../../../domain/entities/chat_room_entity.dart';
-import '../../../domain/repo/chat_room_repo.dart';
+import '../../../domain/repos/chat_room_repo.dart';
 import 'chat_room_state.dart';
 
 class ChatRoomCubit extends Cubit<ChatRoomState> {
