@@ -37,7 +37,7 @@ class ContactsScreenBody extends StatelessWidget {
                     (state is ContactsInitial || state is ContactsLoading)) {
                   return Skeletonizer(
                     child: ListView.builder(
-                      itemCount: 20,
+                      itemCount: 1,
                       itemBuilder: (context, index) {
                         return const ContactCard(
                           contact: UserEntity(uId: '', email: ''),

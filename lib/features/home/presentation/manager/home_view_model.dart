@@ -2,19 +2,14 @@ import 'package:chitchat/features/home/presentation/views/chat_home_screen.dart'
 import 'package:chitchat/features/home/presentation/views/contacts_screen.dart';
 import 'package:chitchat/features/home/presentation/views/groups_screen.dart';
 import 'package:chitchat/features/home/presentation/views/settings_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:provider/provider.dart';
 
-import '../../../../core/images_repo/images_repo.dart';
 import '../../../../core/services/get_it_services.dart';
-import '../../../chats/domain/repo/chat_message_repo.dart';
-import '../../../chats/presentation/manager/chat_cubit/chat_message_cubit.dart';
 import '../../data/models/home_tab.dart';
-import '../../domain/repos/chat_room_repo.dart';
 import '../../domain/repos/contacts_repo.dart';
-import 'chat_room_cubit/chat_room_cubit.dart';
 import 'contacts_cubit/contacts_cubit.dart';
 
 class HomeViewModel extends ChangeNotifier {
@@ -25,33 +20,7 @@ class HomeViewModel extends ChangeNotifier {
     HomeTab(
       title: 'Chats',
       icon: Iconsax.message,
-      screen: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (context) {
-              final cubit = ChatRoomCubit(getIt<ChatRoomRepo>());
-
-              final uid = FirebaseAuth.instance.currentUser!.uid;
-
-              // 👇 Async init
-              Future.microtask(() async {
-                await cubit.loadCachedChatRooms();
-                cubit.listenToUserChatRooms(uid);
-              });
-
-              return cubit;
-            },
-          ),
-          BlocProvider(
-            create:
-                (context) => ChatMessageCubit(
-                  getIt<ChatMessageRepo>(),
-                  getIt<ImagesRepo>(),
-                ),
-          ),
-        ],
-        child: const ChatHomeScreen(),
-      ),
+      screen: const ChatHomeScreen(),
     ),
 
     HomeTab(
@@ -83,8 +52,30 @@ class HomeViewModel extends ChangeNotifier {
   List<HomeTab> get tabs => _tabs;
 
   void changeTab(int index) {
+    if (_currentIndex != index) {
+      _currentIndex = index;
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void jumpToTab(int index) {
     _currentIndex = index;
-    _pageController.jumpToPage(index);
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.easeInOut,
+    );
     notifyListeners();
+  }
+
+  static void goToChatTab(BuildContext context) {
+    final viewModel = Provider.of<HomeViewModel>(context, listen: false);
+    viewModel.jumpToTab(0); // assuming tab index 0 is the chat tab
   }
 }

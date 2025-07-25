@@ -19,6 +19,7 @@ class ChatHomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Chats')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'chat-home-fab',
         // inside ChatHomeScreen's onPressed in floatingActionButton
         onPressed: () {
           showModalBottomSheet(

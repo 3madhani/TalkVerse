@@ -27,9 +27,14 @@ class HomeLayout extends StatelessWidget {
             bottomNavigationBar: NavigationBar(
               selectedIndex: homeViewModel.currentIndex,
               onDestinationSelected: (index) {
-                homeViewModel.pageController.jumpToPage(index);
+                homeViewModel.pageController.animateToPage(
+                  index,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
                 homeViewModel.changeTab(index);
               },
+
               labelBehavior:
                   NavigationDestinationLabelBehavior.onlyShowSelected,
               elevation: 0,

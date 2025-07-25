@@ -22,25 +22,37 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     return super.close();
   }
 
-  Future<void> createChatRoom({required String email}) async {
+  Future<bool> createChatRoom({required String email}) async {
     emit(ChatRoomLoading());
+
     final result = await chatRoomRepo.createChatRoom(email);
+
+    bool isSuccess = false;
+
     result.fold(
-      (failure) => emit(ChatRoomError(failure.message)),
-      (message) => emit(ChatRoomSuccess(message)),
+      (failure) {
+        emit(ChatRoomError(failure.message));
+      },
+      (message) {
+        emit(ChatRoomSuccess(message));
+        isSuccess = true;
+      },
     );
+
+    return isSuccess;
   }
 
-  Future<void> deleteChatRoom(String chatRoomId) async {
-    emit(ChatRoomLoading());
-    final result = await chatRoomRepo.deleteChatRoom(chatRoomId);
-    result.fold((failure) => emit(ChatRoomError(failure.message)), (
-      message,
-    ) async {
-      // Reload cached rooms after successful deletion
-      await loadCachedChatRooms();
-      emit(ChatRoomSuccess(message));
-    });
+
+  Future<void> deleteChatRoom(String roomId) async {
+    try {
+      await chatRoomRepo.deleteChatRoom(roomId);
+      chatRoomsCache.removeWhere((room) => room.id == roomId);
+      await _cacheChatRooms(chatRoomsCache);
+      emit(ChatRoomListLoaded(List.from(chatRoomsCache)));
+      emit(const ChatRoomSuccess("Chat deleted successfully"));
+    } catch (e) {
+      emit(ChatRoomError("Failed to delete chat: $e"));
+    }
   }
 
   void listenToUserChatRooms(String userId) {
@@ -66,7 +78,11 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
 
   Future<void> loadCachedChatRooms() async {
     final cachedJson = Prefs.getString('cachedChatRooms');
-    if (cachedJson.isEmpty) return;
+    if (cachedJson.isEmpty) {
+      chatRoomsCache = [];
+      emit(ChatRoomListLoaded(chatRoomsCache)); // ✅ Emit empty list
+      return;
+    }
 
     try {
       final List<dynamic> decoded = jsonDecode(cachedJson);

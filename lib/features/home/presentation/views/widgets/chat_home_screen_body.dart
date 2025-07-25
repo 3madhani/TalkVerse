@@ -18,41 +18,35 @@ class ChatHomeScreenBody extends StatelessWidget {
         if (state is ChatRoomError) {
           AppSnackBar.showError(context, state.message);
         } else if (state is ChatRoomSuccess) {
-          AppSnackBar.showSuccess(context, state.message);
+          if (state.message.contains("already exists")) {
+            AppSnackBar.showWarning(context, state.message);
+          } else {
+            AppSnackBar.showSuccess(context, state.message);
+          }
         }
       },
       builder: (context, state) {
         final chatRoomCubit = context.read<ChatRoomCubit>();
         final cachedRooms = chatRoomCubit.chatRoomsCache;
 
-        // ✅ Case 1: Render actual chat room list from cache or loaded state
-        if (state is ChatRoomListLoaded && cachedRooms.isNotEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ListView.builder(
-              itemCount: cachedRooms.length,
-              itemBuilder: (context, index) {
-                return ChatCard(chatRoom: cachedRooms[index]);
-              },
-            ),
-          );
-        }
-
-        // ✅ Case 2: Show skeleton only if no data at all
+        // Skeleton loading
         if (state is ChatRoomLoading && cachedRooms.isEmpty) {
           return Skeletonizer(
             child: ListView.builder(
               itemCount: 1,
               itemBuilder: (context, index) {
-                return ChatCard(
-                  chatRoom: ChatRoomEntity(
-                    aboutMe: '',
-                    roomName: 'Loading...',
-                    id: '',
-                    lastMessage: null,
-                    createdAt: '',
-                    members: [],
-                    lastMessageTime: '',
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                  child: ChatCard(
+                    chatRoom: ChatRoomEntity(
+                      id: '',
+                      roomName: 'Loading...',
+                      aboutMe: '',
+                      createdAt: '',
+                      lastMessageTime: '',
+                      members: [],
+                      lastMessage: null,
+                    ),
                   ),
                 );
               },
@@ -60,7 +54,22 @@ class ChatHomeScreenBody extends StatelessWidget {
           );
         }
 
-        // ✅ Case 3: Fallback UI if there's no data yet
+        final chatRooms =
+            state is ChatRoomListLoaded ? state.chatRooms : cachedRooms;
+
+        if (chatRooms.isNotEmpty) {
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            itemCount: chatRooms.length,
+            itemBuilder: (context, index) {
+              final room = chatRooms[index];
+
+              return ChatCard(chatRoom: room);
+            },
+          );
+        }
+
+        // Empty state
         return const Center(
           child: Text(
             'Welcome to Chat Home, start chatting!',
