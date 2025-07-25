@@ -1,7 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
+import 'package:chitchat/features/home/presentation/views/widgets/dismissible_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
+
+import '../../manager/contacts_cubit/contacts_cubit.dart';
 
 class ContactCard extends StatelessWidget {
   final UserEntity contact;
@@ -9,36 +13,55 @@ class ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 3,
-      child: ListTile(
-        leading: CircleAvatar(
-          radius: 22,
-          child: ClipOval(
-            clipBehavior: Clip.antiAlias,
-            child: CachedNetworkImage(
-              imageUrl: contact.photoUrl ?? '',
-              fit: BoxFit.cover,
-              placeholder:
-                  (context, url) => const CircularProgressIndicator(
-                    constraints: BoxConstraints(maxHeight: 16, maxWidth: 16),
-                  ),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
+    return DismissibleCard(
+      title: "Remove Contact",
+      confirm: true,
+      onDismiss: () async {
+        context.read<ContactsCubit>().deleteContact(contact.uId);
+      },
+      id: contact.uId,
+      content: "contact",
+      child: Card(
+        elevation: 3,
+        child: ListTile(
+          leading: CircleAvatar(
+            radius: 22,
+            child: ClipOval(
+              clipBehavior: Clip.antiAlias,
+              child:
+                  (contact.photoUrl != null && contact.photoUrl!.isNotEmpty)
+                      ? CachedNetworkImage(
+                        imageUrl: contact.photoUrl!,
+                        fit: BoxFit.cover,
+                        placeholder:
+                            (context, url) => const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.grey,
+                              ),
+                            ),
+                        errorWidget:
+                            (context, url, error) => const Icon(Icons.error),
+                      )
+                      : const Icon(
+                        Iconsax.user,
+                      ), // Fallback icon or asset image
             ),
           ),
-        ),
-        title: Text(
-          contact.name ?? 'Unknown User',
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
+
+          title: Text(
+            contact.name ?? 'Unknown User',
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
-        ),
-        subtitle: Text(contact.email, overflow: TextOverflow.ellipsis),
-        trailing: IconButton(
-          icon: const Icon(Iconsax.message),
-          onPressed: () {},
+          subtitle: Text(contact.email, overflow: TextOverflow.ellipsis),
+          trailing: IconButton(
+            icon: const Icon(Iconsax.message),
+            onPressed: () {},
+          ),
         ),
       ),
     );

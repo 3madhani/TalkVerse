@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:chitchat/core/errors/failure.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
@@ -45,7 +47,7 @@ class ContactsRepoImpl implements ContactsRepo {
       if (myData != null) {
         final currentFriends = List<String>.from(myData['friends'] ?? []);
         if (currentFriends.contains(contactUserId)) {
-          return const Right("Contact already exists");
+          return const Left(ServerFailure("Contact already exists"));
         }
       }
 
@@ -89,44 +91,84 @@ class ContactsRepoImpl implements ContactsRepo {
   }
 
   @override
-  Stream<Either<Failure, List<UserModel>>> getContacts() async* {
+  Stream<Either<Failure, List<UserModel>>> getContacts() {
+    final controller = StreamController<Either<Failure, List<UserModel>>>();
+
     if (currentUser == null) {
-      yield const Left(ServerFailure("User not logged in"));
-      return;
+      controller.add(const Left(ServerFailure("User not logged in")));
+      return controller.stream;
     }
 
     final userId = currentUser!.uid;
 
-    yield* databaseServices
+    late StreamSubscription userSub;
+    final List<StreamSubscription> friendSubs = [];
+
+    userSub = databaseServices
         .streamData(path: BackendEndPoints.getUser, documentId: userId)
-        .asyncMap((myData) async {
-          if (myData == null) {
-            return const Left(ServerFailure("User not found"));
-          }
-
-          final friends = List<String>.from(myData['friends'] ?? []);
-          if (friends.isEmpty) {
-            return const Right(<UserModel>[]);
-          }
-          List<UserModel> contacts = [];
-          try {
-            for (final friendId in friends) {
-              final friendData = await databaseServices.getData(
-                path: BackendEndPoints.getUser,
-                documentId: friendId,
-              );
-
-              if (friendData != null) {
-                contacts.add(UserModel.fromJson(friendData));
-              }
+        .listen(
+          (userData) {
+            if (userData == null) {
+              controller.add(const Left(ServerFailure("User not found")));
+              return;
             }
 
-            return Right(contacts);
-          } catch (e) {
-            return Left(
-              ServerFailure("Failed to fetch contacts: ${e.toString()}"),
+            final friends = List<String>.from(userData['friends'] ?? []);
+            if (friends.isEmpty) {
+              controller.add(const Right([]));
+              return;
+            }
+
+            final List<UserModel?> friendsList = List.filled(
+              friends.length,
+              null,
             );
-          }
-        });
+
+            for (int i = 0; i < friends.length; i++) {
+              final friendId = friends[i];
+
+              final sub = databaseServices
+                  .streamData(
+                    path: BackendEndPoints.getUser,
+                    documentId: friendId,
+                  )
+                  .listen(
+                    (friendData) {
+                      if (friendData != null) {
+                        friendsList[i] = UserModel.fromJson(friendData);
+
+                        final complete =
+                            friendsList.whereType<UserModel>().toList();
+                        controller.add(Right(complete));
+                      }
+                    },
+                    onError: (e) {
+                      controller.add(
+                        Left(
+                          ServerFailure("Failed to load friend $friendId: $e"),
+                        ),
+                      );
+                    },
+                  );
+
+              friendSubs.add(sub);
+            }
+          },
+          onError: (e) {
+            controller.add(
+              Left(ServerFailure("Failed to stream user data: $e")),
+            );
+          },
+        );
+
+    // Cleanup on cancel
+    controller.onCancel = () async {
+      await userSub.cancel();
+      for (var sub in friendSubs) {
+        await sub.cancel();
+      }
+    };
+
+    return controller.stream;
   }
 }

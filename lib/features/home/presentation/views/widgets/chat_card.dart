@@ -1,4 +1,5 @@
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
+import 'package:chitchat/features/home/presentation/views/widgets/dismissible_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,49 +40,16 @@ class _ChatCardState extends State<ChatCard> {
                   .length;
         }
       },
-      child: Dismissible(
-        key: Key(widget.chatRoom.id),
-        direction: DismissDirection.endToStart,
-        background: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.red,
-          ),
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: const Icon(Icons.delete, color: Colors.white),
-        ),
-        confirmDismiss: (_) async {
-          // Optional confirmation dialog
-          return await showDialog<bool>(
-                context: context,
-                builder:
-                    (context) => AlertDialog(
-                      title: const Text('Delete Chat'),
-                      content: const Text(
-                        'Are you sure you want to delete this chat?',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancel'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text('Delete'),
-                        ),
-                      ],
-                    ),
-              ) ??
-              false;
-        },
-        onDismissed: (_) async {
-          // ✅ Delete the entire chat room and its messages
+      child: DismissibleCard(
+        title: "Delete Chat",
+        confirm: true,
+        onDismiss: () async {
           await context.read<ChatRoomCubit>().deleteChatRoom(
             widget.chatRoom.id,
           );
         },
+        id: widget.chatRoom.id,
+        content: "chat",
         child: Card(
           elevation: 1,
           child: ListTile(

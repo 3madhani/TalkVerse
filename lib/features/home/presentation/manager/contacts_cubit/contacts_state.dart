@@ -26,3 +26,8 @@ class ContactsFailure extends ContactsState {
   final List<UserEntity> previousContacts;
   ContactsFailure(this.error, {this.previousContacts = const []});
 }
+
+class ContactsSearchResult extends ContactsState {
+  final List<UserEntity> searchResults;
+  ContactsSearchResult(this.searchResults);
+}

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,11 +14,11 @@ class ContactsCubit extends Cubit<ContactsState> {
   final ContactsRepo contactsRepo;
 
   List<UserEntity> _contacts = [];
+  StreamSubscription? _contactsSubscription;
 
   ContactsCubit({required this.contactsRepo}) : super(ContactsInitial());
 
   Future<void> addContact(String email) async {
-    // Instead of clearing everything with ContactsLoading, show a non-blocking loading state
     emit(ContactsAdding(_contacts));
 
     final result = await contactsRepo.createContact(email);
@@ -25,36 +26,71 @@ class ContactsCubit extends Cubit<ContactsState> {
     result.fold(
       (failure) {
         emit(ContactsFailure(failure.message, previousContacts: _contacts));
-        emit(ContactsLoaded(_contacts)); // restore contacts
+        emit(ContactsLoaded(_contacts));
       },
       (message) async {
-        await loadContacts(); // Reload contacts from Firestore
+        await loadContacts(); // Reload contacts
         emit(ContactsSuccess(message));
       },
     );
   }
 
+  void clearSearch() {
+    emit(ContactsLoaded(_contacts));
+  }
+
+  @override
+  Future<void> close() {
+    _contactsSubscription?.cancel();
+    return super.close();
+  }
+
+  Future<void> deleteContact(String uId) async {
+    final previousContacts = List<UserEntity>.from(_contacts);
+
+    _contacts = List<UserEntity>.from(_contacts)
+      ..removeWhere((c) => c.uId == uId);
+
+    emit(ContactsLoaded(_contacts));
+
+    final result = await contactsRepo.deleteContact(uId);
+    result.fold(
+      (failure) {
+        _contacts = previousContacts;
+        emit(
+          ContactsFailure(previousContacts: previousContacts, failure.message),
+        );
+      },
+      (_) async {
+        await _saveContactsToPrefs(_contacts);
+      },
+    );
+  }
+
   Future<void> loadContacts() async {
-    // Load cached contacts first
     final cached = await _loadContactsFromPrefs();
     if (cached.isNotEmpty) {
-      _contacts = cached;
+      _contacts = List<UserEntity>.from(cached)..sort(_sortByName);
       emit(ContactsLoaded(_contacts));
+
+      await Future.delayed(const Duration(milliseconds: 100));
     } else {
       emit(ContactsLoading());
     }
 
+    await _contactsSubscription?.cancel();
+
     try {
       final contactsStream = contactsRepo.getContacts();
 
-      contactsStream.listen((either) async {
+      _contactsSubscription = contactsStream.listen((either) async {
         either.fold(
           (failure) {
             emit(ContactsFailure(failure.message, previousContacts: _contacts));
           },
           (contacts) async {
-            _contacts = contacts;
-            await _saveContactsToPrefs(contacts);
+            _contacts = List<UserEntity>.from(contacts)..sort(_sortByName);
+            await _saveContactsToPrefs(_contacts);
             emit(ContactsLoaded(_contacts));
           },
         );
@@ -69,21 +105,42 @@ class ContactsCubit extends Cubit<ContactsState> {
     }
   }
 
+  Future<void> searchContacts(String query) async {
+    try {
+      final filtered =
+          _contacts
+              .where(
+                (element) =>
+                    element.name?.toLowerCase().contains(query.toLowerCase()) ??
+                    false,
+              )
+              .toList()
+            ..sort(_sortByName);
+
+      emit(ContactsLoaded(filtered));
+    } catch (e) {
+      emit(ContactsFailure("Search failed: $e", previousContacts: _contacts));
+    }
+  }
+
+  void sortContacts() {
+    _contacts.sort(_sortByName);
+    emit(ContactsLoaded(_contacts));
+  }
+
   Future<List<UserEntity>> _loadContactsFromPrefs() async {
     final jsonString = Prefs.getString(_cacheKey);
     try {
       final decoded = jsonDecode(jsonString) as List;
-      return decoded
-          .map(
-            (e) => UserEntity(
-              uId: e['uId'],
-              email: e['email'],
-              name: e['name'],
-              photoUrl: e['photoUrl'],
-              aboutMe: e['aboutMe'],
-            ),
-          )
-          .toList();
+      return decoded.map((e) {
+        return UserEntity(
+          uId: e['uId'],
+          email: e['email'],
+          name: e['name'],
+          photoUrl: e['photoUrl'],
+          aboutMe: e['aboutMe'],
+        );
+      }).toList();
     } catch (_) {
       return [];
     }
@@ -104,5 +161,11 @@ class ContactsCubit extends Cubit<ContactsState> {
           .toList(),
     );
     await Prefs.setString(_cacheKey, encoded);
+  }
+
+  int _sortByName(UserEntity a, UserEntity b) {
+    final nameA = a.name?.toLowerCase() ?? '';
+    final nameB = b.name?.toLowerCase() ?? '';
+    return nameA.compareTo(nameB);
   }
 }
