@@ -64,7 +64,10 @@ class HomeViewModel extends ChangeNotifier {
       title: 'Contacts',
       icon: Iconsax.user,
       screen: BlocProvider<ContactsCubit>(
-        create: (context) => ContactsCubit(contactsRepo: getIt<ContactsRepo>()),
+        create:
+            (context) =>
+                ContactsCubit(contactsRepo: getIt<ContactsRepo>())
+                  ..loadContacts(),
         child: const ContactsScreen(),
       ),
     ),

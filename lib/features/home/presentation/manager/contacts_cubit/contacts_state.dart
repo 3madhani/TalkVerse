@@ -1,39 +1,28 @@
-import 'package:equatable/equatable.dart';
+import '../../../../auth/domain/entities/user_entity.dart';
 
-abstract class ContactsState extends Equatable {
-  const ContactsState();
-
-  @override
-  List<Object?> get props => [];
-}
+abstract class ContactsState {}
 
 class ContactsInitial extends ContactsState {}
 
 class ContactsLoading extends ContactsState {}
 
-class ContactsSuccess extends ContactsState {
-  final String message;
-
-  const ContactsSuccess(this.message);
-
-  @override
-  List<Object?> get props => [message];
+class ContactsAdding extends ContactsState {
+  final List<UserEntity> currentContacts;
+  ContactsAdding(this.currentContacts);
 }
 
 class ContactsLoaded extends ContactsState {
-  final List<String> contactIds;
+  final List<UserEntity> contacts;
+  ContactsLoaded(this.contacts);
+}
 
-  const ContactsLoaded(this.contactIds);
-
-  @override
-  List<Object?> get props => [contactIds];
+class ContactsSuccess extends ContactsState {
+  final String message;
+  ContactsSuccess(this.message);
 }
 
 class ContactsFailure extends ContactsState {
   final String error;
-
-  const ContactsFailure(this.error);
-
-  @override
-  List<Object?> get props => [error];
+  final List<UserEntity> previousContacts;
+  ContactsFailure(this.error, {this.previousContacts = const []});
 }

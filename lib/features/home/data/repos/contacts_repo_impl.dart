@@ -89,7 +89,44 @@ class ContactsRepoImpl implements ContactsRepo {
   }
 
   @override
-  Stream<Either<Failure, List<String>>> getContacts() async* {
-    
+  Stream<Either<Failure, List<UserModel>>> getContacts() async* {
+    if (currentUser == null) {
+      yield const Left(ServerFailure("User not logged in"));
+      return;
+    }
+
+    final userId = currentUser!.uid;
+
+    yield* databaseServices
+        .streamData(path: BackendEndPoints.getUser, documentId: userId)
+        .asyncMap((myData) async {
+          if (myData == null) {
+            return const Left(ServerFailure("User not found"));
+          }
+
+          final friends = List<String>.from(myData['friends'] ?? []);
+          if (friends.isEmpty) {
+            return const Right(<UserModel>[]);
+          }
+          List<UserModel> contacts = [];
+          try {
+            for (final friendId in friends) {
+              final friendData = await databaseServices.getData(
+                path: BackendEndPoints.getUser,
+                documentId: friendId,
+              );
+
+              if (friendData != null) {
+                contacts.add(UserModel.fromJson(friendData));
+              }
+            }
+
+            return Right(contacts);
+          } catch (e) {
+            return Left(
+              ServerFailure("Failed to fetch contacts: ${e.toString()}"),
+            );
+          }
+        });
   }
 }

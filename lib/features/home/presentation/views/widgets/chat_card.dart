@@ -95,7 +95,7 @@ class _ChatCardState extends State<ChatCard> {
                 arguments: widget.chatRoom,
               );
             },
-            leading: const CircleAvatar(child: Icon(Iconsax.user)),
+            leading: const CircleAvatar(radius: 22, child: Icon(Iconsax.user)),
             title: Text(widget.chatRoom.roomName),
             subtitle: Text(
               widget.chatRoom.lastMessage ?? widget.chatRoom.aboutMe,
