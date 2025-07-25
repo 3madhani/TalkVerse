@@ -29,6 +29,15 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
         await databaseServices.deleteData(path: path, documentId: id);
       }
 
+      await databaseServices.updateData(
+        path: BackendEndPoints.chatRooms,
+        documentId: chatId,
+        data: {
+          'lastMessage': 'message deleted',
+          'lastMessageTime': DateTime.now().millisecondsSinceEpoch.toString(),
+        },
+      );
+
       await _updateCacheAfterDeletion(chatId, messageId);
       return const Right(null);
     } catch (e) {

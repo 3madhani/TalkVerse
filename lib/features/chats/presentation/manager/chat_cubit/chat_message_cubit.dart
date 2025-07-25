@@ -44,12 +44,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
     );
 
     result.fold((failure) => emit(ChatMessageFailure(failure.message)), (_) {
-      sendMessage(
-        roomId: chatId,
-        receiverId: receiverId,
-        message: 'Message deleted',
-        messageType: 'text',
-      );
+      _selectedMessageIds.clear();
     });
   }
 
