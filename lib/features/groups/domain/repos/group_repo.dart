@@ -1,0 +1,18 @@
+import 'package:dartz/dartz.dart';
+
+import '../../../../core/errors/failure.dart';
+import '../entities/group_entity.dart';
+
+abstract class GroupRepo {
+  Future<Either<Failure, void>> createGroup(GroupEntity group);
+
+  Future<Either<Failure, void>> deleteGroup(String groupId);
+
+  Stream<Either<Failure, List<GroupEntity>>> getGroups();
+
+  Future<Either<Failure, void>> updateGroup(
+    String groupId,
+    String groupName,
+    String groupDescription,
+  );
+}
