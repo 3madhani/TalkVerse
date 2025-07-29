@@ -1,90 +1,66 @@
-import 'package:chitchat/features/auth/presentation/views/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
-class CreateGroupScreen extends StatelessWidget {
-  const CreateGroupScreen({super.key});
+import '../../../../core/services/get_it_services.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
+import '../../domain/repos/group_repo.dart';
+import '../cubits/group_cubit/group_cubit.dart';
+import '../cubits/group_selection_cubit/group_selection_cubit.dart';
+import 'widgets/create_group_screen_body.dart';
 
+class CreateGroupScreen extends StatelessWidget {
   static const routeName = '/create-group';
+
+  const CreateGroupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Create Group')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
-        label: Text('Done', style: Theme.of(context).textTheme.labelLarge),
-        icon: const Icon(Iconsax.tick_circle),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      const CircleAvatar(radius: 40),
-                      Positioned(
-                        bottom: -10,
-                        right: -10,
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.add_a_photo),
-                        ),
-                      ),
-                    ],
-                  ),
+    final groupNameController = TextEditingController();
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => GroupSelectionCubit()),
+        BlocProvider(create: (_) => GroupCubit(getIt<GroupRepo>())),
+      ],
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Create Group')),
+        floatingActionButton: Builder(
+          builder:
+              (fabContext) => FloatingActionButton.extended(
+                onPressed: () => _createGroup(fabContext, groupNameController),
+                label: Text(
+                  'Done',
+                  style: Theme.of(context).textTheme.labelLarge,
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: CustomTextField(
-                    label: 'Group Name',
-                    prefixIcon: Iconsax.user_octagon,
-                    controller: TextEditingController(),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Add Members',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                Text('0', style: Theme.of(context).textTheme.labelLarge),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(0),
-                children: [
-                  CheckboxListTile(
-                    checkboxShape: const CircleBorder(),
-                    value: false,
-                    onChanged: (_) {},
-                    title: const Text('Emad'),
-                  ),
-                  CheckboxListTile(
-                    value: true,
-                    checkboxShape: const CircleBorder(),
-                    onChanged: (_) {},
-                    title: const Text('Emad'),
-                  ),
-                ],
+                icon: const Icon(Iconsax.tick_circle),
               ),
-            ),
-          ],
         ),
+        body: CreateGroupScreenBody(controller: groupNameController),
       ),
+    );
+  }
+
+  void _createGroup(BuildContext context, TextEditingController controller) {
+    final groupName = controller.text.trim();
+    final members = context.read<GroupSelectionCubit>().state.toList();
+
+    if (groupName.isEmpty) {
+      AppSnackBar.showWarning(context, 'Please enter a group name');
+      return;
+    }
+
+    if (members.isEmpty) {
+      AppSnackBar.showWarning(
+        context,
+        'Please select at least one member to add to the group',
+      );
+      return;
+    }
+
+    context.read<GroupCubit>().createGroup(
+      groupName: groupName,
+      members: members,
     );
   }
 }

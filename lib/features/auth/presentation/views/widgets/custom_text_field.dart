@@ -2,8 +2,6 @@ import 'package:chitchat/core/helpers/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../../../core/constants/colors/colors.dart';
-
 class CustomTextField extends StatefulWidget {
   final String label;
   final IconData prefixIcon;
@@ -60,9 +58,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           label: Text(widget.label),
           prefixIcon: Icon(widget.prefixIcon),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            borderSide: BorderSide(color: AppColors.primaryColor),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ),
       ),

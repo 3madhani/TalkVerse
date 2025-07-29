@@ -1,16 +1,12 @@
 import 'package:chitchat/features/home/presentation/views/chat_home_screen.dart';
 import 'package:chitchat/features/home/presentation/views/contacts_screen.dart';
-import 'package:chitchat/features/home/presentation/views/groups_screen.dart';
+import 'package:chitchat/features/groups/presentation/views/groups_screen.dart';
 import 'package:chitchat/features/home/presentation/views/settings_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../core/services/get_it_services.dart';
 import '../../data/models/home_tab.dart';
-import '../../domain/repos/contacts_repo.dart';
-import 'contacts_cubit/contacts_cubit.dart';
 
 class HomeViewModel extends ChangeNotifier {
   int _currentIndex = 0;
@@ -32,13 +28,7 @@ class HomeViewModel extends ChangeNotifier {
     HomeTab(
       title: 'Contacts',
       icon: Iconsax.user,
-      screen: BlocProvider<ContactsCubit>(
-        create:
-            (context) =>
-                ContactsCubit(contactsRepo: getIt<ContactsRepo>())
-                  ..loadContacts(),
-        child: const ContactsScreen(),
-      ),
+      screen: const ContactsScreen(),
     ),
     HomeTab(
       title: 'Settings',

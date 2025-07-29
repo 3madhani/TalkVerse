@@ -4,6 +4,8 @@ import '../../features/auth/data/repo/auth_repo_impl.dart';
 import '../../features/auth/domain/repo/auth_repo.dart';
 import '../../features/chats/data/repos/chat_message_repo_impl.dart';
 import '../../features/chats/domain/repo/chat_message_repo.dart';
+import '../../features/groups/data/repos/group_repo_impl.dart';
+import '../../features/groups/domain/repos/group_repo.dart';
 import '../../features/home/data/repos/chat_room_repo_impl.dart';
 import '../../features/home/data/repos/contacts_repo_impl.dart';
 import '../../features/home/domain/repos/chat_room_repo.dart';
@@ -44,5 +46,9 @@ void setupGetIt() {
 
   getIt.registerSingleton<ChatMessageRepo>(
     ChatMessageRepoImpl(databaseServices: getIt<DatabaseServices>()),
+  );
+
+  getIt.registerSingleton<GroupRepo>(
+    GroupRepoImpl(databaseServices: getIt<DatabaseServices>()),
   );
 }

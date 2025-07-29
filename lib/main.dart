@@ -14,7 +14,9 @@ import 'features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
 import 'features/chats/domain/repo/chat_message_repo.dart';
 import 'features/chats/presentation/manager/chat_cubit/chat_message_cubit.dart';
 import 'features/home/domain/repos/chat_room_repo.dart';
+import 'features/home/domain/repos/contacts_repo.dart';
 import 'features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
+import 'features/home/presentation/manager/contacts_cubit/contacts_cubit.dart';
 import 'features/home/presentation/manager/theme_view_model.dart';
 import 'firebase_options.dart';
 
@@ -63,6 +65,12 @@ void main() async {
                 getIt<ChatMessageRepo>(),
                 getIt<ImagesRepo>(),
               ),
+        ),
+        BlocProvider(
+          create:
+              (context) =>
+                  ContactsCubit(contactsRepo: getIt<ContactsRepo>())
+                    ..loadContacts(),
         ),
       ],
       child: ChangeNotifierProvider(

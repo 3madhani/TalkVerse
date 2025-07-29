@@ -53,8 +53,40 @@ class GroupRepoImpl implements GroupRepo {
   }
 
   @override
-  Stream<Either<Failure, List<GroupEntity>>> getGroups() {
-    throw UnimplementedError();
+  Stream<Either<Failure, List<GroupEntity>>> getGroups() async* {
+    try {
+      yield* databaseServices
+          .streamData(
+            path: BackendEndPoints.groups,
+            queryParameters: {
+              'field': 'members',
+              'arrayContains': _myId, // Your current user ID
+            },
+          )
+          .map((snapshotData) {
+            try {
+              if (snapshotData is List) {
+                final groups =
+                    snapshotData
+                        .map(
+                          (data) => GroupModel.fromJson(data),
+                        ) // Convert Map → Model
+                        .toList();
+                return Right<Failure, List<GroupEntity>>(groups);
+              } else {
+                return const Left<Failure, List<GroupEntity>>(
+                  ServerFailure('Unexpected data format'),
+                );
+              }
+            } catch (e) {
+              return Left<Failure, List<GroupEntity>>(
+                ServerFailure(e.toString()),
+              );
+            }
+          });
+    } catch (e) {
+      yield Left(ServerFailure(e.toString()));
+    }
   }
 
   @override

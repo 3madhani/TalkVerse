@@ -5,10 +5,10 @@ import 'package:iconsax/iconsax.dart';
 import '../../../../core/widgets/text_field_message.dart';
 import 'group_member_screen.dart';
 
-class GroupScreen extends StatelessWidget {
-  static const routeName = 'group-screen';
+class GroupChatScreen extends StatelessWidget {
+  static const routeName = 'group-chat-screen';
 
-  const GroupScreen({super.key});
+  const GroupChatScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
