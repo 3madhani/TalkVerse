@@ -4,7 +4,11 @@ import '../../../../core/errors/failure.dart';
 import '../entities/group_entity.dart';
 
 abstract class GroupRepo {
-  Future<Either<Failure, void>> createGroup(GroupEntity group);
+  Future<Either<Failure, void>> createGroup({
+    required String groupName,
+    required List<String> members,
+    String? imageUrl,
+  });
 
   Future<Either<Failure, void>> deleteGroup(String groupId);
 

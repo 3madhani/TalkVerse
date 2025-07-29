@@ -14,6 +14,7 @@ class GroupsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Groups')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'groups-screen-fab',
         onPressed: () {
           Navigator.pushNamed(context, CreateGroupScreen.routeName);
         },

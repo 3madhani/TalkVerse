@@ -1,9 +1,7 @@
-import 'package:intl/intl.dart';
-
 import '../../domain/entities/group_entity.dart';
 
 class GroupModel extends GroupEntity {
-  GroupModel({
+  const GroupModel({
     required super.id,
     required super.name,
     required super.imageUrl,
@@ -16,6 +14,23 @@ class GroupModel extends GroupEntity {
     required super.lastMessageTime,
   });
 
+  /// Create model from entity
+  factory GroupModel.fromEntity(GroupEntity entity) {
+    return GroupModel(
+      id: entity.id,
+      name: entity.name,
+      imageUrl: entity.imageUrl,
+      members: List<String>.from(entity.members),
+      createdBy: entity.createdBy,
+      createdAt: entity.createdAt,
+      about: entity.about,
+      admins: List<String>.from(entity.admins),
+      lastMessage: entity.lastMessage,
+      lastMessageTime: entity.lastMessageTime,
+    );
+  }
+
+  /// Create model from JSON
   factory GroupModel.fromJson(Map<String, dynamic> json) {
     return GroupModel(
       id: json['id'] as String,
@@ -31,47 +46,33 @@ class GroupModel extends GroupEntity {
     );
   }
 
-  String formatDateAndTime() {
-    final rawDate = (lastMessageTime.isNotEmpty) ? lastMessageTime : createdAt;
-
-    if (rawDate.isEmpty) return 'Unknown';
-
-    try {
-      DateTime date;
-
-      // Check if it's a numeric timestamp (millisecondsSinceEpoch)
-      if (RegExp(r'^\d+$').hasMatch(rawDate)) {
-        date = DateTime.fromMillisecondsSinceEpoch(int.parse(rawDate));
-      } else {
-        date = DateTime.parse(rawDate);
-      }
-
-      final now = DateTime.now();
-      final localDate = date.toLocal();
-
-      final isToday =
-          now.year == localDate.year &&
-          now.month == localDate.month &&
-          now.day == localDate.day;
-
-      final yesterday = now.subtract(const Duration(days: 1));
-      final isYesterday =
-          yesterday.year == localDate.year &&
-          yesterday.month == localDate.month &&
-          yesterday.day == localDate.day;
-
-      if (isToday) {
-        return DateFormat('h:mm a').format(localDate); // ➜ 3:45 PM
-      } else if (isYesterday) {
-        return 'Yesterday';
-      } else {
-        return DateFormat('MMM dd, yyyy').format(localDate); // ➜ Jul 02, 2025
-      }
-    } catch (e) {
-      return 'Unknown';
-    }
+  GroupModel copyWith({
+    String? id,
+    String? name,
+    String? imageUrl,
+    List<String>? members,
+    String? createdBy,
+    String? createdAt,
+    String? about,
+    List<String>? admins,
+    String? lastMessage,
+    String? lastMessageTime,
+  }) {
+    return GroupModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      imageUrl: imageUrl ?? this.imageUrl,
+      members: members ?? this.members,
+      createdBy: createdBy ?? this.createdBy,
+      createdAt: createdAt ?? this.createdAt,
+      about: about ?? this.about,
+      admins: admins ?? this.admins,
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastMessageTime: lastMessageTime ?? this.lastMessageTime,
+    );
   }
 
+  /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
