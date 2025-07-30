@@ -13,6 +13,8 @@ import 'features/auth/domain/repo/auth_repo.dart';
 import 'features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
 import 'features/chats/domain/repo/chat_message_repo.dart';
 import 'features/chats/presentation/manager/chat_cubit/chat_message_cubit.dart';
+import 'features/groups/domain/repos/group_repo.dart';
+import 'features/groups/presentation/cubits/group_cubit/group_cubit.dart';
 import 'features/home/domain/repos/chat_room_repo.dart';
 import 'features/home/domain/repos/contacts_repo.dart';
 import 'features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
@@ -71,6 +73,9 @@ void main() async {
               (context) =>
                   ContactsCubit(contactsRepo: getIt<ContactsRepo>())
                     ..loadContacts(),
+        ),
+        BlocProvider(
+          create: (context) => GroupCubit(getIt<GroupRepo>())..listenToGroups(),
         ),
       ],
       child: ChangeNotifierProvider(

@@ -25,7 +25,22 @@ class GroupEntity {
     required this.lastMessageTime,
   });
 
-    /// Format date & time for UI
+  factory GroupEntity.fromJson(Map<String, dynamic> json) {
+    return GroupEntity(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      imageUrl: json['imageUrl'] as String? ?? '',
+      members: List<String>.from(json['members'] as List),
+      createdBy: json['createdBy'] as String,
+      createdAt: json['createdAt'] as String,
+      about: json['about'] as String?,
+      admins: List<String>.from(json['admins'] as List),
+      lastMessage: json['lastMessage'] as String? ?? '',
+      lastMessageTime: json['lastMessageTime'] as String? ?? '',
+    );
+  }
+
+  /// Format date & time for UI
   String formatDateAndTime() {
     final rawDate = lastMessageTime.isNotEmpty ? lastMessageTime : createdAt;
     if (rawDate.isEmpty) return 'Unknown';
@@ -60,4 +75,18 @@ class GroupEntity {
     }
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'imageUrl': imageUrl,
+      'members': members,
+      'createdBy': createdBy,
+      'createdAt': createdAt,
+      'about': about,
+      'admins': admins,
+      'lastMessage': lastMessage,
+      'lastMessageTime': lastMessageTime,
+    };
+  }
 }

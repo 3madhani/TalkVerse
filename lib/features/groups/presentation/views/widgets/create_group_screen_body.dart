@@ -19,7 +19,7 @@ class CreateGroupScreenBody extends StatelessWidget {
           AppSnackBar.showError(context, state.message);
         }
 
-        if (state is GroupCreated) {
+        if (state is GroupSuccess) {
           AppSnackBar.showSuccess(context, state.message);
           Navigator.pop(context);
         }

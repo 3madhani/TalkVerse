@@ -1,10 +1,5 @@
 part of 'group_cubit.dart';
 
-final class GroupCreated extends GroupState {
-  final String message;
-  const GroupCreated(this.message);
-}
-
 final class GroupDeleted extends GroupState {
   final String name; // ID of the deleted group
   const GroupDeleted(this.name);
@@ -29,6 +24,11 @@ sealed class GroupState extends Equatable {
 
   @override
   List<Object> get props => [];
+}
+
+final class GroupSuccess extends GroupState {
+  final String message;
+  const GroupSuccess(this.message);
 }
 
 final class GroupUpdated extends GroupState {

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../../core/widgets/app_snack_bar.dart';
+import '../../../domain/entities/group_entity.dart';
 import '../../cubits/group_cubit/group_cubit.dart';
 import 'group_card.dart';
 
@@ -10,59 +12,72 @@ class GroupsScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Expanded(
-            child: BlocConsumer<GroupCubit, GroupState>(
-              listener: (context, state) {
-                if (state is GroupError) {
-                  AppSnackBar.showError(context, state.message);
-                }
-                if (state is GroupCreated) {
-                  AppSnackBar.showSuccess(context, state.message);
-                  
-                }
-                if (state is GroupUpdated) {
-                  AppSnackBar.showSuccess(context, state.message);
-                }
-                if (state is GroupDeleted) {
-                  AppSnackBar.showSuccess(
-                    context,
-                    'Group with ID ${state.name} deleted successfully',
-                  );
-                }
-              },
-              builder: (context, state) {
-                if (state is GroupError) {
-                  return Center(child: Text(state.message));
-                }
-                if (state is GroupLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state is GroupLoaded) {
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(0),
-                    itemCount: state.groups.length,
-                    itemBuilder:
-                        (context, index) =>
-                            GroupCard(group: state.groups[index]),
-                  );
-                }
-                return Center(
-                  child: Text(
-                    textAlign: TextAlign.center,
-                    'You have no groups yet'
-                    '\nCreate one to start a conversation',
-                    style: Theme.of(context).textTheme.bodyLarge,
+    return BlocConsumer<GroupCubit, GroupState>(
+      listener: (context, state) {
+        if (state is GroupError) {
+          AppSnackBar.showError(context, state.message);
+        } else if (state is GroupSuccess) {
+          if (state.message.contains("already exists")) {
+            AppSnackBar.showWarning(context, state.message);
+          } else {
+            AppSnackBar.showSuccess(context, state.message);
+          }
+        }
+      },
+      builder: (context, state) {
+        final groupCubit = context.read<GroupCubit>();
+        final cachedGroups = groupCubit.groupsCache;
+
+        // Skeleton loading if no cache yet
+        if (state is GroupLoading && cachedGroups.isEmpty) {
+          return Skeletonizer(
+            child: ListView.builder(
+              itemCount: 1,
+              itemBuilder: (context, index) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 6.0),
+                  child: GroupCard(
+                    group: GroupEntity(
+                      imageUrl: '',
+                      id: '',
+                      name: 'Loading...',
+                      createdAt: '',
+                      lastMessageTime: '',
+                      members: [],
+                      lastMessage: '',
+                      about: '',
+                      admins: [],
+                      createdBy: '',
+                    ),
                   ),
                 );
               },
             ),
+          );
+        }
+
+        // Decide which list to show
+        final groups = state is GroupLoaded ? state.groups : cachedGroups;
+
+        if (groups.isNotEmpty) {
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            itemCount: groups.length,
+            itemBuilder: (context, index) {
+              return GroupCard(group: groups[index]);
+            },
+          );
+        }
+
+        // Empty state
+        return const Center(
+          child: Text(
+            'You have no groups yet\nCreate one to start chatting!',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../../core/services/get_it_services.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
-import '../../domain/repos/group_repo.dart';
 import '../cubits/group_cubit/group_cubit.dart';
 import '../cubits/group_selection_cubit/group_selection_cubit.dart';
 import 'widgets/create_group_screen_body.dart';
@@ -18,11 +16,8 @@ class CreateGroupScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final groupNameController = TextEditingController();
 
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => GroupSelectionCubit()),
-        BlocProvider(create: (_) => GroupCubit(getIt<GroupRepo>())),
-      ],
+    return BlocProvider(
+      create: (context) => GroupSelectionCubit(),
       child: Scaffold(
         appBar: AppBar(title: const Text('Create Group')),
         floatingActionButton: Builder(
