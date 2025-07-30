@@ -27,7 +27,7 @@ class HomeViewModel extends ChangeNotifier {
       title: 'Groups',
       icon: Iconsax.messages,
       screen: BlocProvider(
-        create: (_) => GroupCubit(getIt<GroupRepo>())..startListeningToGroups(),
+        create: (_) => GroupCubit(getIt<GroupRepo>())..listenToGroups(),
         child: const GroupsScreen(),
       ),
     ),

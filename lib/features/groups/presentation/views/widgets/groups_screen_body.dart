@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../cubits/group_cubit/group_cubit.dart';
 import 'group_card.dart';
 
@@ -14,7 +15,25 @@ class GroupsScreenBody extends StatelessWidget {
       child: Column(
         children: [
           Expanded(
-            child: BlocBuilder<GroupCubit, GroupState>(
+            child: BlocConsumer<GroupCubit, GroupState>(
+              listener: (context, state) {
+                if (state is GroupError) {
+                  AppSnackBar.showError(context, state.message);
+                }
+                if (state is GroupCreated) {
+                  AppSnackBar.showSuccess(context, state.message);
+                  
+                }
+                if (state is GroupUpdated) {
+                  AppSnackBar.showSuccess(context, state.message);
+                }
+                if (state is GroupDeleted) {
+                  AppSnackBar.showSuccess(
+                    context,
+                    'Group with ID ${state.name} deleted successfully',
+                  );
+                }
+              },
               builder: (context, state) {
                 if (state is GroupError) {
                   return Center(child: Text(state.message));

@@ -12,15 +12,17 @@ import '../../../domain/entities/group_entity.dart';
 part 'group_state.dart';
 
 class GroupCubit extends Cubit<GroupState> {
-  static const _groupsCacheKey = "cached_groups";
+  static const _groupsCacheKey = "cachedGroups";
   final GroupRepo groupRepo;
-  StreamSubscription? _groupsSubscription;
+  StreamSubscription? _subscription;
+
+  List<GroupEntity> groupsCache = [];
 
   GroupCubit(this.groupRepo) : super(GroupInitial());
 
   @override
-  Future<void> close() {
-    _groupsSubscription?.cancel();
+  Future<void> close() async {
+    await _subscription?.cancel();
     return super.close();
   }
 
@@ -30,47 +32,57 @@ class GroupCubit extends Cubit<GroupState> {
     String? imageUrl,
   }) async {
     emit(GroupLoading());
+
     final result = await groupRepo.createGroup(
       groupName: groupName,
       members: members,
       imageUrl: imageUrl,
     );
-    result.fold(
-      (failure) => emit(GroupError(failure.message)),
-      (_) => emit(GroupCreated("Group '$groupName' created successfully")),
-    );
+
+    result.fold((failure) => emit(GroupError(failure.message)), (_) {
+      emit(const GroupCreated("Group created successfully"));
+      listenToGroups(); // Refresh the group list
+    });
   }
 
-  Future<void> deleteGroup(String groupId) async {
-    emit(GroupLoading());
-    final result = await groupRepo.deleteGroup(groupId);
-    result.fold(
-      (failure) => emit(GroupError(failure.message)),
-      (_) => emit(const GroupDeleted("Group deleted successfully")),
-    );
-  }
-
-  void startListeningToGroups() {
-    // Emit cache first
-    final cachedData = Prefs.getString(_groupsCacheKey);
-    if (cachedData.isNotEmpty) {
+  void listenToGroups() {
+    // Emit from cache first
+    final cachedJson = Prefs.getString(_groupsCacheKey);
+    if (cachedJson.isNotEmpty) {
       try {
-        final List decoded = jsonDecode(cachedData);
+        final List<dynamic> decoded = jsonDecode(cachedJson);
         final cachedGroups =
             decoded
                 .map((e) => GroupModel.fromJson(e as Map<String, dynamic>))
                 .toList();
-        emit(GroupLoaded(cachedGroups));
-      } catch (_) {}
+
+        groupsCache = cachedGroups;
+        emit(GroupLoaded(groupsCache));
+      } catch (_) {
+        emit(const GroupError("Failed to load cached groups"));
+      }
+    } else {
+      emit(GroupLoading());
     }
 
-    _groupsSubscription?.cancel();
-    _groupsSubscription = groupRepo.getGroups().listen((either) {
-      either.fold((failure) => emit(GroupError(failure.message)), (groups) {
-        emit(GroupLoaded(groups));
-        final toCache = groups.map((g) => (g as GroupModel).toJson()).toList();
-        Prefs.setString(_groupsCacheKey, jsonEncode(toCache));
+    // Listen to live updates
+    _subscription?.cancel();
+    _subscription = groupRepo.getGroups().listen((either) async {
+      either.fold((failure) => emit(GroupError(failure.message)), (
+        groups,
+      ) async {
+        groupsCache = groups;
+        await _cacheGroups(groupsCache);
+        emit(GroupLoaded(groupsCache));
       });
     });
+  }
+
+  Future<void> _cacheGroups(List<GroupEntity> groups) async {
+    final jsonList =
+        groups
+            .map((e) => (e as GroupModel).toJson()) // Convert to JSON
+            .toList();
+    await Prefs.setString(_groupsCacheKey, jsonEncode(jsonList));
   }
 }

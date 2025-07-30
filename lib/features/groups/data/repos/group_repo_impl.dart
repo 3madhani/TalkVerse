@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/v1.dart';
@@ -52,45 +54,38 @@ class GroupRepoImpl implements GroupRepo {
   Future<Either<Failure, void>> deleteGroup(String groupId) {
     throw UnimplementedError();
   }
-
-  @override
-  Stream<Either<Failure, List<GroupEntity>>> getGroups() async* {
+@override
+  Stream<Either<Failure, List<GroupEntity>>> getGroups() {
     try {
-      yield* databaseServices
+      return databaseServices
           .streamData(
             path: BackendEndPoints.groups,
             queryParameters: {
-              'field': 'members',
-              'arrayContains': _myId, // Your current user ID
-              'orderBy': 'createdAt',
-              'descending': true,
+              "field": "members",
+              "arrayContains": _myId,
+              "orderBy": "createdAt",
+              "descending": true,
             },
           )
-          .map((snapshotData) {
+          .map((list) {
             try {
-              if (snapshotData is List) {
-                final groups =
-                    snapshotData
-                        .map(
-                          (data) => GroupModel.fromJson(data),
-                        ) // Convert Map → Model
-                        .toList();
-                return Right<Failure, List<GroupEntity>>(groups);
-              } else {
-                return const Left<Failure, List<GroupEntity>>(
-                  ServerFailure('Unexpected data format'),
-                );
-              }
+              final groups =
+                  (list as List)
+                      .cast<Map<String, dynamic>>()
+                      .map((e) => GroupModel.fromJson(e))
+                      .toList();
+
+              return Right(groups);
             } catch (e) {
-              return Left<Failure, List<GroupEntity>>(
-                ServerFailure(e.toString()),
-              );
+              return const Left(ServerFailure("Failed to map groups"));
             }
           });
-    } catch (e) {
-      yield Left(ServerFailure(e.toString()));
+    } catch (e, stack) {
+      log("🔥 getGroups error: $e", stackTrace: stack);
+      return Stream.value(const Left(ServerFailure("Fetch failed")));
     }
   }
+
 
   @override
   Future<Either<Failure, void>> updateGroup(

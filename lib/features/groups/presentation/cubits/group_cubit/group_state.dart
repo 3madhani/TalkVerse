@@ -6,8 +6,8 @@ final class GroupCreated extends GroupState {
 }
 
 final class GroupDeleted extends GroupState {
-  final String groupId; // ID of the deleted group
-  const GroupDeleted(this.groupId);
+  final String name; // ID of the deleted group
+  const GroupDeleted(this.name);
 }
 
 final class GroupError extends GroupState {
