@@ -14,7 +14,6 @@ part 'group_state.dart';
 class GroupCubit extends Cubit<GroupState> {
   static const _groupsCacheKey = "cached_groups";
   final GroupRepo groupRepo;
-
   StreamSubscription? _groupsSubscription;
 
   GroupCubit(this.groupRepo) : super(GroupInitial());
@@ -38,15 +37,21 @@ class GroupCubit extends Cubit<GroupState> {
     );
     result.fold(
       (failure) => emit(GroupError(failure.message)),
-      (success) =>
-          emit(GroupCreated("Group '$groupName' created successfully")),
+      (_) => emit(GroupCreated("Group '$groupName' created successfully")),
     );
   }
 
-  void loadGroups() {
+  Future<void> deleteGroup(String groupId) async {
     emit(GroupLoading());
+    final result = await groupRepo.deleteGroup(groupId);
+    result.fold(
+      (failure) => emit(GroupError(failure.message)),
+      (_) => emit(const GroupDeleted("Group deleted successfully")),
+    );
+  }
 
-    // ✅ Step 1: Load cached groups immediately
+  void startListeningToGroups() {
+    // Emit cache first
     final cachedData = Prefs.getString(_groupsCacheKey);
     if (cachedData.isNotEmpty) {
       try {
@@ -59,17 +64,11 @@ class GroupCubit extends Cubit<GroupState> {
       } catch (_) {}
     }
 
-    // ✅ Step 2: Listen to real-time Firestore updates
     _groupsSubscription?.cancel();
     _groupsSubscription = groupRepo.getGroups().listen((either) {
       either.fold((failure) => emit(GroupError(failure.message)), (groups) {
         emit(GroupLoaded(groups));
-
-        // ✅ Step 3: Save to cache
-        final toCache =
-            groups
-                .map((g) => (g as GroupModel).toJson())
-                .toList(); // Cast to model for toJson()
+        final toCache = groups.map((g) => (g as GroupModel).toJson()).toList();
         Prefs.setString(_groupsCacheKey, jsonEncode(toCache));
       });
     });

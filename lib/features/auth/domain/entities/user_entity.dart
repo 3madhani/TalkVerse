@@ -25,6 +25,8 @@ class UserEntity extends Equatable {
     this.friends,
   });
 
+  
+
   @override
   List<Object?> get props => [
     uId,

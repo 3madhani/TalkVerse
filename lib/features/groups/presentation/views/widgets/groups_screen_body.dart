@@ -33,6 +33,7 @@ class GroupsScreenBody extends StatelessWidget {
                 }
                 return Center(
                   child: Text(
+                    textAlign: TextAlign.center,
                     'You have no groups yet'
                     '\nCreate one to start a conversation',
                     style: Theme.of(context).textTheme.bodyLarge,

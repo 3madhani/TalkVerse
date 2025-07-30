@@ -17,7 +17,10 @@ class GroupCard extends StatelessWidget {
         },
         leading: CircleAvatar(child: Text(group.name[0])),
         title: Text(group.name, style: Theme.of(context).textTheme.bodyLarge),
-        subtitle: Text(group.lastMessage),
+        subtitle: Text(
+          group.lastMessage == '' ? group.about! : group.lastMessage,
+          style: Theme.of(context).textTheme.labelLarge,
+        ),
         trailing: const Badge(
           padding: EdgeInsets.all(6),
           largeSize: 30,

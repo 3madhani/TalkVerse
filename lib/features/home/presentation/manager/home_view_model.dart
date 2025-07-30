@@ -1,11 +1,15 @@
+import 'package:chitchat/features/groups/presentation/views/groups_screen.dart';
 import 'package:chitchat/features/home/presentation/views/chat_home_screen.dart';
 import 'package:chitchat/features/home/presentation/views/contacts_screen.dart';
-import 'package:chitchat/features/groups/presentation/views/groups_screen.dart';
 import 'package:chitchat/features/home/presentation/views/settings_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/services/get_it_services.dart';
+import '../../../groups/domain/repos/group_repo.dart';
+import '../../../groups/presentation/cubits/group_cubit/group_cubit.dart';
 import '../../data/models/home_tab.dart';
 
 class HomeViewModel extends ChangeNotifier {
@@ -22,7 +26,10 @@ class HomeViewModel extends ChangeNotifier {
     HomeTab(
       title: 'Groups',
       icon: Iconsax.messages,
-      screen: const GroupsScreen(),
+      screen: BlocProvider(
+        create: (_) => GroupCubit(getIt<GroupRepo>())..startListeningToGroups(),
+        child: const GroupsScreen(),
+      ),
     ),
 
     HomeTab(

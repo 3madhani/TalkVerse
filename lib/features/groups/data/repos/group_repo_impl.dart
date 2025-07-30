@@ -24,7 +24,8 @@ class GroupRepoImpl implements GroupRepo {
     try {
       // Create a GroupModel with a new ID
       final groupModel = GroupModel(
-        about: '',
+        about:
+            'This is a group created by ${FirebaseAuth.instance.currentUser!.displayName}',
         name: groupName,
         members: [_myId, ...members],
         id: const UuidV1().toString(),
@@ -61,6 +62,8 @@ class GroupRepoImpl implements GroupRepo {
             queryParameters: {
               'field': 'members',
               'arrayContains': _myId, // Your current user ID
+              'orderBy': 'createdAt',
+              'descending': true,
             },
           )
           .map((snapshotData) {
