@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../../features/auth/domain/entities/user_entity.dart';
-import '../errors/failure.dart';
+import '../../../features/auth/domain/entities/user_entity.dart';
+import '../../errors/failure.dart';
 
 abstract class UserDataRepo {
   Future<void> updateUserAbout(String userId, String about);

@@ -7,7 +7,7 @@ import 'package:iconsax/iconsax.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../manager/chat_room_cubit/chat_room_state.dart';
 import 'widgets/body_of_floating_action_button.dart';
-import 'widgets/chat_home_screen_body.dart';
+import 'widgets/chats_home_screen_body.dart';
 
 class ChatHomeScreen extends StatelessWidget {
   static const routeName = 'chats-home-screen';
@@ -70,7 +70,7 @@ class ChatHomeScreen extends StatelessWidget {
 
         child: const Icon(Iconsax.message_add),
       ),
-      body: const ChatHomeScreenBody(),
+      body: const ChatsHomeScreenBody(),
     );
   }
 }

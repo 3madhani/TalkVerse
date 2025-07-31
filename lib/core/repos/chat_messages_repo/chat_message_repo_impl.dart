@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:chitchat/core/constants/backend/backend_end_points.dart';
 import 'package:chitchat/core/errors/failure.dart';
 import 'package:chitchat/core/services/database_services.dart';
-import 'package:chitchat/features/chats/data/models/message_model.dart';
-import 'package:chitchat/features/chats/domain/entities/message_entity.dart';
+import 'package:chitchat/core/models/message_model.dart';
+import 'package:chitchat/core/entities/message_entity.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../core/services/shared_preferences_singleton.dart';
-import '../../domain/repo/chat_message_repo.dart';
+import '../../services/shared_preferences_singleton.dart';
+import 'chat_message_repo.dart';
 
 class ChatMessageRepoImpl implements ChatMessageRepo {
   final DatabaseServices databaseServices;
@@ -18,11 +18,11 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
 
   @override
   Future<Either<Failure, void>> deleteMessage({
+    required String collectionPath,
     required String chatId,
     required List<String> messageId,
   }) async {
-    final path =
-        '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}';
+    final path = '$collectionPath/$chatId/${BackendEndPoints.chatMessages}';
 
     try {
       for (final id in messageId) {
@@ -51,11 +51,12 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
 
   @override
   Stream<Either<Failure, List<MessageEntity>>> fetchMessages({
+    required String collectionPath,
     required String chatId,
     String? lastMessageId,
   }) async* {
     final path =
-        '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}';
+        '$collectionPath/$chatId/${BackendEndPoints.chatMessages}';
 
     try {
       final cachedMessages = await _loadCachedMessages(chatId);
@@ -98,13 +99,14 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
 
   @override
   Future<Either<Failure, void>> readMessage({
+    required String collectionPath,
     required String chatId,
     required String messageId,
     required bool isRead,
   }) async {
     try {
       final path =
-          '${BackendEndPoints.chatRooms}/$chatId/${BackendEndPoints.chatMessages}/';
+          '$collectionPath/$chatId/${BackendEndPoints.chatMessages}/';
 
       await databaseServices.updateData(
         path: path,
@@ -120,6 +122,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
 
   @override
   Future<Either<Failure, void>> sendMessage({
+    required String collectionPath,
     required String receiverId,
     required String message,
     required String roomId,
@@ -127,7 +130,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
   }) async {
     try {
       final path =
-          '${BackendEndPoints.chatRooms}/$roomId/${BackendEndPoints.chatMessages}';
+          '$collectionPath/$roomId/${BackendEndPoints.chatMessages}';
       final messageId = const Uuid().v1();
       final messageTime = DateTime.now().millisecondsSinceEpoch.toString();
 

@@ -73,6 +73,7 @@ class GroupModel extends GroupEntity {
   }
 
   /// Convert to JSON
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,

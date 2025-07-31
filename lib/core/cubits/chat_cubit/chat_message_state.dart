@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../domain/entities/message_entity.dart';
+import '../../entities/message_entity.dart';
 
 class ChatMessageFailure extends ChatMessageState {
   final String message;

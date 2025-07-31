@@ -4,12 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../../core/images_repo/images_repo.dart';
+import '../../../../core/constants/backend/backend_end_points.dart';
+import '../../../../core/repos/images_repo/images_repo.dart';
 import '../../../../core/services/get_it_services.dart';
 import '../../../home/domain/entities/chat_room_entity.dart';
-import '../../domain/repo/chat_message_repo.dart';
-import '../manager/chat_cubit/chat_message_cubit.dart';
-import '../manager/chat_cubit/chat_message_state.dart';
+import '../../../../core/repos/chat_messages_repo/chat_message_repo.dart';
+import '../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
+import '../../../../core/cubits/chat_cubit/chat_message_state.dart';
 import 'widgets/chat_screen_body.dart';
 
 class ChatScreen extends StatelessWidget {
@@ -24,7 +25,7 @@ class ChatScreen extends StatelessWidget {
       create:
           (_) =>
               ChatMessageCubit(getIt<ChatMessageRepo>(), getIt<ImagesRepo>())
-                ..fetchMessages(chatRoom.id),
+                ..fetchMessages(chatRoom.id, BackendEndPoints.chatRooms),
       child: BlocBuilder<ChatMessageCubit, ChatMessageState>(
         builder: (context, state) {
           final isSelecting =
@@ -52,6 +53,7 @@ class ChatScreen extends StatelessWidget {
                           icon: const Icon(Iconsax.trash),
                           onPressed: () {
                             context.read<ChatMessageCubit>().deleteMessage(
+                              collectionPath: BackendEndPoints.chatRooms,
                               receiverId: chatRoom.members.firstWhere(
                                 (id) =>
                                     id !=

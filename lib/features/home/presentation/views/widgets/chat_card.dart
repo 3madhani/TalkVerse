@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../../chats/presentation/manager/chat_cubit/chat_message_cubit.dart';
-import '../../../../chats/presentation/manager/chat_cubit/chat_message_state.dart';
+import '../../../../../core/constants/backend/backend_end_points.dart';
+import '../../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
+import '../../../../../core/cubits/chat_cubit/chat_message_state.dart';
 import '../../../../chats/presentation/views/chat_screen.dart';
 import '../../../domain/entities/chat_room_entity.dart';
 
@@ -103,13 +104,11 @@ class _ChatCardState extends State<ChatCard> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   void initState() {
-    context.read<ChatMessageCubit>().fetchMessages(widget.chatRoom.id);
+    context.read<ChatMessageCubit>().fetchMessages(
+      widget.chatRoom.id,
+      BackendEndPoints.chatRooms,
+    );
     super.initState();
   }
 }

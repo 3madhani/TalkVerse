@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../../core/constants/backend/backend_end_points.dart';
 import '../../../../../core/widgets/text_field_message.dart';
 import '../../../../home/domain/entities/chat_room_entity.dart';
-import '../../manager/chat_cubit/chat_message_cubit.dart';
+import '../../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
 
 class SendMessageField extends StatefulWidget {
   final ChatRoomEntity chatRoom;
@@ -63,6 +64,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
             orElse: () => '', // fallback in case of single-user room
           );
           context.read<ChatMessageCubit>().sendMessage(
+            collectionPath: BackendEndPoints.chatRooms,
             roomId: widget.chatRoom.id,
             receiverId: receiverId,
             image: File(image.path),
@@ -87,6 +89,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
     );
 
     context.read<ChatMessageCubit>().sendMessage(
+      collectionPath: BackendEndPoints.chatRooms,
       roomId: widget.chatRoom.id,
       receiverId: receiverId,
       message: message,

@@ -1,15 +1,15 @@
-import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../../core/widgets/app_snack_bar.dart';
+import '../../../../../core/widgets/universal_chat_card.dart';
 import '../../../domain/entities/chat_room_entity.dart';
+import '../../manager/chat_room_cubit/chat_room_cubit.dart';
 import '../../manager/chat_room_cubit/chat_room_state.dart';
-import 'chat_card.dart';
 
-class ChatHomeScreenBody extends StatelessWidget {
-  const ChatHomeScreenBody({super.key});
+class ChatsHomeScreenBody extends StatelessWidget {
+  const ChatsHomeScreenBody({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class ChatHomeScreenBody extends StatelessWidget {
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                  child: ChatCard(
+                  child: UniversalChatCard(
                     chatRoom: ChatRoomEntity(
                       id: '',
                       roomName: 'Loading...',
@@ -64,7 +64,7 @@ class ChatHomeScreenBody extends StatelessWidget {
             itemBuilder: (context, index) {
               final room = chatRooms[index];
 
-              return ChatCard(chatRoom: room);
+              return UniversalChatCard(chatRoom: room);
             },
           );
         }

@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 
-import '../../features/auth/data/model/user_model.dart';
-import '../constants/backend/backend_end_points.dart';
-import '../errors/failure.dart';
-import '../services/database_services.dart';
+import '../../../features/auth/data/model/user_model.dart';
+import '../../constants/backend/backend_end_points.dart';
+import '../../errors/failure.dart';
+import '../../services/database_services.dart';
 import 'user_data_repo.dart';
 
 class UserDataRepoImpl implements UserDataRepo {

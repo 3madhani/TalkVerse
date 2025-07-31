@@ -5,108 +5,153 @@ import 'package:chitchat/features/groups/presentation/views/group_chat_screen.da
 import 'package:chitchat/features/home/domain/entities/chat_room_entity.dart';
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
 import 'package:chitchat/features/home/presentation/views/widgets/dismissible_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
-class UniversalChatCard extends StatelessWidget {
+import '../cubits/chat_cubit/chat_message_cubit.dart';
+import '../cubits/chat_cubit/chat_message_state.dart';
+import '../constants/backend/backend_end_points.dart';
+
+class UniversalChatCard extends StatefulWidget {
   final ChatRoomEntity? chatRoom;
   final GroupEntity? group;
-  final int unreadCount; // pass unread count from outside
 
-  const UniversalChatCard({
-    super.key,
-    this.chatRoom,
-    this.group,
-    this.unreadCount = 0,
-  }) : assert(
-         chatRoom != null || group != null,
-         'Either chatRoom or group must be provided',
-       );
+  const UniversalChatCard({super.key, this.chatRoom, this.group})
+    : assert(
+        chatRoom != null || group != null,
+        'Either chatRoom or group must be provided',
+      );
 
-  bool get isGroup => group != null;
+  @override
+  State<UniversalChatCard> createState() => _UniversalChatCardState();
+}
+
+class _UniversalChatCardState extends State<UniversalChatCard> {
+  final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+  int unreadCount = 0;
+  bool get isGroup => widget.group != null;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return DismissibleCard(
-      title: isGroup ? "Delete Group" : "Delete Chat",
-      confirm: true,
-      id: isGroup ? group!.id : chatRoom!.id,
-      content: isGroup ? "group" : "chat",
-      onDismiss: () async {
-        if (isGroup) {
-          await context.read<GroupCubit>().deleteGroup(group!.id);
-        } else {
-          await context.read<ChatRoomCubit>().deleteChatRoom(chatRoom!.id);
+    return BlocListener<ChatMessageCubit, ChatMessageState>(
+      listener: (context, state) {
+        if (state is ChatMessageLoaded) {
+          final messages = state.messages;
+          unreadCount =
+              messages
+                  .where(
+                    (message) =>
+                        message.isRead == false &&
+                        message.senderId != currentUserId,
+                  )
+                  .length;
         }
       },
-      child: Card(
-        elevation: 1,
-        child: ListTile(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          onTap: () {
-            if (isGroup) {
-              Navigator.pushNamed(
-                context,
-                GroupChatScreen.routeName,
-                arguments: group,
-              );
-            } else {
-              Navigator.pushNamed(
-                context,
-                ChatScreen.routeName,
-                arguments: chatRoom,
-              );
-            }
-          },
-          leading: CircleAvatar(
-            radius: 22,
-            child: isGroup ? Text(group!.name[0]) : const Icon(Iconsax.user),
-          ),
-          title: Text(
-            isGroup ? group!.name : chatRoom!.roomName,
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Text(
-            isGroup
-                ? (group!.lastMessage.isEmpty
-                    ? group!.about ?? ''
-                    : group!.lastMessage)
-                : (chatRoom!.lastMessage ?? chatRoom!.aboutMe),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: TextStyle(color: theme.textTheme.bodySmall?.color),
-          ),
-          trailing:
-              !isGroup && unreadCount > 0
-                  ? SizedBox(
-                    width: 25,
-                    height: 25,
-                    child: Badge(
-                      backgroundColor: theme.colorScheme.primary,
-                      label: Text(
-                        '$unreadCount',
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+      child: DismissibleCard(
+        title: isGroup ? "Delete Group" : "Delete Chat",
+        confirm: true,
+        id: isGroup ? widget.group!.id : widget.chatRoom!.id,
+        content: isGroup ? "group" : "chat",
+        onDismiss: () async {
+          if (isGroup) {
+            await context.read<GroupCubit>().deleteGroup(widget.group!.id);
+          } else {
+            await context.read<ChatRoomCubit>().deleteChatRoom(
+              widget.chatRoom!.id,
+            );
+          }
+        },
+        child: Card(
+          elevation: 1,
+          child: ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            onTap: () {
+              if (isGroup) {
+                Navigator.pushNamed(
+                  context,
+                  GroupChatScreen.routeName,
+                  arguments: widget.group,
+                );
+              } else {
+                Navigator.pushNamed(
+                  context,
+                  ChatScreen.routeName,
+                  arguments: widget.chatRoom,
+                );
+              }
+            },
+            leading: CircleAvatar(
+              radius: 22,
+              child:
+                  isGroup
+                      ? Text(widget.group!.name[0])
+                      : const Icon(Iconsax.user),
+            ),
+            title: Text(
+              isGroup ? widget.group!.name : widget.chatRoom!.roomName,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+              isGroup
+                  ? (widget.group!.lastMessage.isEmpty
+                      ? widget.group!.about ?? ''
+                      : widget.group!.lastMessage)
+                  : (widget.chatRoom!.lastMessage ?? widget.chatRoom!.aboutMe),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(color: theme.textTheme.bodySmall?.color),
+            ),
+            trailing:
+                !isGroup && unreadCount > 0
+                    ? SizedBox(
+                      width: 25,
+                      height: 25,
+                      child: Badge(
+                        backgroundColor: theme.colorScheme.primary,
+                        label: Text(
+                          '$unreadCount',
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
+                    )
+                    : Text(
+                      isGroup
+                          ? widget.group!.formatDateAndTime()
+                          : widget.chatRoom!.formatDateAndTime(),
+                      style: TextStyle(
+                        color: theme.textTheme.bodyMedium?.color,
+                      ),
                     ),
-                  )
-                  : Text(
-                    isGroup
-                        ? group!.formatDateAndTime()
-                        : chatRoom!.formatDateAndTime(),
-                    style: TextStyle(color: theme.textTheme.bodyMedium?.color),
-                  ),
+          ),
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    if (widget.chatRoom != null) {
+      context.read<ChatMessageCubit>().fetchMessages(
+        widget.chatRoom!.id,
+        BackendEndPoints.chatRooms,
+      );
+    } else if (widget.group != null) {
+      context.read<ChatMessageCubit>().fetchMessages(
+        widget.group!.id,
+        BackendEndPoints.groups,
+      );
+    }
+    super.initState();
   }
 }

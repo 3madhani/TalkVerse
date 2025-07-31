@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../core/widgets/text_field_message.dart';
+import '../../domain/entities/group_entity.dart';
 import 'group_member_screen.dart';
 
 class GroupChatScreen extends StatelessWidget {
+  final GroupEntity group;
   static const routeName = 'group-chat-screen';
 
-  const GroupChatScreen({super.key});
+  const GroupChatScreen({super.key, required this.group});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +19,9 @@ class GroupChatScreen extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Group Name'),
+             Text(group.name, style: Theme.of(context).textTheme.titleLarge),
             Text(
-              'Emad, Ahmed, Ali ...',
+              group.about ?? 'No description',
               style: Theme.of(context).textTheme.labelLarge,
             ),
           ],

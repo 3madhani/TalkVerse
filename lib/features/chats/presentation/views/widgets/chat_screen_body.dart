@@ -2,10 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../core/constants/backend/backend_end_points.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../home/domain/entities/chat_room_entity.dart';
-import '../../manager/chat_cubit/chat_message_cubit.dart';
-import '../../manager/chat_cubit/chat_message_state.dart';
+import '../../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
+import '../../../../../core/cubits/chat_cubit/chat_message_state.dart';
 import 'chat_message_bubble.dart';
 import 'send_message_field.dart';
 import 'start_message_card.dart';
@@ -37,6 +38,7 @@ class ChatScreenBody extends StatelessWidget {
                     if (!message.isRead && message.senderId != userId) {
                       cubit.markMessageAsReadLocally(message.messageId);
                       cubit.readMessage(
+                        collectionPath: BackendEndPoints.chatRooms,
                         chatId: chatRoom.id,
                         isRead: true,
                         messageId: message.messageId,
@@ -67,6 +69,7 @@ class ChatScreenBody extends StatelessWidget {
                       onTap: () {
                         if (receiverId.isNotEmpty) {
                           context.read<ChatMessageCubit>().sendMessage(
+                            collectionPath: BackendEndPoints.chatRooms,
                             roomId: chatRoom.id,
                             receiverId: receiverId,
                             message:

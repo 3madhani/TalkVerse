@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../core/images_repo/images_repo.dart';
-import '../../../domain/repo/chat_message_repo.dart';
+import '../../repos/images_repo/images_repo.dart';
+import '../../repos/chat_messages_repo/chat_message_repo.dart';
 import 'chat_message_state.dart';
 
 class ChatMessageCubit extends Cubit<ChatMessageState> {
@@ -37,8 +37,10 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
     required String chatId,
     required String receiverId,
     required List<String> messageId,
+    required String collectionPath,
   }) async {
     final result = await chatMessageRepo.deleteMessage(
+      collectionPath: collectionPath,
       chatId: chatId,
       messageId: messageId,
     );
@@ -48,16 +50,16 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
     });
   }
 
-  void fetchMessages(String chatId) {
+  void fetchMessages(String chatId, String collectionPath) {
     _subscription?.cancel();
-    _subscription = chatMessageRepo.fetchMessages(chatId: chatId).listen((
-      result,
-    ) {
-      result.fold(
-        (failure) => emit(ChatMessageFailure(failure.message)),
-        (messages) => emit(ChatMessageLoaded(messages)),
-      );
-    });
+    _subscription = chatMessageRepo
+        .fetchMessages(chatId: chatId, collectionPath: collectionPath)
+        .listen((result) {
+          result.fold(
+            (failure) => emit(ChatMessageFailure(failure.message)),
+            (messages) => emit(ChatMessageLoaded(messages)),
+          );
+        });
   }
 
   void markMessageAsReadLocally(String messageId) {
@@ -76,10 +78,12 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
 
   Future<void> readMessage({
     required String chatId,
+    required String collectionPath,
     required String messageId,
     required bool isRead,
   }) async {
     final result = await chatMessageRepo.readMessage(
+      collectionPath: collectionPath,
       chatId: chatId,
       messageId: messageId,
       isRead: isRead,
@@ -92,6 +96,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
 
   Future<void> sendMessage({
     required String roomId,
+    required String collectionPath,
     required String receiverId,
     String? message,
     File? image,
@@ -103,6 +108,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
         imageUrl,
       ) async {
         await chatMessageRepo.sendMessage(
+          collectionPath: collectionPath,
           roomId: roomId,
           receiverId: receiverId,
           message: imageUrl,
@@ -111,6 +117,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
       });
     } else {
       final result = await chatMessageRepo.sendMessage(
+        collectionPath: collectionPath,
         roomId: roomId,
         receiverId: receiverId,
         message: message!,

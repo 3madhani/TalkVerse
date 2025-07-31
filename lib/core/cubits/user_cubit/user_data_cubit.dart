@@ -5,7 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../features/auth/domain/entities/user_entity.dart';
-import '../../repos/user_data_repo.dart';
+import '../../repos/user_data_repo/user_data_repo.dart';
 import '../../services/shared_preferences_singleton.dart';
 
 part 'user_data_state.dart';

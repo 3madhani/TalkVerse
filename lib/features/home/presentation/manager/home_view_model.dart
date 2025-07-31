@@ -1,5 +1,5 @@
 import 'package:chitchat/features/groups/presentation/views/groups_screen.dart';
-import 'package:chitchat/features/home/presentation/views/chat_home_screen.dart';
+import 'package:chitchat/features/home/presentation/views/chats_home_screen.dart';
 import 'package:chitchat/features/home/presentation/views/contacts_screen.dart';
 import 'package:chitchat/features/home/presentation/views/settings_screen.dart';
 import 'package:flutter/material.dart';

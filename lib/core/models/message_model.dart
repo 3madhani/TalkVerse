@@ -1,4 +1,4 @@
-import '../../domain/entities/message_entity.dart';
+import '../entities/message_entity.dart';
 
 class MessageModel extends MessageEntity {
   MessageModel({
