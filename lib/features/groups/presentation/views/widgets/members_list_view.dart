@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../core/services/get_it_services.dart';
 import '../../../../home/presentation/manager/contacts_cubit/contacts_cubit.dart';
 import '../../../../home/presentation/manager/contacts_cubit/contacts_state.dart';
 import '../../cubits/group_selection_cubit/group_selection_cubit.dart';
 
-class MembersListView extends StatelessWidget {
+class MembersListView extends StatefulWidget {
   const MembersListView({super.key});
 
   @override
+  State<MembersListView> createState() => _MembersListViewState();
+}
+
+class _MembersListViewState extends State<MembersListView> {
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<ContactsCubit, ContactsState>(
+      bloc: getIt<ContactsCubit>(),
       builder: (context, state) {
         if (state is ContactsLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -20,6 +27,7 @@ class MembersListView extends StatelessWidget {
         }
         if (state is ContactsLoaded) {
           return BlocBuilder<GroupSelectionCubit, Set<String>>(
+            bloc: getIt<GroupSelectionCubit>(),
             builder: (context, selectedIds) {
               return ListView.separated(
                 padding: EdgeInsets.zero,
@@ -32,7 +40,7 @@ class MembersListView extends StatelessWidget {
                   return CheckboxListTile(
                     value: isSelected,
                     onChanged:
-                        (_) => context.read<GroupSelectionCubit>().toggleMember(
+                        (_) => getIt<GroupSelectionCubit>().toggleMember(
                           member.uId,
                         ),
                     checkboxShape: const CircleBorder(),
@@ -59,5 +67,11 @@ class MembersListView extends StatelessWidget {
         return const SizedBox();
       },
     );
+  }
+
+  @override
+  void initState() {
+    getIt<ContactsCubit>().loadContacts();
+    super.initState();
   }
 }

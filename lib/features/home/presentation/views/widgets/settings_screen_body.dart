@@ -1,5 +1,5 @@
+import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../auth/presentation/manager/auth_cubit/auth_cubit.dart';
@@ -35,7 +35,7 @@ class SettingsScreenBody extends StatelessWidget {
           const DarkModeTile(),
           GestureDetector(
             onTap: () {
-              context.read<AuthCubit>().signOut();
+              getIt<AuthCubit>().signOut();
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 LoginScreen.routeName,

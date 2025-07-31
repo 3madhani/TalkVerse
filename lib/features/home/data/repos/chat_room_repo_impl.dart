@@ -16,18 +16,18 @@ import '../models/chat_room_model.dart';
 
 class ChatRoomRepoImpl implements ChatRoomRepo {
   final DatabaseServices databaseServices;
+  final user = FirebaseAuth.instance.currentUser;
 
   ChatRoomRepoImpl({required this.databaseServices});
 
   @override
   Future<Either<Failure, String>> createChatRoom(String email) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         return const Left(ServerFailure("User not logged in"));
       }
 
-      final userId = user.uid;
+      final userId = user!.uid;
       final users = await databaseServices.getData(
         path: BackendEndPoints.getUser,
         queryParameters: {"where": "email", "isEqualTo": email},
@@ -49,7 +49,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
         members: [userId, otherUser.uId],
         roomNames: {
           userId: otherUser.name ?? "User",
-          otherUser.uId: user.displayName ?? "Unknown",
+          otherUser.uId: user!.displayName ?? "Unknown",
         },
       );
 
@@ -95,16 +95,14 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
   }
 
   @override
-  Stream<Either<Failure, List<ChatRoomEntity>>> fetchUserChatRooms({
-    required String userId,
-  }) {
+  Stream<Either<Failure, List<ChatRoomEntity>>> fetchUserChatRooms() {
     try {
       return databaseServices
           .streamData(
             path: BackendEndPoints.chatRooms,
             queryParameters: {
               "field": "members",
-              "arrayContains": userId,
+              "arrayContains": user!.uid,
               "orderBy": "lastMessageTime",
               "descending": true,
             },
@@ -114,7 +112,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
               final rooms =
                   (list as List)
                       .cast<Map<String, dynamic>>()
-                      .map((e) => ChatRoomModel.fromJson(e).toEntity(userId))
+                      .map((e) => ChatRoomModel.fromJson(e).toEntity(user!.uid))
                       .toList();
 
               rooms.sort((a, b) {

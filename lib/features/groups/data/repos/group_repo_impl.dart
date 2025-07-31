@@ -15,7 +15,7 @@ import '../models/group_model.dart';
 
 class GroupRepoImpl implements GroupRepo {
   final DatabaseServices databaseServices;
-  final String _myId = FirebaseAuth.instance.currentUser!.uid;
+  final _myId = FirebaseAuth.instance.currentUser?.uid;
   GroupRepoImpl({required this.databaseServices});
 
   @override
@@ -30,7 +30,7 @@ class GroupRepoImpl implements GroupRepo {
         about:
             'This is a group created by ${FirebaseAuth.instance.currentUser!.displayName}',
         name: groupName,
-        members: [_myId, ...members],
+        members: [_myId!, ...members],
         id: const UuidV1().toString(),
         admins: [_myId],
         createdBy: _myId,
@@ -61,7 +61,7 @@ class GroupRepoImpl implements GroupRepo {
       );
 
       // Remove cached messages for that group if you have them
-      await Prefs.remove('messages_$groupId');
+      // await Prefs.remove('messages_$groupId');
 
       // Update cached groups list
       final cachedJson = Prefs.getString('cachedGroups');

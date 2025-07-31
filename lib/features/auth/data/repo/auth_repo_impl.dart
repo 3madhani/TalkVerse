@@ -194,6 +194,7 @@ class AuthRepoImpl implements AuthRepo {
   Future<Either<Failure, void>> signOut() async {
     try {
       await firebaseAuthService.signOut();
+      
       return const Right(null);
     } catch (e) {
       log("Error in signOut: ${e.toString()}");

@@ -1,3 +1,4 @@
+import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:chitchat/core/widgets/app_snack_bar.dart';
 import 'package:chitchat/features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
 import 'package:chitchat/features/auth/presentation/manager/auth_cubit/auth_state.dart';
@@ -24,6 +25,7 @@ class _AuthListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
+      bloc: getIt<AuthCubit>(),
       listener: (context, state) {
         if (state is AuthFailure) {
           AppSnackBar.showError(context, state.message);
@@ -105,13 +107,15 @@ class _SetupProfileBodyState extends State<SetupProfileBody> {
   @override
   void dispose() {
     nameController.dispose();
+    formKey.currentState?.dispose();
+    getIt<AuthCubit>().close();
     super.dispose();
   }
 
   void _submitProfile() {
     if (!formKey.currentState!.validate()) return;
 
-    final state = context.read<AuthCubit>().state;
+    final state = getIt<AuthCubit>().state;
     if (state is AuthSuccess) {
       final user = UserEntity(
         name: nameController.text.trim(),
@@ -120,11 +124,11 @@ class _SetupProfileBodyState extends State<SetupProfileBody> {
         photoUrl: '',
         aboutMe: '',
         online: true,
-        createdAt: DateTime.now().toIso8601String(),
-        lastSeen: DateTime.now().toIso8601String(),
+        createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
+        lastSeen: DateTime.now().millisecondsSinceEpoch.toString(),
         pushToken: '',
       );
-      context.read<AuthCubit>().addUserToFirebase(user);
+      getIt<AuthCubit>().addUserToFirebase(user);
     }
   }
 }

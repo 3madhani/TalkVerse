@@ -10,9 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../constants/backend/backend_end_points.dart';
 import '../cubits/chat_cubit/chat_message_cubit.dart';
 import '../cubits/chat_cubit/chat_message_state.dart';
-import '../constants/backend/backend_end_points.dart';
+import '../services/get_it_services.dart';
 
 class UniversalChatCard extends StatefulWidget {
   final ChatRoomEntity? chatRoom;
@@ -38,6 +39,7 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
     final theme = Theme.of(context);
 
     return BlocListener<ChatMessageCubit, ChatMessageState>(
+      bloc: getIt<ChatMessageCubit>(),
       listener: (context, state) {
         if (state is ChatMessageLoaded) {
           final messages = state.messages;
@@ -58,11 +60,9 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
         content: isGroup ? "group" : "chat",
         onDismiss: () async {
           if (isGroup) {
-            await context.read<GroupCubit>().deleteGroup(widget.group!.id);
+            await getIt<GroupCubit>().deleteGroup(widget.group!.id);
           } else {
-            await context.read<ChatRoomCubit>().deleteChatRoom(
-              widget.chatRoom!.id,
-            );
+            await getIt<ChatRoomCubit>().deleteChatRoom(widget.chatRoom!.id);
           }
         },
         child: Card(
@@ -142,12 +142,12 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
   @override
   void initState() {
     if (widget.chatRoom != null) {
-      context.read<ChatMessageCubit>().fetchMessages(
+      getIt<ChatMessageCubit>().fetchMessages(
         widget.chatRoom!.id,
         BackendEndPoints.chatRooms,
       );
     } else if (widget.group != null) {
-      context.read<ChatMessageCubit>().fetchMessages(
+      getIt<ChatMessageCubit>().fetchMessages(
         widget.group!.id,
         BackendEndPoints.groups,
       );

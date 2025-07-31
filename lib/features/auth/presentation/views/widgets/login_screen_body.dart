@@ -5,6 +5,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 import '../../../../../core/constants/colors/colors.dart';
+import '../../../../../core/services/get_it_services.dart';
 import '../../../../../core/utils/app_assets.dart';
 import '../../../../home/presentation/views/home_layout.dart';
 import '../../manager/auth_cubit/auth_cubit.dart';
@@ -30,6 +31,7 @@ class _AuthListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
+      bloc: getIt<AuthCubit>(), // 👈 Injected directly
       listenWhen: (previous, current) => previous != current,
       listener: (context, state) {
         if (state is AuthFailure) {
@@ -44,7 +46,7 @@ class _AuthListener extends StatelessWidget {
           );
         }
       },
-      child: const SizedBox(), // to satisfy the widget tree
+      child: const SizedBox(),
     );
   }
 }
@@ -56,89 +58,92 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = context.select<AuthCubit, bool>(
-      (cubit) => cubit.state is AuthLoading,
-    );
-
-    return ModalProgressHUD(
-      color: AppColors.primaryColor.withOpacity(0.5),
-
-      inAsyncCall: isLoading,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 80),
-            const AppLogo(),
-            const SizedBox(height: 20),
-            Text(
-              'Welcome Back',
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-            Row(
+    return BlocBuilder<AuthCubit, AuthState>(
+      bloc: getIt<AuthCubit>(),
+      builder: (context, state) {
+        return ModalProgressHUD(
+          color: AppColors.primaryColor.withOpacity(0.5),
+          inAsyncCall: state is AuthLoading,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('To ', style: Theme.of(context).textTheme.bodyLarge),
+                const SizedBox(height: 80),
+                const AppLogo(),
+                const SizedBox(height: 20),
                 Text(
-                  'TalkVerse',
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    color: AppColors.primaryColor,
-                    fontWeight: FontWeight.bold,
+                  'Welcome Back',
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+                Row(
+                  children: [
+                    Text('To ', style: Theme.of(context).textTheme.bodyLarge),
+                    Text(
+                      'TalkVerse',
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  "Your voice, Your verse.",
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+                const _AuthListener(), // clean listener
+                Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      CustomTextField(
+                        label: 'Email',
+                        prefixIcon: Iconsax.direct,
+                        controller: emailController,
+                      ),
+                      CustomTextField(
+                        obscureText: true,
+                        label: 'Password',
+                        prefixIcon: Iconsax.password_check,
+                        controller: passwordController,
+                      ),
+                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: InkWell(
+                          onTap:
+                              () => Navigator.pushNamed(
+                                context,
+                                ForgetPasswordScreen.routeName,
+                              ),
+                          child: Text(
+                            'Forgot Password?',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      CustomElevatedButton(
+                        onPressed: _handleLogin,
+                        label: 'Login',
+                      ),
+                      const SizedBox(height: 16),
+                      CustomSecondaryButton(onPressed: _handleSignUp),
+                      const SizedBox(height: 40),
+                      const _SocialAuthRow(),
+                    ],
                   ),
                 ),
               ],
             ),
-            Text(
-              "Your voice, Your verse.",
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge!.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            const _AuthListener(), // clean listener
-            Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  CustomTextField(
-                    label: 'Email',
-                    prefixIcon: Iconsax.direct,
-                    controller: emailController,
-                  ),
-                  CustomTextField(
-                    obscureText: true,
-                    label: 'Password',
-                    prefixIcon: Iconsax.password_check,
-                    controller: passwordController,
-                  ),
-                  const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: InkWell(
-                      onTap:
-                          () => Navigator.pushNamed(
-                            context,
-                            ForgetPasswordScreen.routeName,
-                          ),
-                      child: Text(
-                        'Forgot Password?',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  CustomElevatedButton(onPressed: _handleLogin, label: 'Login'),
-                  const SizedBox(height: 16),
-                  CustomSecondaryButton(onPressed: _handleSignUp),
-                  const SizedBox(height: 40),
-                  const _SocialAuthRow(),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -153,12 +158,12 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
   @override
   void initState() {
     super.initState();
-    context.read<AuthCubit>().checkIfLoggedIn();
+    getIt<AuthCubit>().checkIfLoggedIn();
   }
 
   void _handleLogin() {
     if (formKey.currentState!.validate()) {
-      context.read<AuthCubit>().signIn(
+      getIt<AuthCubit>().signIn(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
@@ -167,7 +172,7 @@ class _LoginScreenBodyState extends State<LoginScreenBody> {
 
   void _handleSignUp() {
     if (formKey.currentState!.validate()) {
-      context.read<AuthCubit>().signUp(
+      getIt<AuthCubit>().signUp(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
@@ -185,12 +190,12 @@ class _SocialAuthRow extends StatelessWidget {
       children: [
         SocialButton(
           icon: Assets.imagesGoogleIcons,
-          onTap: () => context.read<AuthCubit>().signInWithGoogle(),
+          onTap: () => getIt<AuthCubit>().signInWithGoogle(),
         ),
         const SizedBox(width: 30),
         SocialButton(
           icon: Assets.imagesFacebookIcons,
-          onTap: () => context.read<AuthCubit>().signInWithFacebook(),
+          onTap: () => getIt<AuthCubit>().signInWithFacebook(),
         ),
       ],
     );

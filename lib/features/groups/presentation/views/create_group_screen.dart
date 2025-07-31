@@ -1,5 +1,5 @@
+import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../core/widgets/app_snack_bar.dart';
@@ -16,29 +16,26 @@ class CreateGroupScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final groupNameController = TextEditingController();
 
-    return BlocProvider(
-      create: (context) => GroupSelectionCubit(),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Create Group')),
-        floatingActionButton: Builder(
-          builder:
-              (fabContext) => FloatingActionButton.extended(
-                onPressed: () => _createGroup(fabContext, groupNameController),
-                label: Text(
-                  'Done',
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                icon: const Icon(Iconsax.tick_circle),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Create Group')),
+      floatingActionButton: Builder(
+        builder:
+            (fabContext) => FloatingActionButton.extended(
+              onPressed: () => _createGroup(fabContext, groupNameController),
+              label: Text(
+                'Done',
+                style: Theme.of(context).textTheme.labelLarge,
               ),
-        ),
-        body: CreateGroupScreenBody(controller: groupNameController),
+              icon: const Icon(Iconsax.tick_circle),
+            ),
       ),
+      body: CreateGroupScreenBody(controller: groupNameController),
     );
   }
 
   void _createGroup(BuildContext context, TextEditingController controller) {
     final groupName = controller.text.trim();
-    final members = context.read<GroupSelectionCubit>().state.toList();
+    final members = getIt<GroupSelectionCubit>().state.toList();
 
     if (groupName.isEmpty) {
       AppSnackBar.showWarning(context, 'Please enter a group name');
@@ -53,9 +50,8 @@ class CreateGroupScreen extends StatelessWidget {
       return;
     }
 
-    context.read<GroupCubit>().createGroup(
-      groupName: groupName,
-      members: members,
-    );
+    getIt<GroupCubit>().createGroup(groupName: groupName, members: members);
+    getIt<GroupSelectionCubit>().clearSelection();
+    Navigator.pop(context);
   }
 }

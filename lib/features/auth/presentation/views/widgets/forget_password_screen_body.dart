@@ -1,8 +1,9 @@
-import 'package:chitchat/core/widgets/app_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../../../core/services/get_it_services.dart';
+import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../manager/auth_cubit/auth_cubit.dart';
 import '../../manager/auth_cubit/auth_state.dart';
 import 'custom_elevated_button.dart';
@@ -21,6 +22,7 @@ class _ForgetPasswordFormState extends State<ForgetPasswordForm> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
+      bloc: getIt<AuthCubit>(),
       listener: (context, state) {
         if (state is AuthFailure) {
           AppSnackBar.showError(context, state.message);
@@ -59,14 +61,13 @@ class _ForgetPasswordFormState extends State<ForgetPasswordForm> {
   void dispose() {
     emailController.dispose();
     formKey.currentState?.dispose();
+    getIt<AuthCubit>().close();
     super.dispose();
   }
 
   void validateForm() {
     if (formKey.currentState?.validate() ?? false) {
-      context.read<AuthCubit>().sendResetPasswordEmail(
-        email: emailController.text,
-      );
+      getIt<AuthCubit>().sendResetPasswordEmail(email: emailController.text);
     }
   }
 }

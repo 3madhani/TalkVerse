@@ -1,3 +1,4 @@
+import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:chitchat/core/widgets/universal_chat_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,25 +8,27 @@ import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../domain/entities/group_entity.dart';
 import '../../cubits/group_cubit/group_cubit.dart';
 
-class GroupsScreenBody extends StatelessWidget {
+class GroupsScreenBody extends StatefulWidget {
   const GroupsScreenBody({super.key});
 
   @override
+  State<GroupsScreenBody> createState() => _GroupsScreenBodyState();
+}
+
+class _GroupsScreenBodyState extends State<GroupsScreenBody> {
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<GroupCubit, GroupState>(
+      bloc: getIt<GroupCubit>(),
       listener: (context, state) {
         if (state is GroupError) {
           AppSnackBar.showError(context, state.message);
         } else if (state is GroupSuccess) {
-          if (state.message.contains("already exists")) {
-            AppSnackBar.showWarning(context, state.message);
-          } else {
-            AppSnackBar.showSuccess(context, state.message);
-          }
+          AppSnackBar.showSuccess(context, state.message);
         }
       },
       builder: (context, state) {
-        final groupCubit = context.read<GroupCubit>();
+        final groupCubit = getIt<GroupCubit>();
         final cachedGroups = groupCubit.groupsCache;
 
         // Skeleton loading if no cache yet
@@ -56,7 +59,7 @@ class GroupsScreenBody extends StatelessWidget {
           );
         }
 
-        // Decide which list to show
+        // Show either loaded groups or cached ones
         final groups = state is GroupLoaded ? state.groups : cachedGroups;
 
         if (groups.isNotEmpty) {
@@ -79,5 +82,13 @@ class GroupsScreenBody extends StatelessWidget {
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final groupCubit = getIt<GroupCubit>();
+    groupCubit.loadCachedGroups();
+    groupCubit.listenToGroups();
   }
 }

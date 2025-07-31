@@ -55,7 +55,7 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     }
   }
 
-  void listenToUserChatRooms(String userId) {
+  void listenToUserChatRooms() {
     if (chatRoomsCache.isNotEmpty) {
       emit(ChatRoomListLoaded(chatRoomsCache));
     } else {
@@ -63,7 +63,7 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     }
 
     _subscription?.cancel();
-    _subscription = chatRoomRepo.fetchUserChatRooms(userId: userId).listen((
+    _subscription = chatRoomRepo.fetchUserChatRooms().listen((
       either,
     ) async {
       either.fold((failure) => emit(ChatRoomError(failure.message)), (

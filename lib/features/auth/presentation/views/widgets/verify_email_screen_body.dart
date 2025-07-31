@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../../../core/services/get_it_services.dart';
+
 class VerifyEmailScreenBody extends StatelessWidget {
   const VerifyEmailScreenBody({super.key});
 
@@ -76,6 +78,7 @@ class _VerifyEmailListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
+      bloc: getIt<AuthCubit>(),
       listener: (context, state) {
         if (state is AuthFailure) {
           AppSnackBar.showError(context, state.message);

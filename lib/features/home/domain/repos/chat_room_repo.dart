@@ -6,8 +6,6 @@ abstract class ChatRoomRepo {
   Future<Either<Failure, String>> createChatRoom(String email);
   Future<Either<Failure, String>> deleteChatRoom(String chatRoomId);
 
-  Stream<Either<Failure, List<ChatRoomEntity>>> fetchUserChatRooms({
-    required String userId,
-  });
+  Stream<Either<Failure, List<ChatRoomEntity>>> fetchUserChatRooms();
 
 }

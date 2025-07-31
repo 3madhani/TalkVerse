@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
 import 'package:chitchat/features/home/presentation/views/widgets/dismissible_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../manager/contacts_cubit/contacts_cubit.dart';
@@ -19,7 +19,7 @@ class ContactCard extends StatelessWidget {
       title: "Remove Contact",
       confirm: true,
       onDismiss: () async {
-        context.read<ContactsCubit>().deleteContact(contact.uId);
+        await getIt<ContactsCubit>().deleteContact(contact.uId);
       },
       id: contact.uId,
       content: "contact",
@@ -63,7 +63,7 @@ class ContactCard extends StatelessWidget {
           trailing: IconButton(
             icon: const Icon(Iconsax.message),
             onPressed: () async {
-              final cubit = context.read<ChatRoomCubit>();
+              final cubit = getIt<ChatRoomCubit>();
 
               final result = await cubit.createChatRoom(email: contact.email);
 

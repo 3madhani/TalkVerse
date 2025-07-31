@@ -1,5 +1,5 @@
+import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -30,8 +30,9 @@ class ChatHomeScreen extends StatelessWidget {
             ),
             builder: (ctx) {
               return BlocProvider.value(
-                value: context.read<ChatRoomCubit>(),
+                value: getIt<ChatRoomCubit>(),
                 child: BlocConsumer<ChatRoomCubit, ChatRoomState>(
+                  bloc: getIt<ChatRoomCubit>(),
                   listener: (context, state) {
                     if (state is ChatRoomSuccess) {
                       Navigator.pop(context);
@@ -41,9 +42,7 @@ class ChatHomeScreen extends StatelessWidget {
                         AppSnackBar.showSuccess(context, state.message);
                       }
 
-                      context.read<ChatRoomCubit>().listenToUserChatRooms(
-                        FirebaseAuth.instance.currentUser!.uid,
-                      );
+                      context.read<ChatRoomCubit>().listenToUserChatRooms();
                     } else if (state is ChatRoomError) {
                       Navigator.pop(context);
                       AppSnackBar.showError(context, state.message);
@@ -56,9 +55,7 @@ class ChatHomeScreen extends StatelessWidget {
                               ? 'Creating...'
                               : 'Create Chat',
                       onAddUser: (ctx, email) {
-                        context.read<ChatRoomCubit>().createChatRoom(
-                          email: email,
-                        );
+                        getIt<ChatRoomCubit>().createChatRoom(email: email);
                       },
                     );
                   },

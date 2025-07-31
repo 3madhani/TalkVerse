@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:chitchat/core/widgets/app_snack_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
       orElse: () => '', // fallback in case of single-user room
     );
 
-    context.read<ChatMessageCubit>().sendMessage(
+    getIt<ChatMessageCubit>().sendMessage(
       collectionPath: BackendEndPoints.chatRooms,
       roomId: widget.chatRoom.id,
       receiverId: receiverId,

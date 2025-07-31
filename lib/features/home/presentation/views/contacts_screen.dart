@@ -1,3 +1,4 @@
+import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:chitchat/features/home/presentation/manager/contacts_cubit/contacts_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,7 +30,7 @@ class ContactsScreen extends StatelessWidget {
                       ? ContactsTextField(
                         searchController: viewModel.searchController,
                         onChanged: (value) {
-                          context.read<ContactsCubit>().searchContacts(value);
+                          getIt<ContactsCubit>().searchContacts(value);
                         },
                       )
                       : const Text('Contacts'),
@@ -37,7 +38,7 @@ class ContactsScreen extends StatelessWidget {
                 IconButton(
                   onPressed: () {
                     viewModel.toggleSearch();
-                    context.read<ContactsCubit>().clearSearch();
+                    getIt<ContactsCubit>().clearSearch();
                   },
                   icon: Icon(
                     viewModel.searched
@@ -60,8 +61,9 @@ class ContactsScreen extends StatelessWidget {
                   ),
                   builder: (ctx) {
                     return BlocProvider.value(
-                      value: context.read<ContactsCubit>(),
+                      value: getIt<ContactsCubit>(),
                       child: BlocConsumer<ContactsCubit, ContactsState>(
+                        bloc: getIt<ContactsCubit>(),
                         listener: (context, state) {
                           if (state is ContactsSuccess) {
                             Navigator.pop(context);
@@ -83,7 +85,7 @@ class ContactsScreen extends StatelessWidget {
                                     ? 'Adding...'
                                     : 'Add Contact',
                             onAddUser: (ctx, email) {
-                              context.read<ContactsCubit>().addContact(email);
+                              getIt<ContactsCubit>().addContact(email);
                             },
                           );
                         },

@@ -27,7 +27,7 @@ class GroupCubit extends Cubit<GroupState> {
   }
 
   /// Create a new group
-  Future<void> createGroup({
+  Future<bool> createGroup({
     required String groupName,
     required List<String> members,
     String? imageUrl,
@@ -40,9 +40,14 @@ class GroupCubit extends Cubit<GroupState> {
       imageUrl: imageUrl,
     );
 
+    bool isSuccess = false;
+
     result.fold((failure) => emit(GroupError(failure.message)), (_) {
       emit(const GroupSuccess("Group created successfully"));
+      isSuccess = true;
     });
+
+    return isSuccess;
   }
 
   /// Delete a group
@@ -58,7 +63,7 @@ class GroupCubit extends Cubit<GroupState> {
     }
   }
 
-  /// Listen to all groups for the user
+  /// Listen to user's groups
   void listenToGroups() {
     if (groupsCache.isNotEmpty) {
       emit(GroupLoaded(groupsCache));
@@ -78,12 +83,12 @@ class GroupCubit extends Cubit<GroupState> {
     });
   }
 
-  /// Load cached groups from SharedPreferences
+  /// Load cached groups
   Future<void> loadCachedGroups() async {
     final cachedJson = Prefs.getString(_groupsCacheKey);
     if (cachedJson.isEmpty) {
       groupsCache = [];
-      emit(GroupLoaded(groupsCache));
+      emit(GroupLoaded(groupsCache)); // ✅ Show empty list if no cache
       return;
     }
 
@@ -102,13 +107,13 @@ class GroupCubit extends Cubit<GroupState> {
     }
   }
 
-  /// Save groups to local cache
+  /// Cache groups
   Future<void> _cacheGroups(List<GroupEntity> groups) async {
     final jsonList = groups.map((e) => e.toJson()).toList();
     await Prefs.setString(_groupsCacheKey, jsonEncode(jsonList));
   }
 
-  /// Sort groups by last message time or creation date
+  /// Sort by last message time or creation date
   List<GroupEntity> _sortGroups(List<GroupEntity> groups) {
     DateTime parse(String? value, String fallback) {
       try {

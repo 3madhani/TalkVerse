@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/constants/backend/backend_end_points.dart';
+import '../../../../../core/services/get_it_services.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../home/domain/entities/chat_room_entity.dart';
 import '../../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
@@ -26,6 +27,7 @@ class ChatScreenBody extends StatelessWidget {
         children: [
           Expanded(
             child: BlocConsumer<ChatMessageCubit, ChatMessageState>(
+              bloc: getIt<ChatMessageCubit>(),
               listener: (context, state) {
                 final cubit = context.read<ChatMessageCubit>();
 
