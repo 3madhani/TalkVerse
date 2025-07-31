@@ -16,7 +16,6 @@ import '../models/group_model.dart';
 class GroupRepoImpl implements GroupRepo {
   final DatabaseServices databaseServices;
   final String _myId = FirebaseAuth.instance.currentUser!.uid;
-  final now = DateTime.now().microsecondsSinceEpoch.toString();
   GroupRepoImpl({required this.databaseServices});
 
   @override
@@ -35,9 +34,9 @@ class GroupRepoImpl implements GroupRepo {
         id: const UuidV1().toString(),
         admins: [_myId],
         createdBy: _myId,
-        createdAt: now,
+        createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
         lastMessage: '',
-        lastMessageTime: now,
+        lastMessageTime: DateTime.now().millisecondsSinceEpoch.toString(),
         imageUrl: imageUrl ?? '',
       );
 

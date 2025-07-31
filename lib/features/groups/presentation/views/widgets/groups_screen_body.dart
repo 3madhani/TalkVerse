@@ -1,3 +1,4 @@
+import 'package:chitchat/core/widgets/universal_chat_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -5,7 +6,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../domain/entities/group_entity.dart';
 import '../../cubits/group_cubit/group_cubit.dart';
-import 'group_card.dart';
 
 class GroupsScreenBody extends StatelessWidget {
   const GroupsScreenBody({super.key});
@@ -36,7 +36,7 @@ class GroupsScreenBody extends StatelessWidget {
               itemBuilder: (context, index) {
                 return const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 6.0),
-                  child: GroupCard(
+                  child: UniversalChatCard(
                     group: GroupEntity(
                       imageUrl: '',
                       id: '',
@@ -64,7 +64,7 @@ class GroupsScreenBody extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6),
             itemCount: groups.length,
             itemBuilder: (context, index) {
-              return GroupCard(group: groups[index]);
+              return UniversalChatCard(group: groups[index]);
             },
           );
         }

@@ -41,12 +41,18 @@ class GroupEntity {
   }
 
   /// Format date & time for UI
-  String formatDateAndTime() {
-    final rawDate = lastMessageTime.isNotEmpty ? lastMessageTime : createdAt;
+String formatDateAndTime() {
+    final rawDate =
+        (lastMessageTime.isNotEmpty)
+            ? lastMessageTime
+            : createdAt;
+
     if (rawDate.isEmpty) return 'Unknown';
 
     try {
       DateTime date;
+
+      // Check if it's a numeric timestamp (millisecondsSinceEpoch)
       if (RegExp(r'^\d+$').hasMatch(rawDate)) {
         date = DateTime.fromMillisecondsSinceEpoch(int.parse(rawDate));
       } else {
@@ -56,25 +62,28 @@ class GroupEntity {
       final now = DateTime.now();
       final localDate = date.toLocal();
 
-      if (now.year == localDate.year &&
+      final isToday =
+          now.year == localDate.year &&
           now.month == localDate.month &&
-          now.day == localDate.day) {
-        return DateFormat('h:mm a').format(localDate);
-      }
+          now.day == localDate.day;
 
       final yesterday = now.subtract(const Duration(days: 1));
-      if (yesterday.year == localDate.year &&
+      final isYesterday =
+          yesterday.year == localDate.year &&
           yesterday.month == localDate.month &&
-          yesterday.day == localDate.day) {
-        return 'Yesterday';
-      }
+          yesterday.day == localDate.day;
 
-      return DateFormat('MMM dd, yyyy').format(localDate);
-    } catch (_) {
+      if (isToday) {
+        return DateFormat('h:mm a').format(localDate); // ➜ 3:45 PM
+      } else if (isYesterday) {
+        return 'Yesterday';
+      } else {
+        return DateFormat('MMM dd, yyyy').format(localDate); // ➜ Jul 02, 2025
+      }
+    } catch (e) {
       return 'Unknown';
     }
   }
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
