@@ -1,12 +1,16 @@
-import 'package:chitchat/features/groups/presentation/views/groups_screen.dart';
-import 'package:chitchat/features/home/presentation/views/chats_home_screen.dart';
-import 'package:chitchat/features/home/presentation/views/contacts_screen.dart';
-import 'package:chitchat/features/home/presentation/views/settings_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/services/get_it_services.dart';
+import '../../../groups/presentation/cubits/group_cubit/group_cubit.dart';
+import '../../../groups/presentation/views/groups_screen.dart';
 import '../../data/models/home_tab.dart';
+import '../views/chats_home_screen.dart';
+import '../views/contacts_screen.dart';
+import '../views/settings_screen.dart';
+import 'chat_room_cubit/chat_room_cubit.dart';
 
 class HomeViewModel extends ChangeNotifier {
   int _currentIndex = 0;
@@ -16,13 +20,19 @@ class HomeViewModel extends ChangeNotifier {
     HomeTab(
       title: 'Chats',
       icon: Iconsax.message,
-      screen: const ChatHomeScreen(),
+      screen: BlocProvider(
+        create: (context) => getIt<ChatRoomCubit>(),
+        child: const ChatHomeScreen(),
+      ),
     ),
 
     HomeTab(
       title: 'Groups',
       icon: Iconsax.messages,
-      screen: const GroupsScreen(),
+      screen: BlocProvider(
+        create: (context) => getIt<GroupCubit>(),
+        child: const GroupsScreen(),
+      ),
     ),
 
     HomeTab(

@@ -25,13 +25,14 @@ class GroupRepoImpl implements GroupRepo {
     String? imageUrl,
   }) async {
     try {
+      String groupId = const UuidV1().generate().toString();
       // Create a GroupModel with a new ID
       final groupModel = GroupModel(
         about:
             'This is a group created by ${FirebaseAuth.instance.currentUser!.displayName}',
         name: groupName,
         members: [_myId!, ...members],
-        id: const UuidV1().toString(),
+        id: groupId,
         admins: [_myId],
         createdBy: _myId,
         createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -42,6 +43,7 @@ class GroupRepoImpl implements GroupRepo {
 
       await databaseServices.setData(
         path: BackendEndPoints.groups,
+        documentId: groupId,
         data: groupModel.toJson(),
       );
 
@@ -55,15 +57,16 @@ class GroupRepoImpl implements GroupRepo {
   @override
   Future<Either<Failure, String>> deleteGroup(String groupId) async {
     try {
+      // Delete from Firestore
       await databaseServices.deleteData(
         path: BackendEndPoints.groups,
         documentId: groupId,
       );
 
-      // Remove cached messages for that group if you have them
-      // await Prefs.remove('messages_$groupId');
+      // Remove cached messages
+      await Prefs.remove('messages_$groupId');
 
-      // Update cached groups list
+      // Remove from cached groups
       final cachedJson = Prefs.getString('cachedGroups');
       if (cachedJson.isNotEmpty) {
         final List<dynamic> decoded = jsonDecode(cachedJson);
@@ -80,15 +83,14 @@ class GroupRepoImpl implements GroupRepo {
 
   /// Listen to groups for the current user
   @override
-  Stream<Either<Failure, List<GroupEntity>>> getGroups({String? userId}) {
+  Stream<Either<Failure, List<GroupEntity>>> getGroups() {
     try {
-      final uid = userId ?? _myId;
       return databaseServices
           .streamData(
             path: BackendEndPoints.groups,
             queryParameters: {
               "field": "members",
-              "arrayContains": uid,
+              "arrayContains": _myId,
               "orderBy": "lastMessageTime",
               "descending": true,
             },
@@ -116,20 +118,6 @@ class GroupRepoImpl implements GroupRepo {
     } catch (e, stack) {
       log("🔥 getGroups error: $e", stackTrace: stack);
       return Stream.value(const Left(ServerFailure("Fetch failed")));
-    }
-  }
-
-  /// Check if a group exists
-  Future<bool> isExist(String groupId) async {
-    try {
-      final result = await databaseServices.getData(
-        path: BackendEndPoints.groups,
-        documentId: groupId,
-      );
-      return result != null && result.isNotEmpty;
-    } catch (e, stack) {
-      log("🔥 isExist error: $e", stackTrace: stack);
-      return false;
     }
   }
 

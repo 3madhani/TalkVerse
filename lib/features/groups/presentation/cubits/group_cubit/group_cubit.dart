@@ -56,7 +56,10 @@ class GroupCubit extends Cubit<GroupState> {
       await groupRepo.deleteGroup(groupId);
       groupsCache.removeWhere((group) => group.id == groupId);
       await _cacheGroups(groupsCache);
+
+      // Emit GroupLoaded immediately so UI updates
       emit(GroupLoaded(List.from(groupsCache)));
+
       emit(const GroupSuccess("Group deleted successfully"));
     } catch (e) {
       emit(GroupError("Failed to delete group: $e"));

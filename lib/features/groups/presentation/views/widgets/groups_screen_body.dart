@@ -31,7 +31,7 @@ class _GroupsScreenBodyState extends State<GroupsScreenBody> {
         final groupCubit = getIt<GroupCubit>();
         final cachedGroups = groupCubit.groupsCache;
 
-        // Skeleton loading if no cache yet
+        // Skeleton loading when no cached data yet
         if (state is GroupLoading && cachedGroups.isEmpty) {
           return Skeletonizer(
             child: ListView.builder(
@@ -59,7 +59,7 @@ class _GroupsScreenBodyState extends State<GroupsScreenBody> {
           );
         }
 
-        // Show either loaded groups or cached ones
+        // Get groups from state or cache
         final groups = state is GroupLoaded ? state.groups : cachedGroups;
 
         if (groups.isNotEmpty) {
@@ -67,7 +67,9 @@ class _GroupsScreenBodyState extends State<GroupsScreenBody> {
             padding: const EdgeInsets.symmetric(horizontal: 6),
             itemCount: groups.length,
             itemBuilder: (context, index) {
-              return UniversalChatCard(group: groups[index]);
+              final group = groups[index];
+              print("Rendering group: ${group.name} (${group.id})");
+              return UniversalChatCard(group: group);
             },
           );
         }

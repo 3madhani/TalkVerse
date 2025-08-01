@@ -123,7 +123,6 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
 
               return Right(rooms);
             } catch (e) {
-              log("🔥 mapping chat rooms error: $e");
               return const Left(ServerFailure("Failed to map chat rooms"));
             }
           });

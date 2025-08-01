@@ -1,5 +1,5 @@
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
-import 'package:chitchat/features/home/presentation/views/widgets/dismissible_card.dart';
+import 'package:chitchat/core/widgets/dismissible_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

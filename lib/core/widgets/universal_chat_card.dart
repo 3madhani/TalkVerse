@@ -1,10 +1,10 @@
+import 'package:chitchat/core/widgets/dismissible_card.dart';
 import 'package:chitchat/features/chats/presentation/views/chat_screen.dart';
 import 'package:chitchat/features/groups/domain/entities/group_entity.dart';
 import 'package:chitchat/features/groups/presentation/cubits/group_cubit/group_cubit.dart';
 import 'package:chitchat/features/groups/presentation/views/group_chat_screen.dart';
 import 'package:chitchat/features/home/domain/entities/chat_room_entity.dart';
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
-import 'package:chitchat/features/home/presentation/views/widgets/dismissible_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
