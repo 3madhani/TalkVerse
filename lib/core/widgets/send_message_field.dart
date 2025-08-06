@@ -2,20 +2,21 @@ import 'dart:io';
 
 import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:chitchat/core/widgets/app_snack_bar.dart';
+import 'package:chitchat/features/groups/domain/entities/group_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../../core/constants/backend/backend_end_points.dart';
-import '../../../../../core/widgets/text_field_message.dart';
-import '../../../../home/domain/entities/chat_room_entity.dart';
-import '../../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
+import '../constants/backend/backend_end_points.dart';
+import '../cubits/chat_cubit/chat_message_cubit.dart';
+import 'text_field_message.dart';
+import '../../features/home/domain/entities/chat_room_entity.dart';
 
 class SendMessageField extends StatefulWidget {
-  final ChatRoomEntity chatRoom;
+  final ChatRoomEntity? chatRoom;
+  final GroupEntity? group;
 
-  const SendMessageField({super.key, required this.chatRoom});
+  const SendMessageField({super.key, this.chatRoom, this.group});
 
   @override
   State<SendMessageField> createState() => _SendMessageFieldState();
@@ -59,15 +60,25 @@ class _SendMessageFieldState extends State<SendMessageField> {
       final picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
-        if (context.mounted) {
-          final receiverId = widget.chatRoom.members.firstWhere(
-            (id) => id != FirebaseAuth.instance.currentUser?.uid,
-            orElse: () => '', // fallback in case of single-user room
-          );
-          context.read<ChatMessageCubit>().sendMessage(
+        if (widget.chatRoom != null) {
+          if (context.mounted) {
+            final receiverId = widget.chatRoom!.members.firstWhere(
+              (id) => id != FirebaseAuth.instance.currentUser?.uid,
+              orElse: () => '', // fallback in case of single-user room
+            );
+            getIt<ChatMessageCubit>().sendMessage(
+              collectionPath: BackendEndPoints.chatRooms,
+              roomId: widget.chatRoom!.id,
+              receiverId: receiverId,
+              image: File(image.path),
+              messageType: 'image',
+            );
+          }
+        } else if (widget.group != null) {
+          getIt<ChatMessageCubit>().sendMessage(
             collectionPath: BackendEndPoints.chatRooms,
-            roomId: widget.chatRoom.id,
-            receiverId: receiverId,
+            roomId: widget.group!.id,
+            receiverId: widget.group!.id,
             image: File(image.path),
             messageType: 'image',
           );
@@ -84,17 +95,26 @@ class _SendMessageFieldState extends State<SendMessageField> {
     final message = _messageController.text.trim();
     if (message.isEmpty) return;
 
-    final receiverId = widget.chatRoom.members.firstWhere(
-      (id) => id != FirebaseAuth.instance.currentUser?.uid,
-      orElse: () => '', // fallback in case of single-user room
-    );
+    if (widget.chatRoom != null) {
+      final receiverId = widget.chatRoom!.members.firstWhere(
+        (id) => id != FirebaseAuth.instance.currentUser?.uid,
+        orElse: () => '', // fallback in case of single-user room
+      );
 
-    getIt<ChatMessageCubit>().sendMessage(
-      collectionPath: BackendEndPoints.chatRooms,
-      roomId: widget.chatRoom.id,
-      receiverId: receiverId,
-      message: message,
-    );
+      getIt<ChatMessageCubit>().sendMessage(
+        collectionPath: BackendEndPoints.chatRooms,
+        roomId: widget.chatRoom!.id,
+        receiverId: receiverId,
+        message: message,
+      );
+    } else if (widget.group != null) {
+      getIt<ChatMessageCubit>().sendMessage(
+        collectionPath: BackendEndPoints.chatRooms,
+        roomId: widget.group!.id,
+        receiverId: widget.group!.id,
+        message: message,
+      );
+    }
 
     _messageController.clear();
   }

@@ -68,7 +68,6 @@ class _GroupsScreenBodyState extends State<GroupsScreenBody> {
             itemCount: groups.length,
             itemBuilder: (context, index) {
               final group = groups[index];
-              print("Rendering group: ${group.name} (${group.id})");
               return UniversalChatCard(group: group);
             },
           );

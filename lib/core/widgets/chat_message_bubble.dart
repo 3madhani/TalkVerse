@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../../core/constants/backend/backend_end_points.dart';
-import '../../../../../core/entities/message_entity.dart';
-import '../../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
-import '../../../../../core/cubits/chat_cubit/chat_message_state.dart';
+import '../constants/backend/backend_end_points.dart';
+import '../cubits/chat_cubit/chat_message_cubit.dart';
+import '../cubits/chat_cubit/chat_message_state.dart';
+import '../entities/message_entity.dart';
+import '../services/get_it_services.dart';
 
 class ChatMessageBubble extends StatefulWidget {
   static const double horizontalPadding = 8.0;
@@ -30,7 +30,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cubit = context.watch<ChatMessageCubit>();
+    final cubit = getIt<ChatMessageCubit>();
     final state = cubit.state;
 
     final isText = widget.message.type == 'text';
@@ -137,7 +137,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
   @override
   void initState() {
     if (!widget.isSender) {
-      context.read<ChatMessageCubit>().readMessage(
+      getIt<ChatMessageCubit>().readMessage(
         collectionPath: BackendEndPoints.chatRooms,
         chatId: widget.chatId,
         messageId: widget.message.messageId,

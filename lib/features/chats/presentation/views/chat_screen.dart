@@ -51,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       IconButton(
                         icon: const Icon(Iconsax.trash),
                         onPressed: () {
-                          context.read<ChatMessageCubit>().deleteMessage(
+                          getIt<ChatMessageCubit>().deleteMessage(
                             collectionPath: BackendEndPoints.chatRooms,
                             receiverId: widget.chatRoom.members.firstWhere(
                               (id) =>
@@ -77,7 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   .join('\n'),
                             ),
                           );
-                          context.read<ChatMessageCubit>().clearSelection();
+                          getIt<ChatMessageCubit>().clearSelection();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               elevation: 0,
@@ -107,7 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       IconButton(
                         icon: const Icon(Icons.close),
                         onPressed: () {
-                          context.read<ChatMessageCubit>().clearSelection();
+                          getIt<ChatMessageCubit>().clearSelection();
                         },
                       ),
                     ]
