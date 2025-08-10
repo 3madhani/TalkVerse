@@ -15,6 +15,9 @@ final class GroupInitial extends GroupState {}
 final class GroupLoaded extends GroupState {
   final List<GroupEntity> groups; // List of groups
   const GroupLoaded(this.groups);
+
+  @override
+  List<Object> get props => [groups];
 }
 
 final class GroupLoading extends GroupState {}

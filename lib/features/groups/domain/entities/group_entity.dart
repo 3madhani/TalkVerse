@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
 
-class GroupEntity {
+class GroupEntity extends Equatable {
   final String id;
   final String name;
   final String? imageUrl;
@@ -40,19 +41,42 @@ class GroupEntity {
     );
   }
 
+  /// Immutable update helper
+  GroupEntity copyWith({
+    String? id,
+    String? name,
+    String? imageUrl,
+    List<String>? members,
+    String? createdBy,
+    String? createdAt,
+    String? about,
+    List<String>? admins,
+    String? lastMessage,
+    String? lastMessageTime,
+  }) {
+    return GroupEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      imageUrl: imageUrl ?? this.imageUrl,
+      members: members ?? List<String>.from(this.members),
+      createdBy: createdBy ?? this.createdBy,
+      createdAt: createdAt ?? this.createdAt,
+      about: about ?? this.about,
+      admins: admins ?? List<String>.from(this.admins),
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastMessageTime: lastMessageTime ?? this.lastMessageTime,
+    );
+  }
+
   /// Format date & time for UI
-String formatDateAndTime() {
-    final rawDate =
-        (lastMessageTime.isNotEmpty)
-            ? lastMessageTime
-            : createdAt;
+  String formatDateAndTime() {
+    final rawDate = (lastMessageTime.isNotEmpty) ? lastMessageTime : createdAt;
 
     if (rawDate.isEmpty) return 'Unknown';
 
     try {
       DateTime date;
 
-      // Check if it's a numeric timestamp (millisecondsSinceEpoch)
       if (RegExp(r'^\d+$').hasMatch(rawDate)) {
         date = DateTime.fromMillisecondsSinceEpoch(int.parse(rawDate));
       } else {
@@ -74,16 +98,17 @@ String formatDateAndTime() {
           yesterday.day == localDate.day;
 
       if (isToday) {
-        return DateFormat('h:mm a').format(localDate); // ➜ 3:45 PM
+        return DateFormat('h:mm a').format(localDate);
       } else if (isYesterday) {
         return 'Yesterday';
       } else {
-        return DateFormat('MMM dd, yyyy').format(localDate); // ➜ Jul 02, 2025
+        return DateFormat('MMM dd, yyyy').format(localDate);
       }
     } catch (e) {
       return 'Unknown';
     }
   }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -98,4 +123,18 @@ String formatDateAndTime() {
       'lastMessageTime': lastMessageTime,
     };
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    name,
+    imageUrl,
+    members,
+    createdBy,
+    createdAt,
+    about,
+    admins,
+    lastMessage,
+    lastMessageTime,
+  ];
 }

@@ -52,8 +52,8 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   @override
   void initState() {
     getIt<ChatMessageCubit>().fetchMessages(
-      BackendEndPoints.groups,
       widget.group.id,
+      BackendEndPoints.groups,
     );
     super.initState();
   }

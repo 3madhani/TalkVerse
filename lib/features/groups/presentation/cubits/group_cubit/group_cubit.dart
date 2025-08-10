@@ -81,7 +81,7 @@ class GroupCubit extends Cubit<GroupState> {
       ) async {
         groupsCache = _sortGroups(groups);
         await _cacheGroups(groupsCache);
-        emit(GroupLoaded(groupsCache));
+        emit(GroupLoaded(List.from(groupsCache)));
       });
     });
   }

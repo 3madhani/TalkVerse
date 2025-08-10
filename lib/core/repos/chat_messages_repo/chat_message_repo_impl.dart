@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:chitchat/core/constants/backend/backend_end_points.dart';
-import 'package:chitchat/core/errors/failure.dart';
-import 'package:chitchat/core/services/database_services.dart';
-import 'package:chitchat/core/models/message_model.dart';
 import 'package:chitchat/core/entities/message_entity.dart';
+import 'package:chitchat/core/errors/failure.dart';
+import 'package:chitchat/core/models/message_model.dart';
+import 'package:chitchat/core/services/database_services.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
@@ -55,8 +55,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
     required String chatId,
     String? lastMessageId,
   }) async* {
-    final path =
-        '$collectionPath/$chatId/${BackendEndPoints.chatMessages}';
+    final path = '$collectionPath/$chatId/${BackendEndPoints.chatMessages}';
 
     try {
       final cachedMessages = await _loadCachedMessages(chatId);
@@ -105,8 +104,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
     required bool isRead,
   }) async {
     try {
-      final path =
-          '$collectionPath/$chatId/${BackendEndPoints.chatMessages}/';
+      final path = '$collectionPath/$chatId/${BackendEndPoints.chatMessages}/';
 
       await databaseServices.updateData(
         path: path,
@@ -129,8 +127,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
     String? messageType,
   }) async {
     try {
-      final path =
-          '$collectionPath/$roomId/${BackendEndPoints.chatMessages}';
+      final path = '$collectionPath/$roomId/${BackendEndPoints.chatMessages}';
       final messageId = const Uuid().v1();
       final messageTime = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -151,7 +148,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
       );
 
       await databaseServices.updateData(
-        path: BackendEndPoints.chatRooms,
+        path: collectionPath,
         documentId: roomId,
         data: {
           'lastMessage': messageType == 'image' ? 'Image' : message,

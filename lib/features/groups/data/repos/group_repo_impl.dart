@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:uuid/v1.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/backend/backend_end_points.dart';
 import '../../../../core/errors/failure.dart';
@@ -25,7 +25,7 @@ class GroupRepoImpl implements GroupRepo {
     String? imageUrl,
   }) async {
     try {
-      String groupId = const UuidV1().generate().toString();
+      String groupId = const Uuid().v1();
       // Create a GroupModel with a new ID
       final groupModel = GroupModel(
         about:

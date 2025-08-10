@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/constants/backend/backend_end_points.dart';
-import '../../../../../core/services/get_it_services.dart';
-import '../../../../../core/widgets/app_snack_bar.dart';
-import '../../../../home/domain/entities/chat_room_entity.dart';
 import '../../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
 import '../../../../../core/cubits/chat_cubit/chat_message_state.dart';
+import '../../../../../core/services/get_it_services.dart';
+import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../core/widgets/chat_message_bubble.dart';
 import '../../../../../core/widgets/send_message_field.dart';
 import '../../../../../core/widgets/start_message_card.dart';
+import '../../../../home/domain/entities/chat_room_entity.dart';
 
 class ChatScreenBody extends StatelessWidget {
   final ChatRoomEntity chatRoom;
@@ -29,7 +29,7 @@ class ChatScreenBody extends StatelessWidget {
             child: BlocConsumer<ChatMessageCubit, ChatMessageState>(
               bloc: getIt<ChatMessageCubit>(),
               listener: (context, state) {
-                final cubit = context.read<ChatMessageCubit>();
+                final cubit = getIt<ChatMessageCubit>();
 
                 if (state is ChatMessageFailure) {
                   AppSnackBar.showError(context, state.message);
@@ -70,7 +70,7 @@ class ChatScreenBody extends StatelessWidget {
                       roomName: chatRoom.roomName,
                       onTap: () {
                         if (receiverId.isNotEmpty) {
-                          context.read<ChatMessageCubit>().sendMessage(
+                          getIt<ChatMessageCubit>().sendMessage(
                             collectionPath: BackendEndPoints.chatRooms,
                             roomId: chatRoom.id,
                             receiverId: receiverId,

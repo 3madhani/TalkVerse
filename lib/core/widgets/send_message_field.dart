@@ -7,10 +7,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../features/home/domain/entities/chat_room_entity.dart';
 import '../constants/backend/backend_end_points.dart';
 import '../cubits/chat_cubit/chat_message_cubit.dart';
 import 'text_field_message.dart';
-import '../../features/home/domain/entities/chat_room_entity.dart';
 
 class SendMessageField extends StatefulWidget {
   final ChatRoomEntity? chatRoom;
@@ -76,7 +76,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
           }
         } else if (widget.group != null) {
           getIt<ChatMessageCubit>().sendMessage(
-            collectionPath: BackendEndPoints.chatRooms,
+            collectionPath: BackendEndPoints.groups,
             roomId: widget.group!.id,
             receiverId: widget.group!.id,
             image: File(image.path),
@@ -109,7 +109,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
       );
     } else if (widget.group != null) {
       getIt<ChatMessageCubit>().sendMessage(
-        collectionPath: BackendEndPoints.chatRooms,
+        collectionPath: BackendEndPoints.groups,
         roomId: widget.group!.id,
         receiverId: widget.group!.id,
         message: message,

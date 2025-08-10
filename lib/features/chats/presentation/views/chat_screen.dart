@@ -127,8 +127,8 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     getIt<ChatMessageCubit>().fetchMessages(
-      BackendEndPoints.chatRooms,
       widget.chatRoom.id,
+      BackendEndPoints.chatRooms,
     );
     super.initState();
   }

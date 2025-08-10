@@ -64,14 +64,18 @@ class GroupChatScreenBody extends StatelessWidget {
                       (id) => id != userId,
                     );
 
+                    print('Receiver ID: ${group.id}');
+
+                    if (receiverId.isEmpty) return const SizedBox();
+
                     return StartMessageCard(
                       roomName: group.name,
                       onTap: () {
                         if (receiverId.isNotEmpty) {
-                          context.read<ChatMessageCubit>().sendMessage(
-                            collectionPath: BackendEndPoints.chatRooms,
+                          getIt<ChatMessageCubit>().sendMessage(
+                            collectionPath: BackendEndPoints.groups,
                             roomId: group.id,
-                            receiverId: receiverId,
+                            receiverId: group.id,
                             message:
                                 "Hi, ${group.name}!\nLet's start chatting here.",
                           );

@@ -88,8 +88,8 @@ class _GroupsScreenBodyState extends State<GroupsScreenBody> {
   @override
   void initState() {
     super.initState();
-    final groupCubit = getIt<GroupCubit>();
-    groupCubit.loadCachedGroups();
-    groupCubit.listenToGroups();
+
+    getIt<GroupCubit>().loadCachedGroups();
+    getIt<GroupCubit>().listenToGroups();
   }
 }
