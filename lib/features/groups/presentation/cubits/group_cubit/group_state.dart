@@ -22,6 +22,14 @@ final class GroupLoaded extends GroupState {
 
 final class GroupLoading extends GroupState {}
 
+final class GroupMembersLoaded extends GroupState {
+  final Stream<Either<Failure, List<String>>> members; // Stream of member names
+  const GroupMembersLoaded(this.members);
+
+  @override
+  List<Object> get props => [members];
+}
+
 sealed class GroupState extends Equatable {
   const GroupState();
 

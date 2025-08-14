@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../core/errors/failure.dart';
 import '../../../../../core/services/shared_preferences_singleton.dart';
 import '../../../domain/entities/group_entity.dart';
 import '../../../domain/repos/group_repo.dart';
@@ -48,6 +50,17 @@ class GroupCubit extends Cubit<GroupState> {
     });
 
     return isSuccess;
+  }
+
+  /// fetch group members
+  void fetchGroupMembers(List<String> memberIds) async {
+    emit(GroupLoading());
+    try {
+      final members =  groupRepo.fetchMembers(memberIds);
+      emit(GroupMembersLoaded(members));
+    } catch (e) {
+      emit(GroupError("Failed to fetch group members: $e"));
+    }
   }
 
   /// Delete a group

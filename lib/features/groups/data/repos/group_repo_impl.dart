@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:async/async.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
@@ -9,6 +10,7 @@ import '../../../../core/constants/backend/backend_end_points.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/services/database_services.dart';
 import '../../../../core/services/shared_preferences_singleton.dart';
+import '../../../auth/data/model/user_model.dart';
 import '../../domain/entities/group_entity.dart';
 import '../../domain/repos/group_repo.dart';
 import '../models/group_model.dart';
@@ -78,6 +80,39 @@ class GroupRepoImpl implements GroupRepo {
     } catch (e, stack) {
       log("🔥 deleteGroup error: $e", stackTrace: stack);
       return const Left(ServerFailure("Failed to delete group"));
+    }
+  }
+
+  @override
+  Stream<Either<Failure, List<String>>> fetchMembers(List<String> memberIds) {
+    try {
+      if (memberIds.any((id) => id.isEmpty)) {
+        return Stream.value(const Left(ServerFailure("Member ID is empty")));
+      }
+
+      final memberStreams =
+          memberIds.map((id) {
+            return databaseServices
+                .streamData(path: BackendEndPoints.getUser, documentId: id)
+                .map((data) {
+                  try {
+                    final user = UserModel.fromJson(
+                      data as Map<String, dynamic>,
+                    );
+                    return user.name ?? "Unknown User";
+                  } catch (e) {
+                    log("🔥 mapping user error for $id: $e");
+                    return "Unknown User";
+                  }
+                });
+          }).toList();
+
+      return StreamZip(
+        memberStreams,
+      ).map((members) => Right<Failure, List<String>>(members));
+    } catch (e, stack) {
+      log("🔥 fetchMembers error: $e", stackTrace: stack);
+      return Stream.value(const Left(ServerFailure("Fetch failed")));
     }
   }
 

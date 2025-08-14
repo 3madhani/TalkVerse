@@ -12,6 +12,8 @@ abstract class GroupRepo {
 
   Future<Either<Failure, void>> deleteGroup(String groupId);
 
+  Stream<Either<Failure, List<String>>> fetchMembers(List<String> memberIds);
+
   Stream<Either<Failure, List<GroupEntity>>> getGroups();
 
   Future<Either<Failure, void>> updateGroup(
