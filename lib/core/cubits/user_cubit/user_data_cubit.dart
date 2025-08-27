@@ -40,6 +40,12 @@ class UserDataCubit extends Cubit<UserDataState> {
         userData,
       ) {
         if (userData.isNotEmpty) {
+          if (userData.length > 1) {
+            final usersList = userData;
+
+            Prefs.setString(userDataCacheKey, jsonEncode(usersList));
+            emit(UsersDataLoaded(usersList));
+          }
           final user = userData.first; // Assuming single user data
           Prefs.setString(userDataCacheKey, jsonEncode(user));
           emit(UserDataLoaded(user));

@@ -76,6 +76,29 @@ class FireStoreServices implements DatabaseServices {
   }
 
   @override
+  Stream fetchUser({
+    required String path,
+    String? documentId,
+    List<String>? listOfIds,
+  }) {
+    if (documentId != null) {
+      return firestore
+          .collection(path)
+          .doc(documentId)
+          .snapshots()
+          .map((snapshot) => snapshot.data());
+    } else if (listOfIds != null && listOfIds.isNotEmpty) {
+      return firestore
+          .collection(path)
+          .where(FieldPath.documentId, whereIn: listOfIds)
+          .snapshots()
+          .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+    } else {
+      throw ArgumentError('Either documentId or listOfIds must be provided');
+    }
+  }
+
+  @override
   Future<dynamic> getData({
     required String path,
     String? documentId,

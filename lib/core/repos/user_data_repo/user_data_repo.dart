@@ -13,7 +13,8 @@ abstract class UserDataRepo {
     required String profilePictureUrl,
   });
 
-  Stream<Either<Failure, List<UserEntity>>> getUserData(String userId);
+  Stream<Either<Failure,List< UserEntity>>> getUserData(String userId);
+  Stream<Either<Failure, List<UserEntity>>> getUsersData(List<String> usersIds);
 
   Future<Either<Failure, void>> updateUserPushToken(String userId, String pushToken);
 

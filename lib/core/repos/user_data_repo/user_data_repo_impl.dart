@@ -1,3 +1,4 @@
+import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../features/auth/data/model/user_model.dart';
@@ -13,7 +14,7 @@ class UserDataRepoImpl implements UserDataRepo {
   Stream<Either<Failure, List<UserModel>>> getUserData(String userId) async* {
     try {
       yield* databaseServices
-          .streamData(path: BackendEndPoints.getUser, documentId: userId)
+          .fetchUser(path: BackendEndPoints.getUser, documentId: userId)
           .map((data) => Right(data ?? []));
     } catch (e) {
       yield Left(ServerFailure(e.toString()));
@@ -54,5 +55,16 @@ class UserDataRepoImpl implements UserDataRepo {
   ) {
     // TODO: implement updateUserPushToken
     throw UnimplementedError();
+  }
+
+  @override
+  Stream<Either<Failure, List<UserEntity>>> getUsersData(List<String> usersIds) {
+    try {
+      return databaseServices
+          .fetchUser(path: BackendEndPoints.getUser, listOfIds: usersIds)
+          .map((data) => Right(data.map((e) => UserModel.fromJson(e)).toList()));
+    } catch (e) {
+      return Stream.value(const Left(ServerFailure('Failed to fetch users data')));
+    }
   }
 }

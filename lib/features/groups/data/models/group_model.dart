@@ -46,6 +46,7 @@ class GroupModel extends GroupEntity {
     );
   }
 
+  @override
   GroupModel copyWith({
     String? id,
     String? name,

@@ -10,13 +10,13 @@ abstract class DatabaseServices {
     Map<String, dynamic>? queryParameters,
   });
 
-  Future<dynamic> getData({
+  Stream<dynamic> fetchUser({
     required String path,
     String? documentId,
-    Map<String, dynamic>? queryParameters,
+    List<String>? listOfIds,
   });
 
-  Stream<dynamic> streamData({
+  Future<dynamic> getData({
     required String path,
     String? documentId,
     Map<String, dynamic>? queryParameters,
@@ -26,6 +26,11 @@ abstract class DatabaseServices {
     required String path,
     required Map<String, dynamic> data,
     String? documentId,
+  });
+  Stream<dynamic> streamData({
+    required String path,
+    String? documentId,
+    Map<String, dynamic>? queryParameters,
   });
 
   Future<void> updateData({

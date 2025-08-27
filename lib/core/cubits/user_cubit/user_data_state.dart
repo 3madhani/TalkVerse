@@ -19,6 +19,15 @@ final class UserDataLoaded extends UserDataState {
   List<Object> get props => [user];
 }
 
+final class UsersDataLoaded extends UserDataState {
+  final List<UserEntity> user;
+
+  const UsersDataLoaded(this.user);
+
+  @override
+  List<Object> get props => [user];
+}
+
 final class UserDataError extends UserDataState {
   final String message;
 
