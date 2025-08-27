@@ -14,9 +14,6 @@ class ProfileTile extends StatelessWidget {
       minVerticalPadding: 40,
       title: BlocBuilder<UserDataCubit, UserDataState>(
         builder: (context, state) {
-          if (state is UserDataLoaded) {
-            print("Error loading user data: ${state.user.name}"); // Debug print
-          }
           return Text(
             state is UserDataLoaded
                 ? state.user.name!

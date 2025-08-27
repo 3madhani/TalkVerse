@@ -1,5 +1,23 @@
 part of 'user_data_cubit.dart';
 
+class UserDataError extends UserDataState {
+  final String message;
+  const UserDataError(this.message);
+}
+
+final class UserDataInitial extends UserDataState {}
+
+class UserDataLoaded extends UserDataState {
+  final UserEntity user;
+  final bool isFromCache;
+  const UserDataLoaded(this.user, {this.isFromCache = false});
+
+  @override
+  List<Object> get props => [user, isFromCache];
+}
+
+final class UserDataLoading extends UserDataState {}
+
 sealed class UserDataState extends Equatable {
   const UserDataState();
 
@@ -7,41 +25,12 @@ sealed class UserDataState extends Equatable {
   List<Object> get props => [];
 }
 
-final class UserDataInitial extends UserDataState {}
-
-final class UserDataLoading extends UserDataState {}
-final class UserDataLoaded extends UserDataState {
-  final UserEntity user;
-
-  const UserDataLoaded(this.user);
-
-  @override
-  List<Object> get props => [user];
-}
-
-final class UsersDataLoaded extends UserDataState {
-  final List<UserEntity> user;
-
-  const UsersDataLoaded(this.user);
-
-  @override
-  List<Object> get props => [user];
-}
-
-final class UserDataError extends UserDataState {
-  final String message;
-
-  const UserDataError(this.message);
-
-  @override
-  List<Object> get props => [message];
-}
-
 final class UserDataUpdated extends UserDataState {
   final String message;
 
   const UserDataUpdated(this.message);
 }
+
 final class UserDataUpdateError extends UserDataState {
   final String message;
 
@@ -51,3 +40,10 @@ final class UserDataUpdateError extends UserDataState {
   List<Object> get props => [message];
 }
 
+class UsersDataLoaded extends UserDataState {
+  final List<UserEntity> users;
+  final bool isFromCache;
+  const UsersDataLoaded(this.users, {this.isFromCache = false});
+  @override
+  List<Object> get props => [users, isFromCache];
+}

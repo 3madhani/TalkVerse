@@ -1,7 +1,10 @@
 import 'package:chitchat/core/services/get_it_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../../../core/cubits/user_cubit/user_data_cubit.dart';
 import '../../../../auth/presentation/manager/auth_cubit/auth_cubit.dart';
 import '../../../../auth/presentation/views/login_screen.dart';
 import '../../../../settings/presentation/views/profile_screen.dart';
@@ -27,7 +30,16 @@ class SettingsScreenBody extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                MaterialPageRoute(
+                  builder:
+                      (context) => BlocProvider.value(
+                        value:
+                            getIt<UserDataCubit>()..loadUserData(
+                              userId: FirebaseAuth.instance.currentUser!.uid,
+                            ),
+                        child: const ProfileScreen(),
+                      ),
+                ),
               );
             },
           ),

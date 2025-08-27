@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../features/auth/data/model/user_model.dart';
 import '../../constants/backend/backend_end_points.dart';
@@ -49,12 +50,6 @@ class UserDataRepoImpl implements UserDataRepo {
   }
 
   @override
-  Future<void> updateUserAbout(String userId, String about) {
-    // TODO: implement updateUserAbout
-    throw UnimplementedError();
-  }
-
-  @override
   Future<void> updateUserContacts(String userId, List<String> contactIds) {
     // TODO: implement updateUserContacts
     throw UnimplementedError();
@@ -62,11 +57,18 @@ class UserDataRepoImpl implements UserDataRepo {
 
   @override
   Future<Either<Failure, void>> updateUserData({
-    required String name,
-    required String profilePictureUrl,
-  }) {
-    // TODO: implement updateUserData
-    throw UnimplementedError();
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      await databaseServices.updateData(
+        path: BackendEndPoints.addUsers,
+        data: data,
+        documentId: FirebaseAuth.instance.currentUser!.uid,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 
   @override

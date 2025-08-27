@@ -1,21 +1,17 @@
+import 'package:chitchat/core/services/get_it_services.dart';
+import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/cubits/user_cubit/user_data_cubit.dart';
+
 class ProfileViewModel extends ChangeNotifier {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController aboutController = TextEditingController();
+  final nameController = TextEditingController();
+  final aboutController = TextEditingController();
+  String profilePictureUrl = "";
 
-  bool _enableName = false;
-  bool _enableAbout = false;
-
-  ProfileViewModel() {
-    // Initialize with default values
-    nameController.text = 'John Doe';
-    aboutController.text =
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
-  }
-  bool get enableAbout => _enableAbout;
-
-  bool get enableName => _enableName;
+  bool enableName = false;
+  bool enableAbout = false;
 
   @override
   void dispose() {
@@ -24,20 +20,51 @@ class ProfileViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  void saveProfile() {
-    // Handle profile save logic here (e.g., API call)
-    debugPrint(
-      'Profile Saved: Name - ${nameController.text}, About - ${aboutController.text}',
+  Future<void> saveProfile({String? name, String? about, String? profilePicture}) async {
+    final data = <String, dynamic>{};
+    if (enableName && name != null && name.isNotEmpty) {
+      data['name'] = name;
+    }
+    if (enableAbout && about != null && about.isNotEmpty) {
+      data['aboutMe'] = about;
+    }
+    if (profilePicture != null && profilePicture.isNotEmpty) {
+      data['photoUrl'] = profilePicture;
+    }
+    if (data.isNotEmpty) {
+      await getIt<UserDataCubit>().updateUserData(data: data);
+    }
+    if (enableAbout || enableName)
+    // Reset edit states
+    {
+      enableAbout = false;
+      enableName = false;
+    } else
+    // If nothing was changed, just reset states
+    {
+      enableName = false;
+      enableAbout = false;
+    }
+    getIt<UserDataCubit>().loadUserData(
+      userId: FirebaseAuth.instance.currentUser!.uid,
     );
+    notifyListeners();
+  }
+
+  void setUser(UserEntity user) {
+    nameController.text = user.name ?? '';
+    aboutController.text = user.aboutMe ?? 'Write about yourself...';
+    profilePictureUrl = user.photoUrl ?? 'Write about yourself...';
+    notifyListeners();
   }
 
   void toggleEditAbout() {
-    _enableAbout = !_enableAbout;
+    enableAbout = !enableAbout;
     notifyListeners();
   }
 
   void toggleEditName() {
-    _enableName = !_enableName;
+    enableName = !enableName;
     notifyListeners();
   }
 }
