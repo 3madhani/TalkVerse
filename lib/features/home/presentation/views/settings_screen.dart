@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/cubits/user_cubit/user_data_cubit.dart';
+import '../../../../core/services/get_it_services.dart';
 import 'widgets/settings_screen_body.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -9,9 +13,15 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      body: const SettingsScreenBody(),
+    return BlocProvider(
+      create:
+          (context) =>
+              getIt<UserDataCubit>()
+                ..loadUserData(userId: FirebaseAuth.instance.currentUser!.uid),
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Settings')),
+        body: const SettingsScreenBody(),
+      ),
     );
   }
 }

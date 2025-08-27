@@ -14,10 +14,13 @@ import '../../features/home/domain/repos/contacts_repo.dart';
 import '../../features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
 import '../../features/home/presentation/manager/contacts_cubit/contacts_cubit.dart';
 import '../cubits/chat_cubit/chat_message_cubit.dart';
+import '../cubits/user_cubit/user_data_cubit.dart';
 import '../repos/chat_messages_repo/chat_message_repo.dart';
 import '../repos/chat_messages_repo/chat_message_repo_impl.dart';
 import '../repos/images_repo/images_repo.dart';
 import '../repos/images_repo/images_repo_impl.dart';
+import '../repos/user_data_repo/user_data_repo.dart';
+import '../repos/user_data_repo/user_data_repo_impl.dart';
 import 'database_services.dart';
 import 'firebase_auth_service.dart';
 import 'firestore_services.dart';
@@ -35,6 +38,9 @@ void setupGetIt() {
   /// Repos
   getIt.registerSingleton<ImagesRepo>(
     ImagesRepoImpl(storageServices: getIt<StorageServices>()),
+  );
+  getIt.registerSingleton<UserDataRepo>(
+    UserDataRepoImpl(databaseServices: getIt<DatabaseServices>()),
   );
 
   getIt.registerSingleton<ContactsRepo>(
@@ -78,4 +84,7 @@ void setupGetIt() {
   getIt.registerLazySingleton<GroupCubit>(() => GroupCubit(getIt<GroupRepo>()));
 
   getIt.registerLazySingleton<GroupSelectionCubit>(() => GroupSelectionCubit());
+  getIt.registerLazySingleton<UserDataCubit>(
+    () => UserDataCubit(getIt<UserDataRepo>()),
+  );
 }

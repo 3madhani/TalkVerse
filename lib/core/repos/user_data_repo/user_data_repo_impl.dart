@@ -1,4 +1,3 @@
-import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../features/auth/data/model/user_model.dart';
@@ -11,11 +10,39 @@ class UserDataRepoImpl implements UserDataRepo {
   DatabaseServices databaseServices;
   UserDataRepoImpl({required this.databaseServices});
   @override
-  Stream<Either<Failure, List<UserModel>>> getUserData(String userId) async* {
+  Stream<Either<Failure, UserModel>> getUserData(String userId) async* {
     try {
       yield* databaseServices
           .fetchUser(path: BackendEndPoints.getUser, documentId: userId)
-          .map((data) => Right(data ?? []));
+          .map((data) {
+            if (data != null && data.isNotEmpty) {
+              return Right(UserModel.fromJson(data));
+            } else {
+              return const Left(ServerFailure("User not found"));
+            }
+          });
+    } catch (e) {
+      yield Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Stream<Either<Failure, List<UserModel>>> getUsersData(
+    List<String> usersIds,
+  ) async* {
+    try {
+      yield* databaseServices
+          .fetchUser(path: BackendEndPoints.getUser, listOfIds: usersIds)
+          .map((data) {
+            final users =
+                data?.map<UserModel>((e) => UserModel.fromJson(e)).toList() ??
+                [];
+            if (users.isNotEmpty) {
+              return Right(users);
+            } else {
+              return const Left(ServerFailure("No user data found"));
+            }
+          });
     } catch (e) {
       yield Left(ServerFailure(e.toString()));
     }
@@ -55,16 +82,5 @@ class UserDataRepoImpl implements UserDataRepo {
   ) {
     // TODO: implement updateUserPushToken
     throw UnimplementedError();
-  }
-
-  @override
-  Stream<Either<Failure, List<UserEntity>>> getUsersData(List<String> usersIds) {
-    try {
-      return databaseServices
-          .fetchUser(path: BackendEndPoints.getUser, listOfIds: usersIds)
-          .map((data) => Right(data.map((e) => UserModel.fromJson(e)).toList()));
-    } catch (e) {
-      return Stream.value(const Left(ServerFailure('Failed to fetch users data')));
-    }
   }
 }

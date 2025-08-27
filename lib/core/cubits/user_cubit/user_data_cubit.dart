@@ -22,7 +22,7 @@ class UserDataCubit extends Cubit<UserDataState> {
     return super.close();
   }
 
-  Future<void> loadUserData(String userId) async {
+  Future<void> loadUserData({String? userId, List<String>? usersIds}) async {
     emit(UserDataLoading());
     final cachedData = Prefs.getString(userDataCacheKey);
     if (cachedData.isNotEmpty) {
@@ -33,26 +33,34 @@ class UserDataCubit extends Cubit<UserDataState> {
         emit(const UserDataError("Failed to parse cached user data"));
       }
     }
-
     _userDataSubscription?.cancel();
-    _userDataSubscription = userDataRepo.getUserData(userId).listen((result) {
-      result.fold((failure) => emit(UserDataError(failure.message)), (
-        userData,
+    if (usersIds != null) {
+      _userDataSubscription = userDataRepo.getUsersData(usersIds).listen((
+        result,
       ) {
-        if (userData.isNotEmpty) {
-          if (userData.length > 1) {
-            final usersList = userData;
-
+        result.fold((failure) => emit(UserDataError(failure.message)), (
+          usersData,
+        ) {
+          if (usersData.isNotEmpty) {
+            final usersList = usersData;
             Prefs.setString(userDataCacheKey, jsonEncode(usersList));
             emit(UsersDataLoaded(usersList));
+          } else {
+            emit(const UserDataError("No users data found"));
           }
-          final user = userData.first; // Assuming single user data
+        });
+      });
+      return;
+    } else if (userId != null) {
+      _userDataSubscription = userDataRepo.getUserData(userId).listen((result) {
+        result.fold((failure) => emit(UserDataError(failure.message)), (
+          userData,
+        ) {
+          final user = userData;
           Prefs.setString(userDataCacheKey, jsonEncode(user));
           emit(UserDataLoaded(user));
-        } else {
-          emit(const UserDataError("No user data found"));
-        }
+        });
       });
-    });
+    }
   }
 }
