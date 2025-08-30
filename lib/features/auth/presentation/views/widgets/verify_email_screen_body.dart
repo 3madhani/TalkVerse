@@ -55,7 +55,7 @@ class VerifyEmailScreenBody extends StatelessWidget {
                       icon: const Icon(Iconsax.refresh),
                       label: const Text('I Verified My Email'),
                       onPressed: () {
-                        context.read<AuthCubit>().checkEmailVerification();
+                        getIt<AuthCubit>().checkEmailVerification();
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),

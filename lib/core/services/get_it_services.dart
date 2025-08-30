@@ -85,6 +85,9 @@ void setupGetIt() {
 
   getIt.registerLazySingleton<GroupSelectionCubit>(() => GroupSelectionCubit());
   getIt.registerLazySingleton<UserDataCubit>(
-    () => UserDataCubit(getIt<UserDataRepo>()),
+    () => UserDataCubit(
+      userDataRepo: getIt<UserDataRepo>(),
+      imagesRepo: getIt<ImagesRepo>(),
+    ),
   );
 }

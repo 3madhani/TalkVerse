@@ -31,7 +31,7 @@ class _AuthListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
-      bloc: getIt<AuthCubit>(), // 👈 Injected directly
+      bloc: getIt<AuthCubit>(),
       listenWhen: (previous, current) => previous != current,
       listener: (context, state) {
         if (state is AuthFailure) {

@@ -64,8 +64,6 @@ class GroupChatScreenBody extends StatelessWidget {
                       (id) => id != userId,
                     );
 
-                    print('Receiver ID: ${group.id}');
-
                     if (receiverId.isEmpty) return const SizedBox();
 
                     return StartMessageCard(

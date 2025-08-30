@@ -1,12 +1,15 @@
 // user_data_cubit.dart
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../features/auth/data/model/user_model.dart';
 import '../../../features/auth/domain/entities/user_entity.dart';
+import '../../repos/images_repo/images_repo.dart';
 import '../../repos/user_data_repo/user_data_repo.dart';
 import '../../services/shared_preferences_singleton.dart';
 
@@ -15,11 +18,11 @@ part 'user_data_state.dart';
 class UserDataCubit extends Cubit<UserDataState> {
   static const userDataCacheKeySingle = "user_data_cache_single";
   static const userDataCacheKeyMulti = "user_data_cache_multi";
-
+final ImagesRepo imagesRepo;
   final UserDataRepo userDataRepo;
   StreamSubscription? _userDataSubscription;
 
-  UserDataCubit(this.userDataRepo) : super(UserDataInitial());
+  UserDataCubit({ required this.userDataRepo, required this.imagesRepo}) : super(UserDataInitial());
 
   @override
   Future<void> close() {
@@ -112,5 +115,21 @@ class UserDataCubit extends Cubit<UserDataState> {
     }, (_) {
       emit(const UserDataUpdated("User data updated successfully"));
     });
+  }
+
+  Future<String?> uploadProfileImage(File? image,) async {
+    try {
+      final imageUrl = await imagesRepo.uploadImage(
+        image: image!,
+        path: "Users-Profile-Images/${FirebaseAuth.instance.currentUser!.uid}",
+      );
+      return imageUrl.fold((failure) {
+        emit(UserDataUpdateError(failure.message));
+        return null;
+      }, (url) => url);
+    } catch (e) {
+      emit(UserDataUpdateError("Image upload failed: $e"));
+      return null;
+    }
   }
 }

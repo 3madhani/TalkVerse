@@ -15,7 +15,9 @@ class SupabaseStorage implements StorageServices {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final filename = "$path/$timestamp.$ext";
 
-    await _supabase.client.storage.from("chat-images").upload(filename, file);
+    await _supabase.client.storage
+        .from("chat-images")
+        .upload(filename, file, fileOptions: const FileOptions(upsert: true));
 
     final imageUrl = _supabase.client.storage
         .from("chat-images")

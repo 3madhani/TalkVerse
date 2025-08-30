@@ -1,6 +1,13 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../../../core/cubits/user_cubit/user_data_cubit.dart';
+import '../../../../../core/services/get_it_services.dart';
+import '../../../../../core/widgets/app_snack_bar.dart';
 
 class ProfilePicture extends StatelessWidget {
   final String profilePictureUrl;
@@ -19,34 +26,80 @@ class ProfilePicture extends StatelessWidget {
               height: 130,
               color: colorScheme.primaryContainer,
 
-              child: CachedNetworkImage(
-                imageUrl: profilePictureUrl,
-
-                fit: BoxFit.cover,
-                placeholder:
-                    (context, url) => const SizedBox(
-                      width: 40,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.grey,
+              child:
+                  profilePictureUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                        imageUrl: profilePictureUrl,
+                        fit: BoxFit.cover,
+                        placeholder:
+                            (context, url) => const Center(
+                              child: SizedBox(
+                                width: 40,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                        errorWidget:
+                            (context, url, error) => Icon(
+                              Icons.error,
+                              color: colorScheme.error,
+                              size: 40,
+                            ),
+                      )
+                      : Icon(
+                        Iconsax.user,
+                        size: 60,
+                        color: colorScheme.onPrimaryContainer,
                       ),
-                    ),
-                errorWidget:
-                    (context, url, error) =>
-                        Icon(Icons.error, color: colorScheme.error, size: 40),
-              ),
             ),
           ),
           Positioned(
-            bottom: -4,
-            right: -4,
+            bottom: -2,
+            right: -2,
             child: IconButton.filled(
-              onPressed: () {}, // Implement Profile Image Change
-              icon: const Icon(Iconsax.edit),
+              onPressed: () => _pickAndUploadImage(context),
+              style: IconButton.styleFrom(
+                backgroundColor: colorScheme.primaryContainer,
+                foregroundColor: colorScheme.onPrimaryContainer,
+                padding: const EdgeInsets.all(8),
+                shape: CircleBorder(
+                  side: BorderSide(color: colorScheme.surface, width: 2),
+                ),
+              ),
+              icon: const Icon(Iconsax.edit, size: 20),
             ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _pickAndUploadImage(BuildContext context) async {
+    try {
+      final picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        if (context.mounted) {
+          // Upload image to backend or Firebase Storage
+          // Update user profile with new image URL
+          getIt<UserDataCubit>()
+              .uploadProfileImage(File(image.path))
+              .then(
+                (imageUrl) =>
+                    imageUrl != null
+                        ? getIt<UserDataCubit>().updateUserData(
+                          data: {'photoUrl': imageUrl},
+                        )
+                        : null,
+              );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        AppSnackBar.showWarning(context, "Failed to pick image: $e");
+      }
+    }
   }
 }
