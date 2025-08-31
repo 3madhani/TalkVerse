@@ -1,6 +1,8 @@
 import 'package:chitchat/core/cubits/chat_cubit/chat_message_cubit.dart';
+import 'package:chitchat/core/cubits/user_cubit/user_data_cubit.dart';
 import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../core/constants/backend/backend_end_points.dart';
@@ -30,9 +32,30 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
               widget.group.name,
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            Text(
-              widget.group.about ?? 'No description',
-              style: Theme.of(context).textTheme.labelLarge,
+            BlocBuilder<UserDataCubit, UserDataState>(
+              bloc: getIt<UserDataCubit>(),
+              builder: (context, state) {
+                if (state is UsersDataLoaded) {
+                  List<String> names = [];
+                  for (var user in state.users) {
+                    names.add(user.name!);
+                  }
+
+                  return Text(
+                    names.length > 1
+                        ? '${names.sublist(0, names.length - 1).join(', ')} and ${names.last}'
+                        : names.first,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  );
+                } else if (state is UserDataLoaded) {
+                  return Text(
+                    '1 member',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  );
+                }
+                return const SizedBox.shrink();
+              },
             ),
           ],
         ),
@@ -55,6 +78,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       widget.group.id,
       BackendEndPoints.groups,
     );
+    getIt<UserDataCubit>().loadUserData(usersIds: widget.group.members);
     super.initState();
   }
 }

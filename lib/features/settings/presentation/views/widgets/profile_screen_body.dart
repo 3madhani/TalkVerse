@@ -78,9 +78,12 @@ class ProfileScreenBody extends StatelessWidget {
                         ProfileInfoCardStatic(
                           icon: Iconsax.calendar_1,
                           title: 'Join Date',
-                          subtitle: formatTimestampToDateString(
-                            user!.createdAt!,
-                          ),
+                          subtitle:
+                              user?.createdAt != null
+                                  ? formatTimestampToDateString(
+                                    user!.createdAt!,
+                                  )
+                                  : "Loading...",
                         ),
 
                         const SizedBox(height: 40),

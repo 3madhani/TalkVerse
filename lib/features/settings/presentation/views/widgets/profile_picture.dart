@@ -16,18 +16,17 @@ class ProfilePicture extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
     return Center(
       child: Stack(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(70),
+          ClipOval(
             child: Container(
               width: 130,
               height: 130,
               color: colorScheme.primaryContainer,
-
               child:
-                  profilePictureUrl.isNotEmpty
+                  _isValidUrl(profilePictureUrl)
                       ? CachedNetworkImage(
                         imageUrl: profilePictureUrl,
                         fit: BoxFit.cover,
@@ -55,6 +54,8 @@ class ProfilePicture extends StatelessWidget {
                       ),
             ),
           ),
+
+          /// Edit button
           Positioned(
             bottom: -2,
             right: -2,
@@ -76,24 +77,31 @@ class ProfilePicture extends StatelessWidget {
     );
   }
 
+  bool _isValidUrl(String url) {
+    if (url.isEmpty) return false;
+    final uri = Uri.tryParse(url);
+    return uri != null &&
+        uri.hasScheme &&
+        (uri.scheme == "http" || uri.scheme == "https");
+  }
+
   Future<void> _pickAndUploadImage(BuildContext context) async {
     try {
       final picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
       if (image != null) {
         if (context.mounted) {
           // Upload image to backend or Firebase Storage
-          // Update user profile with new image URL
-          getIt<UserDataCubit>()
-              .uploadProfileImage(File(image.path))
-              .then(
-                (imageUrl) =>
-                    imageUrl != null
-                        ? getIt<UserDataCubit>().updateUserData(
-                          data: {'photoUrl': imageUrl},
-                        )
-                        : null,
+          getIt<UserDataCubit>().uploadProfileImage(File(image.path)).then((
+            imageUrl,
+          ) {
+            if (imageUrl != null) {
+              getIt<UserDataCubit>().updateUserData(
+                data: {'photoUrl': imageUrl},
               );
+            }
+          });
         }
       }
     } catch (e) {
