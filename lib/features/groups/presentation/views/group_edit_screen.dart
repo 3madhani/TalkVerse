@@ -10,6 +10,7 @@ class GroupEditScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Group')),
       floatingActionButton: FloatingActionButton.extended(
@@ -32,9 +33,20 @@ class GroupEditScreen extends StatelessWidget {
                       Positioned(
                         bottom: -10,
                         right: -10,
-                        child: IconButton(
+                        child: IconButton.filled(
                           onPressed: () {},
-                          icon: const Icon(Icons.add_a_photo),
+                          style: IconButton.styleFrom(
+                            backgroundColor: colorScheme.primaryContainer,
+                            foregroundColor: colorScheme.onPrimaryContainer,
+                            padding: const EdgeInsets.all(8),
+                            shape: CircleBorder(
+                              side: BorderSide(
+                                color: colorScheme.surface,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          icon: const Icon(Iconsax.camera, size: 20),
                         ),
                       ),
                     ],

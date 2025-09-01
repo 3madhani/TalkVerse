@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../features/auth/domain/entities/user_entity.dart';
 import '../../features/auth/presentation/views/forget_password_screen.dart';
 import '../../features/auth/presentation/views/login_screen.dart';
 import '../../features/auth/presentation/views/setup_profile.dart';
@@ -52,7 +53,12 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
     case CreateGroupScreen.routeName:
       return MaterialPageRoute(builder: (context) => const CreateGroupScreen());
     case GroupMemberScreen.routeName:
-      return MaterialPageRoute(builder: (context) => const GroupMemberScreen());
+      final args = settings.arguments as GroupMemberArgs;
+      return MaterialPageRoute(
+        builder:
+            (context) =>
+                GroupMemberScreen(group: args.group, members: args.members),
+      );
     case GroupChatScreen.routeName:
       return MaterialPageRoute(
         builder:
@@ -76,4 +82,11 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
             ),
       );
   }
+}
+
+class GroupMemberArgs {
+  final GroupEntity group;
+  final List<UserEntity> members;
+
+  GroupMemberArgs({required this.group, required this.members});
 }

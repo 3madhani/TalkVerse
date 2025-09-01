@@ -1,11 +1,13 @@
 import 'package:chitchat/core/cubits/chat_cubit/chat_message_cubit.dart';
 import 'package:chitchat/core/cubits/user_cubit/user_data_cubit.dart';
 import 'package:chitchat/core/services/get_it_services.dart';
+import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../core/constants/backend/backend_end_points.dart';
+import '../../../../core/helpers/on_generate_routes.dart';
 import '../../domain/entities/group_entity.dart';
 import 'group_member_screen.dart';
 import 'widgets/group_chat_screen_body.dart';
@@ -21,6 +23,7 @@ class GroupChatScreen extends StatefulWidget {
 }
 
 class _GroupChatScreenState extends State<GroupChatScreen> {
+  final List<UserEntity> members = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,6 +40,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
               builder: (context, state) {
                 if (state is UsersDataLoaded) {
                   List<String> names = [];
+                  members.addAll(state.users);
                   for (var user in state.users) {
                     names.add(user.name!);
                   }
@@ -62,7 +66,14 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, GroupMemberScreen.routeName);
+              Navigator.pushNamed(
+                context,
+                GroupMemberScreen.routeName,
+                arguments: GroupMemberArgs(
+                  group: widget.group,
+                  members: members,
+                ),
+              );
             },
             icon: const Icon(Iconsax.user),
           ),
