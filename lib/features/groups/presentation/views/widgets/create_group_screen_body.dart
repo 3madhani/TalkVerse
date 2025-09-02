@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/services/get_it_services.dart';
 import '../../cubits/group_selection_cubit/group_selection_cubit.dart';
 import 'create_group_section.dart';
-import 'members_list_view.dart';
+import 'create_member_list_view.dart';
 
 class CreateGroupScreenBody extends StatelessWidget {
   final TextEditingController controller;
@@ -36,7 +36,7 @@ class CreateGroupScreenBody extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          const Expanded(child: MembersListView()),
+          const Expanded(child: CreateMemberListView()),
         ],
       ),
     );

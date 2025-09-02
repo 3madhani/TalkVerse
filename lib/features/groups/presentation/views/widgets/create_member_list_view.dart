@@ -7,14 +7,14 @@ import '../../../../home/presentation/manager/contacts_cubit/contacts_cubit.dart
 import '../../../../home/presentation/manager/contacts_cubit/contacts_state.dart';
 import '../../cubits/group_selection_cubit/group_selection_cubit.dart';
 
-class MembersListView extends StatefulWidget {
-  const MembersListView({super.key});
+class CreateMemberListView extends StatefulWidget {
+  const CreateMemberListView({super.key});
 
   @override
-  State<MembersListView> createState() => _MembersListViewState();
+  State<CreateMemberListView> createState() => _CreateMemberListViewState();
 }
 
-class _MembersListViewState extends State<MembersListView> {
+class _CreateMemberListViewState extends State<CreateMemberListView> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ContactsCubit, ContactsState>(
@@ -46,7 +46,7 @@ class _MembersListViewState extends State<MembersListView> {
                             : null,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
                         color:
                             isSelected
@@ -59,11 +59,12 @@ class _MembersListViewState extends State<MembersListView> {
                     ),
                     child: CheckboxListTile(
                       value: isSelected,
-                      onChanged:
-                          (_) => getIt<GroupSelectionCubit>().toggleMember(
-                            member.uId,
-                          ),
-                      checkboxShape: const CircleBorder(),
+                      onChanged: (_) {
+                        getIt<GroupSelectionCubit>().toggleMember(member.uId);
+                      },
+                      checkboxShape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4)),
+                      ),
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Text(
                         member.name ?? '',
@@ -73,6 +74,11 @@ class _MembersListViewState extends State<MembersListView> {
                         ),
                       ),
                       secondary: CircleAvatar(
+                        radius: 22,
+                        backgroundColor:
+                            Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                         child:
                             member.photoUrl == null
                                 ? Text(
@@ -81,12 +87,19 @@ class _MembersListViewState extends State<MembersListView> {
                                       : '?',
                                 )
                                 : ClipOval(
-                                  clipBehavior: Clip.antiAlias,
                                   child: CachedNetworkImage(
                                     imageUrl: member.photoUrl!,
+                                    width: 40,
+                                    height: 40,
+                                    fit: BoxFit.cover,
                                     placeholder:
-                                        (_, __) =>
-                                            const CircularProgressIndicator(),
+                                        (_, __) => const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
                                     errorWidget:
                                         (_, __, ___) => const Icon(Icons.error),
                                   ),
@@ -106,7 +119,8 @@ class _MembersListViewState extends State<MembersListView> {
 
   @override
   void initState() {
-    getIt<ContactsCubit>().loadContacts();
     super.initState();
+    getIt<ContactsCubit>().loadContacts();
+    getIt<GroupSelectionCubit>().clearSelection();
   }
 }

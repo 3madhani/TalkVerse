@@ -1,8 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../../../core/services/get_it_services.dart';
 import '../../../../auth/presentation/views/widgets/custom_text_field.dart';
 import '../../../domain/entities/group_entity.dart';
+import '../../cubits/group_selection_cubit/group_selection_cubit.dart';
+import 'edit_members_list_view.dart';
 
 class GroupEditScreenBody extends StatefulWidget {
   final GroupEntity group;
@@ -13,7 +18,7 @@ class GroupEditScreenBody extends StatefulWidget {
 }
 
 class _GroupEditScreenBodyState extends State<GroupEditScreenBody> {
-  TextEditingController nameController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -69,29 +74,19 @@ class _GroupEditScreenBodyState extends State<GroupEditScreenBody> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('Add Members', style: Theme.of(context).textTheme.bodyLarge),
-              Text('0', style: Theme.of(context).textTheme.labelLarge),
+              BlocBuilder<GroupSelectionCubit, Set<String>>(
+                bloc: getIt<GroupSelectionCubit>(),
+                builder: (context, selected) {
+                  return Text(
+                    '${selected.length}',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  );
+                },
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(0),
-              children: [
-                CheckboxListTile(
-                  checkboxShape: const CircleBorder(),
-                  value: false,
-                  onChanged: (_) {},
-                  title: const Text('Emad'),
-                ),
-                CheckboxListTile(
-                  value: true,
-                  checkboxShape: const CircleBorder(),
-                  onChanged: (_) {},
-                  title: const Text('Emad'),
-                ),
-              ],
-            ),
-          ),
+          const Expanded(child: EditMembersListView()),
         ],
       ),
     );
@@ -106,6 +101,10 @@ class _GroupEditScreenBodyState extends State<GroupEditScreenBody> {
   @override
   void initState() {
     nameController.text = widget.group.name;
+    final groupMembers = List<String>.from(widget.group.members);
+    // call by value to avoid modifying the original list
+    groupMembers.remove(FirebaseAuth.instance.currentUser?.uid);
+    getIt<GroupSelectionCubit>().setMembers(groupMembers);
     super.initState();
   }
 }
