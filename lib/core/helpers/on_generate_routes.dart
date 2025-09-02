@@ -66,7 +66,9 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
                 GroupChatScreen(group: settings.arguments as GroupEntity),
       );
     case GroupEditScreen.routeName:
-      return MaterialPageRoute(builder: (context) => const GroupEditScreen());
+      return MaterialPageRoute(builder: (context) =>  GroupEditScreen(
+        group:settings.arguments as GroupEntity,
+      ));
     case VerifyEmailScreen.routeName:
       return MaterialPageRoute(builder: (context) => const VerifyEmailScreen());
     default:

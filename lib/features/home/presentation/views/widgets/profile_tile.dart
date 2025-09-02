@@ -32,7 +32,7 @@ class ProfileTile extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: state is UserDataLoaded ? state.user.photoUrl! : '',
 
-                  fit: BoxFit.contain,
+                  fit: BoxFit.cover,
                   placeholder:
                       (context, url) => const SizedBox(
                         width: 40,

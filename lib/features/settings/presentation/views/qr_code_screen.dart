@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -21,7 +22,7 @@ class QrCodeScreen extends StatelessWidget {
                   child: Card(
                     color: Colors.white,
                     child: QrImageView(
-                      data: 'https://dksjadaklsjka',
+                      data: FirebaseAuth.instance.currentUser!.uid,
                       version: 3,
                       size: 200.0,
                     ),
