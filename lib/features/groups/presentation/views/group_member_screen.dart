@@ -23,9 +23,29 @@ class GroupMemberScreen extends StatelessWidget {
     final bool isAdmin = group.admins.contains(
       FirebaseAuth.instance.currentUser!.uid,
     );
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Group Members'),
+        title: Text.rich(
+          TextSpan(
+            text: group.name,
+            style: TextStyle(
+              color: theme.colorScheme.primary,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+            children: [
+              TextSpan(
+                text: ' Members',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.normal,
+                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+            ],
+          ),
+        ),
         actions: [
           if (isAdmin)
             IconButton(

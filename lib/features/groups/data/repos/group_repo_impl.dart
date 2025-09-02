@@ -161,13 +161,13 @@ class GroupRepoImpl implements GroupRepo {
   Future<Either<Failure, String>> updateGroup(
     String groupId,
     String groupName,
-    String groupDescription,
+    List<String>membera,
   ) async {
     try {
       await databaseServices.updateData(
         path: BackendEndPoints.groups,
         documentId: groupId,
-        data: {"name": groupName, "about": groupDescription},
+        data: {"name": groupName, "members": membera},
       );
 
       return const Right("Group updated successfully");

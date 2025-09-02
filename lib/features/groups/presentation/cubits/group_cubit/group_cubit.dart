@@ -52,17 +52,6 @@ class GroupCubit extends Cubit<GroupState> {
     return isSuccess;
   }
 
-  /// fetch group members
-  void fetchGroupMembers(List<String> memberIds) async {
-    emit(GroupLoading());
-    try {
-      final members =  groupRepo.fetchMembers(memberIds);
-      emit(GroupMembersLoaded(members));
-    } catch (e) {
-      emit(GroupError("Failed to fetch group members: $e"));
-    }
-  }
-
   /// Delete a group
   Future<void> deleteGroup(String groupId) async {
     try {
@@ -76,6 +65,17 @@ class GroupCubit extends Cubit<GroupState> {
       emit(const GroupSuccess("Group deleted successfully"));
     } catch (e) {
       emit(GroupError("Failed to delete group: $e"));
+    }
+  }
+
+  /// fetch group members
+  void fetchGroupMembers(List<String> memberIds) async {
+    emit(GroupLoading());
+    try {
+      final members = groupRepo.fetchMembers(memberIds);
+      emit(GroupMembersLoaded(members));
+    } catch (e) {
+      emit(GroupError("Failed to fetch group members: $e"));
     }
   }
 
@@ -120,6 +120,31 @@ class GroupCubit extends Cubit<GroupState> {
       emit(GroupLoaded(groupsCache));
     } catch (_) {
       emit(const GroupError('Failed to load cached groups'));
+    }
+  }
+
+  /// Update a group
+  Future<void> updateGroup({
+    required String groupId,
+    required String groupName,
+    required List<String> members,
+  }) async {
+    try {
+      await groupRepo.updateGroup(groupId, groupName, members);
+      groupsCache =
+          groupsCache.map((group) {
+            if (group.id == groupId) {
+              return group.copyWith(name: groupName, members: members);
+            }
+            return group;
+          }).toList();
+      await _cacheGroups(groupsCache);
+
+      // Emit GroupLoaded immediately so UI updates
+      emit(GroupLoaded(List.from(groupsCache)));
+    } catch (e) {
+      emit(GroupError("Failed to update group: $e"));
+      return;
     }
   }
 

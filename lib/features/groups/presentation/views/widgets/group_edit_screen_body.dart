@@ -1,24 +1,15 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../../core/services/get_it_services.dart';
 import '../../../../auth/presentation/views/widgets/custom_text_field.dart';
-import '../../../domain/entities/group_entity.dart';
 import '../../cubits/group_selection_cubit/group_selection_cubit.dart';
 import 'edit_members_list_view.dart';
 
-class GroupEditScreenBody extends StatefulWidget {
-  final GroupEntity group;
-  const GroupEditScreenBody({super.key, required this.group});
-
-  @override
-  State<GroupEditScreenBody> createState() => _GroupEditScreenBodyState();
-}
-
-class _GroupEditScreenBodyState extends State<GroupEditScreenBody> {
-  final TextEditingController nameController = TextEditingController();
+class GroupEditScreenBody extends StatelessWidget {
+  final TextEditingController controller;
+  const GroupEditScreenBody({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +53,7 @@ class _GroupEditScreenBodyState extends State<GroupEditScreenBody> {
                 child: CustomTextField(
                   label: 'Group Name',
                   prefixIcon: Iconsax.user_octagon,
-                  controller: nameController,
+                  controller: controller,
                 ),
               ),
             ],
@@ -90,21 +81,5 @@ class _GroupEditScreenBodyState extends State<GroupEditScreenBody> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    nameController.text = widget.group.name;
-    final groupMembers = List<String>.from(widget.group.members);
-    // call by value to avoid modifying the original list
-    groupMembers.remove(FirebaseAuth.instance.currentUser?.uid);
-    getIt<GroupSelectionCubit>().setMembers(groupMembers);
-    super.initState();
   }
 }
