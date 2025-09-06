@@ -42,7 +42,6 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     return isSuccess;
   }
 
-
   Future<void> deleteChatRoom(String roomId) async {
     try {
       await chatRoomRepo.deleteChatRoom(roomId);
@@ -63,9 +62,7 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
     }
 
     _subscription?.cancel();
-    _subscription = chatRoomRepo.fetchUserChatRooms().listen((
-      either,
-    ) async {
+    _subscription = chatRoomRepo.fetchUserChatRooms().listen((either) async {
       either.fold((failure) => emit(ChatRoomError(failure.message)), (
         chatRooms,
       ) async {

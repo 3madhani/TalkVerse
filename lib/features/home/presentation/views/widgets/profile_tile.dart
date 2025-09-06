@@ -33,12 +33,9 @@ class ProfileTile extends StatelessWidget {
 
                   fit: BoxFit.cover,
                   placeholder:
-                      (context, url) => const SizedBox(
-                        width: 40,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.grey,
-                        ),
+                      (context, url) => const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.grey,
                       ),
                   errorWidget:
                       (context, url, error) =>

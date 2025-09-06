@@ -12,9 +12,8 @@ import '../../domain/repos/contacts_repo.dart';
 
 class ContactsRepoImpl implements ContactsRepo {
   final DatabaseServices databaseServices;
-  final User? currentUser = FirebaseAuth.instance.currentUser;
-
   ContactsRepoImpl({required this.databaseServices});
+  User? get currentUser => FirebaseAuth.instance.currentUser;
 
   @override
   Future<Either<Failure, String>> createContact(String email) async {
