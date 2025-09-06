@@ -8,10 +8,8 @@ abstract class UserDataRepo {
 
   Stream<Either<Failure, List<UserEntity>>> getUsersData(List<String> usersIds);
 
-
-  Future<void> updateUserContacts(String userId, List<String> contactIds);
   Future<Either<Failure, void>> updateUserData({
-    required Map<String, dynamic> data
+    required Map<String, dynamic> data,
   });
 
   Future<void> updateUserLastSeen(String userId, DateTime lastSeen);

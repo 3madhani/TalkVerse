@@ -12,10 +12,11 @@ abstract class GroupRepo {
 
   Future<Either<Failure, void>> deleteGroup(String groupId);
 
+  Future<Either<Failure, void>> deleteMember(String groupId, String memberId);
+
   Stream<Either<Failure, List<String>>> fetchMembers(List<String> memberIds);
 
   Stream<Either<Failure, List<GroupEntity>>> getGroups();
-
   Future<Either<Failure, void>> updateGroup(
     String groupId,
     String groupName,

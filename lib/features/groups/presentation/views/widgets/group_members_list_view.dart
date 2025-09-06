@@ -1,15 +1,16 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chitchat/core/services/get_it_services.dart';
+import 'package:chitchat/features/groups/presentation/cubits/group_cubit/group_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../auth/domain/entities/user_entity.dart';
 import '../../../domain/entities/group_entity.dart';
 
-class GroupMembersListView extends StatelessWidget {
+class GroupMembersListView extends StatefulWidget {
   final GroupEntity group;
-
   final List<UserEntity> members;
   final bool isAdmin;
+
   const GroupMembersListView({
     super.key,
     required this.group,
@@ -18,55 +19,64 @@ class GroupMembersListView extends StatelessWidget {
   });
 
   @override
+  State<GroupMembersListView> createState() => _GroupMembersListViewState();
+}
+
+class _GroupMembersListViewState extends State<GroupMembersListView> {
+  late List<UserEntity> _members;
+  late List<String> _groupMembers;
+
+  @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: group.members.length,
+      itemCount: _groupMembers.length,
       itemBuilder: (context, index) {
+        final member = _members[index];
         return Card(
           child: ListTile(
-            leading: CachedNetworkImage(
-              imageUrl: members[index].photoUrl ?? '',
-              imageBuilder:
-                  (context, imageProvider) =>
-                      CircleAvatar(backgroundImage: imageProvider),
-              placeholder:
-                  (context, url) => const CircleAvatar(
-                    backgroundColor: Colors.grey,
-
-                    child: CircularProgressIndicator(),
-                  ),
-              errorWidget:
-                  (context, url, error) =>
-                      const CircleAvatar(child: Icon(Iconsax.user)),
+            leading: CircleAvatar(
+              backgroundImage:
+                  member.photoUrl != null
+                      ? NetworkImage(member.photoUrl!)
+                      : null,
+              child: member.photoUrl == null ? const Icon(Iconsax.user) : null,
             ),
-            title: Text(members[index].name ?? 'No Name'),
+            title: Text(member.name ?? 'No Name'),
             subtitle:
-                group.admins.contains(members[index].uId)
+                widget.group.admins.contains(member.uId)
                     ? const Text('Admin', style: TextStyle(color: Colors.green))
-                    : Text('Member', style: TextStyle(color: Colors.grey[600])),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isAdmin && !group.admins.contains(members[index].uId))
-                  IconButton(
-                    icon: const Icon(Iconsax.user_tick, color: Colors.green),
-                    onPressed: () {},
-                  )
-                else if (isAdmin && group.admins.contains(members[index].uId))
-                  IconButton(
-                    icon: const Icon(Iconsax.user_remove, color: Colors.red),
-                    onPressed: () {},
-                  ),
-                if (isAdmin)
-                  IconButton(
-                    icon: const Icon(Iconsax.trash, color: Colors.red),
-                    onPressed: () {},
-                  ),
-              ],
-            ),
+                    : const Text(
+                      'Member',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+            trailing:
+                widget.isAdmin && !widget.group.admins.contains(member.uId)
+                    ? IconButton(
+                      icon: const Icon(Iconsax.trash, color: Colors.red),
+                      onPressed: () async {
+                        await getIt<GroupCubit>().removeMember(
+                          groupId: widget.group.id,
+                          userId: member.uId,
+                        );
+
+                        // Update local state so UI refreshes
+                        setState(() {
+                          _members.removeAt(index);
+                          _groupMembers.removeAt(index);
+                        });
+                      },
+                    )
+                    : null,
           ),
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _members = List<UserEntity>.from(widget.members);
+    _groupMembers = List<String>.from(widget.group.members);
   }
 }

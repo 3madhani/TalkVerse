@@ -61,6 +61,13 @@ class _EditMembersListViewState extends State<EditMembersListView> {
                       ),
                     ),
                     child: CheckboxListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 2,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       value: isSelected,
                       onChanged: (_) {
                         getIt<GroupSelectionCubit>().toggleMember(member.uId);

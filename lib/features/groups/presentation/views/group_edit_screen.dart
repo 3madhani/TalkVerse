@@ -1,4 +1,3 @@
-import 'package:chitchat/features/groups/presentation/views/groups_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -87,12 +86,8 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
       members: [...newMembers, FirebaseAuth.instance.currentUser!.uid],
     );
     getIt<GroupSelectionCubit>().clearSelection();
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      GroupsScreen.routeName,
-      (route) => route.settings.name == GroupsScreen.routeName,
-    );
-
+    int count = 0;
+    Navigator.popUntil(context, (_) => count++ >= 3);
     if (!kIsWeb) {
       getIt<GroupCubit>().listenToGroups();
     }

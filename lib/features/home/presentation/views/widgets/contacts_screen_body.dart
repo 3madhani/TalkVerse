@@ -77,12 +77,6 @@ class _ContactsScreenBodyState extends State<ContactsScreenBody> {
   }
 
   @override
-  void dispose() {
-    getIt<ContactsCubit>().close();
-    super.dispose();
-  }
-
-  @override
   void initState() {
     super.initState();
     getIt<ContactsCubit>().loadContacts();

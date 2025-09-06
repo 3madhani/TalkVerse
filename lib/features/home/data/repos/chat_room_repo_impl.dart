@@ -16,18 +16,19 @@ import '../models/chat_room_model.dart';
 
 class ChatRoomRepoImpl implements ChatRoomRepo {
   final DatabaseServices databaseServices;
-  final user = FirebaseAuth.instance.currentUser;
-
   ChatRoomRepoImpl({required this.databaseServices});
+
+  User? get _currentUser => FirebaseAuth.instance.currentUser;
 
   @override
   Future<Either<Failure, String>> createChatRoom(String email) async {
+    final user = _currentUser;
     try {
       if (user == null) {
         return const Left(ServerFailure("User not logged in"));
       }
 
-      final userId = user!.uid;
+      final userId = user.uid;
       final users = await databaseServices.getData(
         path: BackendEndPoints.getUser,
         queryParameters: {"where": "email", "isEqualTo": email},
@@ -49,7 +50,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
         members: [userId, otherUser.uId],
         roomNames: {
           userId: otherUser.name ?? "User",
-          otherUser.uId: user!.displayName ?? "Unknown",
+          otherUser.uId: user.displayName ?? "Unknown",
         },
       );
 
@@ -96,13 +97,17 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
 
   @override
   Stream<Either<Failure, List<ChatRoomEntity>>> fetchUserChatRooms() {
+    final user = _currentUser;
+    if (user == null) {
+      return Stream.value(const Left(ServerFailure("User not logged in")));
+    }
     try {
       return databaseServices
           .streamData(
             path: BackendEndPoints.chatRooms,
             queryParameters: {
               "field": "members",
-              "arrayContains": user!.uid,
+              "arrayContains": user.uid,
               "orderBy": "lastMessageTime",
               "descending": true,
             },
@@ -112,7 +117,7 @@ class ChatRoomRepoImpl implements ChatRoomRepo {
               final rooms =
                   (list as List)
                       .cast<Map<String, dynamic>>()
-                      .map((e) => ChatRoomModel.fromJson(e).toEntity(user!.uid))
+                      .map((e) => ChatRoomModel.fromJson(e).toEntity(user.uid))
                       .toList();
 
               rooms.sort((a, b) {

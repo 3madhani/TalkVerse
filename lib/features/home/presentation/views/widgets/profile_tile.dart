@@ -24,11 +24,10 @@ class ProfileTile extends StatelessWidget {
                   : 'User Name',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(100),
-              child: SizedBox(
-                width: 60,
-                height: 60,
+            leading: CircleAvatar(
+              radius: 30,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
                 child: CachedNetworkImage(
                   imageUrl: state is UserDataLoaded ? state.user.photoUrl! : '',
 

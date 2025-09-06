@@ -84,6 +84,23 @@ class GroupRepoImpl implements GroupRepo {
   }
 
   @override
+  Future<Either<Failure, void>> deleteMember(
+    String groupId,
+    String memberId,
+  ) async {
+    try {
+      await databaseServices.deleteData(
+        path: BackendEndPoints.groups,
+        documentId: groupId,
+        queryParameters: {'memberId': memberId},
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
   Stream<Either<Failure, List<String>>> fetchMembers(List<String> memberIds) {
     try {
       if (memberIds.any((id) => id.isEmpty)) {
@@ -161,7 +178,7 @@ class GroupRepoImpl implements GroupRepo {
   Future<Either<Failure, String>> updateGroup(
     String groupId,
     String groupName,
-    List<String>membera,
+    List<String> membera,
   ) async {
     try {
       await databaseServices.updateData(

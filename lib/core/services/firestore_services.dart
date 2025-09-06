@@ -22,16 +22,8 @@ class FireStoreServices implements DatabaseServices {
   }) async {
     final collectionRef = firestore.collection(path);
 
-    Future<void> deleteMessagesSubcollection(DocumentReference docRef) async {
-      final messagesRef = docRef.collection('Messages'); // 🧠 Consistent casing
-      final messagesSnapshot = await messagesRef.get();
-      for (var messageDoc in messagesSnapshot.docs) {
-        await messageDoc.reference.delete();
-      }
-    }
-
     try {
-      if (documentId != null) {
+      if (documentId != null && queryParameters == null) {
         // Handle single document deletion
         if (documentId is String) {
           final docRef = collectionRef.doc(documentId);
@@ -50,7 +42,7 @@ class FireStoreServices implements DatabaseServices {
         } else {
           throw ArgumentError('documentId must be a String or List<String>');
         }
-      } else {
+      } else if (documentId == null) {
         // 🔍 Query-based deletion
         Query<Map<String, dynamic>> query = collectionRef;
 
@@ -69,9 +61,21 @@ class FireStoreServices implements DatabaseServices {
           await deleteMessagesSubcollection(doc.reference);
           await doc.reference.delete();
         }
+      } else if (queryParameters != null && documentId != null) {
+        collectionRef.doc(documentId).update({
+          'members': FieldValue.arrayRemove([queryParameters['memberId']]),
+        });
       }
     } catch (e) {
       throw ServerFailure('Failed to delete data: $e');
+    }
+  }
+
+  Future<void> deleteMessagesSubcollection(DocumentReference docRef) async {
+    final messagesRef = docRef.collection('Messages'); // 🧠 Consistent casing
+    final messagesSnapshot = await messagesRef.get();
+    for (var messageDoc in messagesSnapshot.docs) {
+      await messageDoc.reference.delete();
     }
   }
 

@@ -84,14 +84,22 @@ class ContactsCubit extends Cubit<ContactsState> {
       final contactsStream = contactsRepo.getContacts();
 
       _contactsSubscription = contactsStream.listen((either) async {
+        if (isClosed) return; // stop if cubit is closed
+
         either.fold(
           (failure) {
-            emit(ContactsFailure(failure.message, previousContacts: _contacts));
+            if (!isClosed) {
+              emit(
+                ContactsFailure(failure.message, previousContacts: _contacts),
+              );
+            }
           },
           (contacts) async {
             _contacts = List<UserEntity>.from(contacts)..sort(_sortByName);
             await _saveContactsToPrefs(_contacts);
-            emit(ContactsLoaded(_contacts));
+            if (!isClosed) {
+              emit(ContactsLoaded(_contacts));
+            }
           },
         );
       });

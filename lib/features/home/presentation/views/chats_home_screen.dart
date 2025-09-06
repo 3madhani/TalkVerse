@@ -18,9 +18,9 @@ class ChatHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Chats')),
+
       floatingActionButton: FloatingActionButton(
         heroTag: 'chat-home-fab',
-        // inside ChatHomeScreen's onPressed in floatingActionButton
         onPressed: () {
           showModalBottomSheet(
             isScrollControlled: true,
@@ -32,16 +32,17 @@ class ChatHomeScreen extends StatelessWidget {
               return BlocProvider.value(
                 value: getIt<ChatRoomCubit>(),
                 child: BlocConsumer<ChatRoomCubit, ChatRoomState>(
-                  bloc: getIt<ChatRoomCubit>(),
                   listener: (context, state) {
                     if (state is ChatRoomSuccess) {
                       Navigator.pop(context);
+
                       if (state.message.contains("already exists")) {
                         AppSnackBar.showWarning(context, state.message);
                       } else {
                         AppSnackBar.showSuccess(context, state.message);
                       }
 
+                      // refresh rooms after creating
                       context.read<ChatRoomCubit>().listenToUserChatRooms();
                     } else if (state is ChatRoomError) {
                       Navigator.pop(context);
@@ -55,7 +56,9 @@ class ChatHomeScreen extends StatelessWidget {
                               ? 'Creating...'
                               : 'Create Chat',
                       onAddUser: (ctx, email) {
-                        getIt<ChatRoomCubit>().createChatRoom(email: email);
+                        context.read<ChatRoomCubit>().createChatRoom(
+                          email: email,
+                        );
                       },
                     );
                   },
@@ -64,9 +67,9 @@ class ChatHomeScreen extends StatelessWidget {
             },
           );
         },
-
         child: const Icon(Iconsax.message_add),
       ),
+
       body: const ChatsHomeScreenBody(),
     );
   }

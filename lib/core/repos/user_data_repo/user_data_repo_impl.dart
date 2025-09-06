@@ -50,12 +50,6 @@ class UserDataRepoImpl implements UserDataRepo {
   }
 
   @override
-  Future<void> updateUserContacts(String userId, List<String> contactIds) {
-    // TODO: implement updateUserContacts
-    throw UnimplementedError();
-  }
-
-  @override
   Future<Either<Failure, void>> updateUserData({
     required Map<String, dynamic> data,
   }) async {

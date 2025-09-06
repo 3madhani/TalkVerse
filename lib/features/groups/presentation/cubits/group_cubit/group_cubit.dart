@@ -123,6 +123,18 @@ class GroupCubit extends Cubit<GroupState> {
     }
   }
 
+  Future<void> removeMember({
+    required String groupId,
+    required String userId,
+  }) async {
+    try {
+      await groupRepo.deleteMember(groupId, userId);
+      emit(const GroupSuccess("Member removed successfully"));
+    } catch (e) {
+      emit(GroupError("Failed to remove member: $e"));
+    }
+  }
+
   /// Update a group
   Future<void> updateGroup({
     required String groupId,

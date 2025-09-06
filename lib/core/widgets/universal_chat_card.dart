@@ -51,6 +51,7 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
                         message.senderId != currentUserId,
                   )
                   .length;
+          setState(() {});
         }
       },
       child: DismissibleCard(
