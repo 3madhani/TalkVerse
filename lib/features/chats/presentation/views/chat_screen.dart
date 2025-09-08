@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,14 +9,16 @@ import '../../../../core/constants/backend/backend_end_points.dart';
 import '../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
 import '../../../../core/cubits/chat_cubit/chat_message_state.dart';
 import '../../../../core/services/get_it_services.dart';
+import '../../../auth/domain/entities/user_entity.dart';
 import '../../../home/domain/entities/chat_room_entity.dart';
 import 'widgets/chat_screen_body.dart';
 
 class ChatScreen extends StatefulWidget {
   static const String routeName = 'chat-screen';
   final ChatRoomEntity chatRoom;
+  final UserEntity? user;
 
-  const ChatScreen({super.key, required this.chatRoom});
+  const ChatScreen({super.key, required this.chatRoom, this.user});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -30,6 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
         final isSelecting =
             state is ChatMessageLoaded && state.selectedMessageIds.isNotEmpty;
 
+        var of = Theme.of(context);
         return Scaffold(
           appBar: AppBar(
             title:
@@ -38,10 +42,49 @@ class _ChatScreenState extends State<ChatScreen> {
                     : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.chatRoom.roomName),
-                        Text(
-                          'Last seen at 10:00 am',
-                          style: Theme.of(context).textTheme.labelLarge,
+                        Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              clipBehavior: Clip.antiAlias,
+                              child: CircleAvatar(
+                                radius: 22,
+                                child: CachedNetworkImage(
+                                  imageUrl: widget.user?.photoUrl ?? '',
+                                  placeholder:
+                                      (context, url) =>
+                                          const CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.grey,
+                                          ),
+                                  errorWidget:
+                                      (context, url, error) => const Icon(
+                                        Icons.person,
+                                        size: 30,
+                                        color: Colors.white,
+                                      ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.chatRoom.roomName,
+                                  style: of.textTheme.titleLarge!.copyWith(
+                                    overflow: TextOverflow.ellipsis,
+                                    fontWeight: FontWeight.w500,
+                                    color: of.colorScheme.primary,
+                                  ),
+                                ),
+                                Text(
+                                  'Last seen at 10:00 am',
+                                  style: of.textTheme.labelLarge,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),

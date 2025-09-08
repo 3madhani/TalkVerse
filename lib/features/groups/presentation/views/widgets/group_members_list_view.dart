@@ -31,6 +31,7 @@ class _GroupMembersListViewState extends State<GroupMembersListView> {
     return ListView.builder(
       itemCount: _groupMembers.length,
       itemBuilder: (context, index) {
+        print(_members.length);
         final member = _members[index];
         return Card(
           child: ListTile(
@@ -49,24 +50,38 @@ class _GroupMembersListViewState extends State<GroupMembersListView> {
                       'Member',
                       style: TextStyle(color: Colors.grey),
                     ),
-            trailing:
-                widget.isAdmin && !widget.group.admins.contains(member.uId)
-                    ? IconButton(
-                      icon: const Icon(Iconsax.trash, color: Colors.red),
-                      onPressed: () async {
-                        await getIt<GroupCubit>().removeMember(
-                          groupId: widget.group.id,
-                          userId: member.uId,
-                        );
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (widget.isAdmin && !widget.group.admins.contains(member.uId))
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Iconsax.user_add, color: Colors.green),
+                  )
+                else if (widget.isAdmin &&
+                    widget.group.admins.contains(member.uId))
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Iconsax.user_remove, color: Colors.red),
+                  ),
+                if (widget.isAdmin && !widget.group.admins.contains(member.uId))
+                  IconButton(
+                    icon: const Icon(Iconsax.trash, color: Colors.red),
+                    onPressed: () async {
+                      await getIt<GroupCubit>().removeMember(
+                        groupId: widget.group.id,
+                        userId: member.uId,
+                      );
 
-                        // Update local state so UI refreshes
-                        setState(() {
-                          _members.removeAt(index);
-                          _groupMembers.removeAt(index);
-                        });
-                      },
-                    )
-                    : null,
+                      // Update local state so UI refreshes
+                      setState(() {
+                        _members.removeAt(index);
+                        _groupMembers.removeAt(index);
+                      });
+                    },
+                  ),
+              ],
+            ),
           ),
         );
       },
@@ -77,6 +92,7 @@ class _GroupMembersListViewState extends State<GroupMembersListView> {
   void initState() {
     super.initState();
     _members = List<UserEntity>.from(widget.members);
+    _members.sort((a, b) => a.name!.compareTo(b.name!));
     _groupMembers = List<String>.from(widget.group.members);
   }
 }

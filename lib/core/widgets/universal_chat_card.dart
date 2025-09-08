@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chitchat/core/widgets/dismissible_card.dart';
 import 'package:chitchat/features/chats/presentation/views/chat_screen.dart';
 import 'package:chitchat/features/groups/domain/entities/group_entity.dart';
@@ -8,8 +9,8 @@ import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:iconsax/iconsax.dart';
 
+import '../../features/auth/domain/entities/user_entity.dart';
 import '../constants/backend/backend_end_points.dart';
 import '../cubits/chat_cubit/chat_message_cubit.dart';
 import '../cubits/chat_cubit/chat_message_state.dart';
@@ -18,8 +19,9 @@ import '../services/get_it_services.dart';
 class UniversalChatCard extends StatefulWidget {
   final ChatRoomEntity? chatRoom;
   final GroupEntity? group;
+  final UserEntity? user;
 
-  const UniversalChatCard({super.key, this.chatRoom, this.group})
+  const UniversalChatCard({super.key, this.chatRoom, this.group, this.user})
     : assert(
         chatRoom != null || group != null,
         'Either chatRoom or group must be provided',
@@ -83,7 +85,7 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
                 Navigator.pushNamed(
                   context,
                   ChatScreen.routeName,
-                  arguments: widget.chatRoom,
+                  arguments: {'chatRoom': widget.chatRoom, 'user': widget.user},
                 );
               }
             },
@@ -91,8 +93,42 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
               radius: 22,
               child:
                   isGroup
-                      ? Text(widget.group!.name[0])
-                      : const Icon(Iconsax.user),
+                      ? ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        clipBehavior: Clip.antiAlias,
+                        child: CachedNetworkImage(
+                          imageUrl: widget.group!.imageUrl ?? '',
+                          placeholder:
+                              (context, url) => const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.grey,
+                              ),
+                          errorWidget:
+                              (context, url, error) => const Icon(
+                                Icons.group,
+                                size: 30,
+                                color: Colors.white,
+                              ),
+                        ),
+                      )
+                      : ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        clipBehavior: Clip.antiAlias,
+                        child: CachedNetworkImage(
+                          imageUrl: widget.user?.photoUrl ?? '',
+                          placeholder:
+                              (context, url) => const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.grey,
+                              ),
+                          errorWidget:
+                              (context, url, error) => const Icon(
+                                Icons.person,
+                                size: 30,
+                                color: Colors.white,
+                              ),
+                        ),
+                      ),
             ),
             title: Text(
               isGroup ? widget.group!.name : widget.chatRoom!.roomName,

@@ -26,7 +26,7 @@ void main() async {
   // Initialize shared preferences
   await Prefs.init();
 
-  // intia;ize getIt
+  // setup getIt
   setupGetIt();
 
   // run app

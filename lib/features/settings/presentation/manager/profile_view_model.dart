@@ -20,7 +20,11 @@ class ProfileViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  Future<void> saveProfile({String? name, String? about, String? profilePicture}) async {
+  Future<void> saveProfile({
+    String? name,
+    String? about,
+    String? profilePicture,
+  }) async {
     final data = <String, dynamic>{};
     if (enableName && name != null && name.isNotEmpty) {
       data['name'] = name;
@@ -45,7 +49,7 @@ class ProfileViewModel extends ChangeNotifier {
       enableName = false;
       enableAbout = false;
     }
-    getIt<UserDataCubit>().loadUserData(
+    getIt<UserDataCubit>().loadSingleUserData(
       userId: FirebaseAuth.instance.currentUser!.uid,
     );
     notifyListeners();

@@ -17,7 +17,8 @@ import '../models/group_model.dart';
 
 class GroupRepoImpl implements GroupRepo {
   final DatabaseServices databaseServices;
-  final _myId = FirebaseAuth.instance.currentUser?.uid;
+  User? get _currentUser => FirebaseAuth.instance.currentUser;
+  String? get _myId => _currentUser!.uid;
   GroupRepoImpl({required this.databaseServices});
 
   @override
@@ -35,8 +36,8 @@ class GroupRepoImpl implements GroupRepo {
         name: groupName,
         members: [_myId!, ...members],
         id: groupId,
-        admins: [_myId],
-        createdBy: _myId,
+        admins: [_myId!],
+        createdBy: _myId!,
         createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
         lastMessage: '',
         lastMessageTime: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -178,13 +179,13 @@ class GroupRepoImpl implements GroupRepo {
   Future<Either<Failure, String>> updateGroup(
     String groupId,
     String groupName,
-    List<String> membera,
+    List<String> member,
   ) async {
     try {
       await databaseServices.updateData(
         path: BackendEndPoints.groups,
         documentId: groupId,
-        data: {"name": groupName, "members": membera},
+        data: {"name": groupName, "members": member},
       );
 
       return const Right("Group updated successfully");

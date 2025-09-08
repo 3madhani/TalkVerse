@@ -20,6 +20,6 @@ abstract class GroupRepo {
   Future<Either<Failure, void>> updateGroup(
     String groupId,
     String groupName,
-    List<String> members,
+    List<String> member,
   );
 }

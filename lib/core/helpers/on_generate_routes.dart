@@ -39,8 +39,11 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
     case ChatScreen.routeName:
       return MaterialPageRoute(
         builder:
-            (context) =>
-                ChatScreen(chatRoom: settings.arguments as ChatRoomEntity),
+            (context) => ChatScreen(
+              chatRoom:
+                  (settings.arguments as Map)['chatRoom'] as ChatRoomEntity,
+              user: (settings.arguments as Map)['user'] as UserEntity?,
+            ),
       );
     case SettingsScreen.routeName:
       return MaterialPageRoute(builder: (context) => const SettingsScreen());
@@ -66,9 +69,11 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
                 GroupChatScreen(group: settings.arguments as GroupEntity),
       );
     case GroupEditScreen.routeName:
-      return MaterialPageRoute(builder: (context) =>  GroupEditScreen(
-        group:settings.arguments as GroupEntity,
-      ));
+      return MaterialPageRoute(
+        builder:
+            (context) =>
+                GroupEditScreen(group: settings.arguments as GroupEntity),
+      );
     case VerifyEmailScreen.routeName:
       return MaterialPageRoute(builder: (context) => const VerifyEmailScreen());
     default:

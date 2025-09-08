@@ -16,8 +16,9 @@ class SettingsScreen extends StatelessWidget {
     return BlocProvider(
       create:
           (context) =>
-              getIt<UserDataCubit>()
-                ..loadUserData(userId: FirebaseAuth.instance.currentUser!.uid),
+              getIt<UserDataCubit>()..loadSingleUserData(
+                userId: FirebaseAuth.instance.currentUser!.uid,
+              ),
       child: Scaffold(
         appBar: AppBar(title: const Text('Settings')),
         body: const SettingsScreenBody(),

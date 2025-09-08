@@ -12,84 +12,83 @@ import '../../domain/entities/group_entity.dart';
 import 'group_member_screen.dart';
 import 'widgets/group_chat_screen_body.dart';
 
-class GroupChatScreen extends StatefulWidget {
+class GroupChatScreen extends StatelessWidget {
   static const routeName = 'group-chat-screen';
   final GroupEntity group;
 
   const GroupChatScreen({super.key, required this.group});
 
   @override
-  State<GroupChatScreen> createState() => _GroupChatScreenState();
-}
-
-class _GroupChatScreenState extends State<GroupChatScreen> {
-  final List<UserEntity> members = [];
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.group.name,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            BlocBuilder<UserDataCubit, UserDataState>(
-              bloc: getIt<UserDataCubit>(),
-              builder: (context, state) {
-                if (state is UsersDataLoaded) {
-                  List<String> names = [];
-                  members.addAll(state.users);
-                  for (var user in state.users) {
-                    names.add(user.name!);
-                  }
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ChatMessageCubit>(
+          create:
+              (context) =>
+                  getIt<ChatMessageCubit>()
+                    ..fetchMessages(group.id, BackendEndPoints.groups),
+        ),
+        BlocProvider<UserDataCubit>(
+          create:
+              (context) =>
+                  getIt<UserDataCubit>()
+                    ..loadUsersData(usersIds: group.members),
+        ),
+      ],
 
-                  return Text(
-                    names.length > 1
-                        ? '${names.sublist(0, names.length - 1).join(', ')} and ${names.last}'
-                        : names.first,
-                    maxLines: 1,
-                    style: Theme.of(context).textTheme.labelLarge,
-                  );
-                } else if (state is UserDataLoaded) {
-                  return Text(
-                    '1 member',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  );
+      child: Scaffold(
+        appBar: AppBar(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(group.name, style: Theme.of(context).textTheme.titleLarge),
+              BlocBuilder<UserDataCubit, UserDataState>(
+                bloc: getIt<UserDataCubit>(),
+                builder: (context, state) {
+                  if (state is UsersDataLoaded) {
+                    List<String> names = [];
+                    for (var user in state.users) {
+                      names.add(user.name!);
+                    }
+
+                    return Text(
+                      names.length > 1
+                          ? '${names.sublist(0, names.length - 1).join(', ')} and ${names.last}'
+                          : names.first,
+                      maxLines: 1,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    );
+                  } else if (state is UserDataLoaded) {
+                    return Text(
+                      '1 member',
+                      style: Theme.of(context).textTheme.labelLarge,
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                final state = getIt<UserDataCubit>().state;
+                List<UserEntity> members = [];
+                if (state is UsersDataLoaded) {
+                  members = state.users;
                 }
-                return const SizedBox.shrink();
+                Navigator.pushNamed(
+                  context,
+                  GroupMemberScreen.routeName,
+                  arguments: GroupMemberArgs(group: group, members: members),
+                );
               },
+              icon: const Icon(Iconsax.user),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                GroupMemberScreen.routeName,
-                arguments: GroupMemberArgs(
-                  group: widget.group,
-                  members: members,
-                ),
-              );
-            },
-            icon: const Icon(Iconsax.user),
-          ),
-        ],
+        body: GroupChatScreenBody(group: group),
       ),
-      body: GroupChatScreenBody(group: widget.group),
     );
-  }
-
-  @override
-  void initState() {
-    getIt<ChatMessageCubit>().fetchMessages(
-      widget.group.id,
-      BackendEndPoints.groups,
-    );
-    getIt<UserDataCubit>().loadUserData(usersIds: widget.group.members);
-    super.initState();
   }
 }

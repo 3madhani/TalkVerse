@@ -1,3 +1,5 @@
+import 'package:chitchat/core/cubits/user_cubit/user_data_cubit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -65,13 +67,21 @@ class _ChatsHomeScreenBodyState extends State<ChatsHomeScreenBody> {
             state is ChatRoomListLoaded ? state.chatRooms : cachedRooms;
 
         if (chatRooms.isNotEmpty) {
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            itemCount: chatRooms.length,
-            itemBuilder: (context, index) {
-              final room = chatRooms[index];
+          return BlocBuilder<UserDataCubit, UserDataState>(
+            bloc: getIt<UserDataCubit>(),
 
-              return UniversalChatCard(chatRoom: room);
+            builder: (context, state) {
+              if (state is UserDataLoaded) {
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  itemCount: chatRooms.length,
+                  itemBuilder: (context, index) {
+                    final room = chatRooms[index];
+                    return UniversalChatCard(chatRoom: room, user: state.user);
+                  },
+                );
+              }
+              return const SizedBox.shrink();
             },
           );
         }
@@ -92,5 +102,8 @@ class _ChatsHomeScreenBodyState extends State<ChatsHomeScreenBody> {
     super.initState();
     getIt<ChatRoomCubit>().loadCachedChatRooms();
     getIt<ChatRoomCubit>().listenToUserChatRooms();
+    getIt<UserDataCubit>().loadSingleUserData(
+      userId: FirebaseAuth.instance.currentUser!.uid,
+    );
   }
 }

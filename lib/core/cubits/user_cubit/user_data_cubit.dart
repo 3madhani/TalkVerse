@@ -18,11 +18,12 @@ part 'user_data_state.dart';
 class UserDataCubit extends Cubit<UserDataState> {
   static const userDataCacheKeySingle = "user_data_cache_single";
   static const userDataCacheKeyMulti = "user_data_cache_multi";
-final ImagesRepo imagesRepo;
+  final ImagesRepo imagesRepo;
   final UserDataRepo userDataRepo;
   StreamSubscription? _userDataSubscription;
 
-  UserDataCubit({ required this.userDataRepo, required this.imagesRepo}) : super(UserDataInitial());
+  UserDataCubit({required this.userDataRepo, required this.imagesRepo})
+    : super(UserDataInitial());
 
   @override
   Future<void> close() {
@@ -30,37 +31,17 @@ final ImagesRepo imagesRepo;
     return super.close();
   }
 
-  Future<void> loadUserData({String? userId, List<String>? usersIds}) async {
-    if (userId == null && usersIds == null) {
-      emit(const UserDataError("No userId or usersIds provided"));
-      return;
-    }
-
+  Future<void> loadSingleUserData({required String userId}) async {
     // --------------------
-    // Load from Cache أولاً
+    // Load from Cache
     // --------------------
-    if (usersIds != null) {
-      final cachedData = Prefs.getString(userDataCacheKeyMulti);
-      if (cachedData.isNotEmpty) {
-        try {
-          final usersList =
-              (jsonDecode(cachedData) as List)
-                  .map((e) => UserModel.fromJson(e))
-                  .toList();
-          emit(UsersDataLoaded(usersList, isFromCache: true));
-        } catch (_) {
-          emit(const UserDataError("Failed to parse cached users data"));
-        }
-      }
-    } else if (userId != null) {
-      final cachedData = Prefs.getString(userDataCacheKeySingle);
-      if (cachedData.isNotEmpty) {
-        try {
-          final user = UserModel.fromJson(jsonDecode(cachedData));
-          emit(UserDataLoaded(user, isFromCache: true));
-        } catch (_) {
-          emit(const UserDataError("Failed to parse cached user data"));
-        }
+    final cachedData = Prefs.getString(userDataCacheKeySingle);
+    if (cachedData.isNotEmpty) {
+      try {
+        final user = UserModel.fromJson(jsonDecode(cachedData));
+        emit(UserDataLoaded(user, isFromCache: true));
+      } catch (_) {
+        emit(const UserDataError("Failed to parse cached user data"));
       }
     }
 
@@ -72,52 +53,79 @@ final ImagesRepo imagesRepo;
     // --------------------
     // Load fresh data
     // --------------------
-    if (usersIds != null) {
-      _userDataSubscription = userDataRepo.getUsersData(usersIds).listen((
-        result,
+    _userDataSubscription = userDataRepo.getUserData(userId).listen((result) {
+      result.fold((failure) => emit(UserDataError(failure.message)), (
+        userData,
       ) {
-        result.fold((failure) => emit(UserDataError(failure.message)), (
-          usersData,
-        ) {
-          if (usersData.isNotEmpty) {
-            Prefs.setString(
-              userDataCacheKeyMulti,
-              jsonEncode(
-                usersData.map((u) => (u as UserModel).toJson()).toList(),
-              ),
-            );
-            emit(UsersDataLoaded(usersData));
-          } else {
-            emit(const UserDataError("No users data found"));
-          }
-        });
+        Prefs.setString(
+          userDataCacheKeySingle,
+          jsonEncode((userData as UserModel).toJson()),
+        );
+        emit(UserDataLoaded(userData));
       });
-    } else if (userId != null) {
-      _userDataSubscription = userDataRepo.getUserData(userId).listen((result) {
-        result.fold((failure) => emit(UserDataError(failure.message)), (
-          userData,
-        ) {
-          Prefs.setString(
-            userDataCacheKeySingle,
-            jsonEncode((userData as UserModel).toJson()),
-          );
-          emit(UserDataLoaded(userData));
-        });
-      });
+    });
+  }
+
+  Future<void> loadUsersData({required List<String> usersIds}) async {
+    // --------------------
+    // Load from Cache
+    // --------------------
+    final cachedData = Prefs.getString(userDataCacheKeyMulti);
+    if (cachedData.isNotEmpty) {
+      try {
+        final usersList =
+            (jsonDecode(cachedData) as List)
+                .map((e) => UserModel.fromJson(e))
+                .toList();
+        emit(UsersDataLoaded(usersList, isFromCache: true));
+      } catch (_) {
+        emit(const UserDataError("Failed to parse cached users data"));
+      }
     }
+
+    // --------------------
+    // Cancel old subscription
+    // --------------------
+    _userDataSubscription?.cancel();
+
+    // --------------------
+    // Load fresh data
+    // --------------------
+    _userDataSubscription = userDataRepo.getUsersData(usersIds).listen((
+      result,
+    ) {
+      result.fold((failure) => emit(UserDataError(failure.message)), (
+        usersData,
+      ) {
+        if (usersData.isNotEmpty) {
+          Prefs.setString(
+            userDataCacheKeyMulti,
+            jsonEncode(
+              usersData.map((u) => (u as UserModel).toJson()).toList(),
+            ),
+          );
+          emit(UsersDataLoaded(usersData));
+        } else {
+          emit(const UserDataError("No users data found"));
+        }
+      });
+    });
   }
 
   Future<void> updateUserData({required Map<String, dynamic> data}) async {
     emit(UserDataLoading());
     final result = await userDataRepo.updateUserData(data: data);
-    result.fold((failure) {
-      emit(UserDataUpdateError(failure.message));
-    }, (_) {
-      emit(const UserDataUpdated("User data updated successfully"));
-    });
+    result.fold(
+      (failure) {
+        emit(UserDataUpdateError(failure.message));
+      },
+      (_) {
+        emit(const UserDataUpdated("User data updated successfully"));
+      },
+    );
   }
 
-  Future<String?> uploadProfileImage(File? image,) async {
+  Future<String?> uploadProfileImage(File? image) async {
     try {
       final imageUrl = await imagesRepo.uploadImage(
         image: image!,

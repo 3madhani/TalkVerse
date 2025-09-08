@@ -38,7 +38,7 @@ class SettingsScreenBody extends StatelessWidget {
                   builder:
                       (context) => BlocProvider.value(
                         value:
-                            getIt<UserDataCubit>()..loadUserData(
+                            getIt<UserDataCubit>()..loadSingleUserData(
                               userId: FirebaseAuth.instance.currentUser!.uid,
                             ),
                         child: const ProfileScreen(),
