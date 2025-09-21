@@ -58,10 +58,10 @@ class GroupChatScreen extends StatelessWidget {
                       maxLines: 1,
                       style: Theme.of(context).textTheme.labelLarge,
                     );
-                  } else if (state is UserDataLoaded) {
-                    return Text(
-                      '1 member',
-                      style: Theme.of(context).textTheme.labelLarge,
+                  } else if (state is UserDataLoading) {
+                    return const Text(
+                      'Loading...',
+                      style: TextStyle(fontSize: 12),
                     );
                   }
                   return const SizedBox.shrink();
