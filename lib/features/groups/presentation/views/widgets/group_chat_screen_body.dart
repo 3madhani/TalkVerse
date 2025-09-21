@@ -25,7 +25,6 @@ class GroupChatScreenBody extends StatelessWidget {
         children: [
           Expanded(
             child: BlocConsumer<ChatMessageCubit, ChatMessageState>(
-              bloc: getIt<ChatMessageCubit>(),
               listener: (context, state) {
                 final cubit = getIt<ChatMessageCubit>();
 

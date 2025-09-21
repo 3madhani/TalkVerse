@@ -60,7 +60,7 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
       return MaterialPageRoute(
         builder:
             (context) =>
-                GroupMemberScreen(group: args.group, members: args.members),
+                GroupMemberScreen(group: args.group,),
       );
     case GroupChatScreen.routeName:
       return MaterialPageRoute(
@@ -93,7 +93,6 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
 
 class GroupMemberArgs {
   final GroupEntity group;
-  final List<UserEntity> members;
 
-  GroupMemberArgs({required this.group, required this.members});
+  GroupMemberArgs({required this.group,});
 }

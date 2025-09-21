@@ -1,6 +1,6 @@
-import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:chitchat/features/groups/presentation/cubits/group_cubit/group_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../../../auth/domain/entities/user_entity.dart';
@@ -31,7 +31,6 @@ class _GroupMembersListViewState extends State<GroupMembersListView> {
     return ListView.builder(
       itemCount: _groupMembers.length,
       itemBuilder: (context, index) {
-        print(_members.length);
         final member = _members[index];
         return Card(
           child: ListTile(
@@ -55,23 +54,39 @@ class _GroupMembersListViewState extends State<GroupMembersListView> {
               children: [
                 if (widget.isAdmin && !widget.group.admins.contains(member.uId))
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.read<GroupCubit>().addAdmin(
+                        groupId: widget.group.id,
+                        userId: member.uId,
+                      );
+                    },
                     icon: const Icon(Iconsax.user_add, color: Colors.green),
                   )
                 else if (widget.isAdmin &&
                     widget.group.admins.contains(member.uId))
                   IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Iconsax.user_remove, color: Colors.red),
-                  ),
-                if (widget.isAdmin && !widget.group.admins.contains(member.uId))
-                  IconButton(
-                    icon: const Icon(Iconsax.trash, color: Colors.red),
-                    onPressed: () async {
-                      await getIt<GroupCubit>().removeMember(
+                    onPressed: () {
+                      context.read<GroupCubit>().removeAdmin(
                         groupId: widget.group.id,
                         userId: member.uId,
                       );
+                    },
+                    icon: const Icon(Iconsax.user_remove, color: Colors.red),
+                  ),
+                if (widget.isAdmin)
+                  IconButton(
+                    icon: const Icon(Iconsax.trash, color: Colors.red),
+                    onPressed: () async {
+                      await context.read<GroupCubit>().removeMember(
+                        groupId: widget.group.id,
+                        userId: member.uId,
+                      );
+                      if (widget.group.admins.contains(member.uId)) {
+                        context.read<GroupCubit>().removeAdmin(
+                          groupId: widget.group.id,
+                          userId: member.uId,
+                        );
+                      }
 
                       // Update local state so UI refreshes
                       setState(() {

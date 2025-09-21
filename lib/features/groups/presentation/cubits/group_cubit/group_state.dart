@@ -13,11 +13,8 @@ final class GroupError extends GroupState {
 final class GroupInitial extends GroupState {}
 
 final class GroupLoaded extends GroupState {
-  final List<GroupEntity> groups; // List of groups
-  const GroupLoaded(this.groups);
-
-  @override
-  List<Object> get props => [groups];
+  final GroupEntity group; // Added group
+  const GroupLoaded(this.group);
 }
 
 final class GroupLoading extends GroupState {}
@@ -28,6 +25,14 @@ final class GroupMembersLoaded extends GroupState {
 
   @override
   List<Object> get props => [members];
+}
+
+final class GroupsLoaded extends GroupState {
+  final List<GroupEntity> groups; // List of groups
+  const GroupsLoaded(this.groups);
+
+  @override
+  List<Object> get props => [groups];
 }
 
 sealed class GroupState extends Equatable {

@@ -60,7 +60,7 @@ class _GroupsScreenBodyState extends State<GroupsScreenBody> {
         }
 
         // Get groups from state or cache
-        final groups = state is GroupLoaded ? state.groups : cachedGroups;
+        final groups = state is GroupsLoaded ? state.groups : cachedGroups;
 
         if (groups.isNotEmpty) {
           return ListView.builder(

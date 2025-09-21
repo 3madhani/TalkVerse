@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:async/async.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
@@ -10,16 +10,31 @@ import '../../../../core/constants/backend/backend_end_points.dart';
 import '../../../../core/errors/failure.dart';
 import '../../../../core/services/database_services.dart';
 import '../../../../core/services/shared_preferences_singleton.dart';
-import '../../../auth/data/model/user_model.dart';
 import '../../domain/entities/group_entity.dart';
 import '../../domain/repos/group_repo.dart';
 import '../models/group_model.dart';
 
 class GroupRepoImpl implements GroupRepo {
   final DatabaseServices databaseServices;
+  GroupRepoImpl({required this.databaseServices});
   User? get _currentUser => FirebaseAuth.instance.currentUser;
   String? get _myId => _currentUser!.uid;
-  GroupRepoImpl({required this.databaseServices});
+
+  @override
+  Future<Either<Failure, void>> addAdmin(String groupId, String userId) async {
+    try {
+      await databaseServices.updateData(
+        path: BackendEndPoints.groups,
+        documentId: groupId,
+        data: {
+          'admins': FieldValue.arrayUnion([userId]),
+        },
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 
   @override
   Future<Either<Failure, void>> createGroup({
@@ -101,39 +116,6 @@ class GroupRepoImpl implements GroupRepo {
     }
   }
 
-  @override
-  Stream<Either<Failure, List<String>>> fetchMembers(List<String> memberIds) {
-    try {
-      if (memberIds.any((id) => id.isEmpty)) {
-        return Stream.value(const Left(ServerFailure("Member ID is empty")));
-      }
-
-      final memberStreams =
-          memberIds.map((id) {
-            return databaseServices
-                .streamData(path: BackendEndPoints.getUser, documentId: id)
-                .map((data) {
-                  try {
-                    final user = UserModel.fromJson(
-                      data as Map<String, dynamic>,
-                    );
-                    return user.name ?? "Unknown User";
-                  } catch (e) {
-                    log("🔥 mapping user error for $id: $e");
-                    return "Unknown User";
-                  }
-                });
-          }).toList();
-
-      return StreamZip(
-        memberStreams,
-      ).map((members) => Right<Failure, List<String>>(members));
-    } catch (e, stack) {
-      log("🔥 fetchMembers error: $e", stackTrace: stack);
-      return Stream.value(const Left(ServerFailure("Fetch failed")));
-    }
-  }
-
   /// Listen to groups for the current user
   @override
   Stream<Either<Failure, List<GroupEntity>>> getGroups() {
@@ -171,6 +153,44 @@ class GroupRepoImpl implements GroupRepo {
     } catch (e, stack) {
       log("🔥 getGroups error: $e", stackTrace: stack);
       return Stream.value(const Left(ServerFailure("Fetch failed")));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> removeAdmin(
+    String groupId,
+    String userId,
+  ) async {
+    try {
+      await databaseServices.updateData(
+        path: BackendEndPoints.groups,
+        documentId: groupId,
+        data: {
+          'admins': FieldValue.arrayRemove([userId]),
+        },
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Stream<Either<Failure, GroupEntity>> streamGroup(String groupId) async* {
+    try {
+      yield* databaseServices
+          .streamData(path: BackendEndPoints.groups, documentId: groupId)
+          .map((data) {
+            try {
+              return Right(GroupModel.fromJson(data));
+            } catch (e) {
+              log("🔥 mapping groups error: $e");
+              return const Left(ServerFailure("Failed to map groups"));
+            }
+          });
+    } catch (e, stack) {
+      log("🔥 getGroups error: $e", stackTrace: stack);
+      yield const Left(ServerFailure("Fetch failed"));
     }
   }
 

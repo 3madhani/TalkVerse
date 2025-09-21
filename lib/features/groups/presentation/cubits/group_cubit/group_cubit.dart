@@ -22,6 +22,15 @@ class GroupCubit extends Cubit<GroupState> {
 
   GroupCubit(this.groupRepo) : super(GroupInitial());
 
+  void addAdmin({required String groupId, required String userId}) {
+    try {
+      groupRepo.addAdmin(groupId, userId);
+      emit(const GroupSuccess("Admin added successfully"));
+    } catch (e) {
+      emit(GroupError("Failed to add admin: $e"));
+    }
+  }
+
   @override
   Future<void> close() async {
     await _subscription?.cancel();
@@ -60,7 +69,7 @@ class GroupCubit extends Cubit<GroupState> {
       await _cacheGroups(groupsCache);
 
       // Emit GroupLoaded immediately so UI updates
-      emit(GroupLoaded(List.from(groupsCache)));
+      emit(GroupsLoaded(List.from(groupsCache)));
 
       emit(const GroupSuccess("Group deleted successfully"));
     } catch (e) {
@@ -68,21 +77,10 @@ class GroupCubit extends Cubit<GroupState> {
     }
   }
 
-  /// fetch group members
-  void fetchGroupMembers(List<String> memberIds) async {
-    emit(GroupLoading());
-    try {
-      final members = groupRepo.fetchMembers(memberIds);
-      emit(GroupMembersLoaded(members));
-    } catch (e) {
-      emit(GroupError("Failed to fetch group members: $e"));
-    }
-  }
-
   /// Listen to user's groups
   void listenToGroups() {
     if (groupsCache.isNotEmpty) {
-      emit(GroupLoaded(groupsCache));
+      emit(GroupsLoaded(groupsCache));
     } else {
       emit(GroupLoading());
     }
@@ -94,7 +92,7 @@ class GroupCubit extends Cubit<GroupState> {
       ) async {
         groupsCache = _sortGroups(groups);
         await _cacheGroups(groupsCache);
-        emit(GroupLoaded(List.from(groupsCache)));
+        emit(GroupsLoaded(List.from(groupsCache)));
       });
     });
   }
@@ -104,7 +102,7 @@ class GroupCubit extends Cubit<GroupState> {
     final cachedJson = Prefs.getString(_groupsCacheKey);
     if (cachedJson.isEmpty) {
       groupsCache = [];
-      emit(GroupLoaded(groupsCache)); // ✅ Show empty list if no cache
+      emit(GroupsLoaded(groupsCache)); // ✅ Show empty list if no cache
       return;
     }
 
@@ -117,9 +115,18 @@ class GroupCubit extends Cubit<GroupState> {
               .toList();
 
       groupsCache = _sortGroups(cachedGroups);
-      emit(GroupLoaded(groupsCache));
+      emit(GroupsLoaded(groupsCache));
     } catch (_) {
       emit(const GroupError('Failed to load cached groups'));
+    }
+  }
+
+  void removeAdmin({required String groupId, required String userId}) {
+    try {
+      groupRepo.removeAdmin(groupId, userId);
+      emit(const GroupSuccess("Admin removed successfully"));
+    } catch (e) {
+      emit(GroupError("Failed to remove admin: $e"));
     }
   }
 
@@ -133,6 +140,17 @@ class GroupCubit extends Cubit<GroupState> {
     } catch (e) {
       emit(GroupError("Failed to remove member: $e"));
     }
+  }
+
+  // listenToGroup
+  void streamGroup(String groupId) {
+    emit(GroupLoading());
+    _subscription?.cancel();
+    _subscription = groupRepo.streamGroup(groupId).listen((either) {
+      either.fold((failure) => emit(GroupError(failure.message)), (group) {
+        emit(GroupLoaded(group));
+      });
+    });
   }
 
   /// Update a group
@@ -153,7 +171,7 @@ class GroupCubit extends Cubit<GroupState> {
       await _cacheGroups(groupsCache);
 
       // Emit GroupLoaded immediately so UI updates
-      emit(GroupLoaded(List.from(groupsCache)));
+      emit(GroupsLoaded(List.from(groupsCache)));
     } catch (e) {
       emit(GroupError("Failed to update group: $e"));
       return;
