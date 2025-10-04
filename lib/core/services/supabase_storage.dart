@@ -26,7 +26,7 @@ class SupabaseStorage implements StorageServices {
     return imageUrl;
   }
 
-  static createBucket(String bucketName) async {
+  static Future<void> createBucket(String bucketName) async {
     // Check if the bucket already exists
     final existingBuckets = await _supabase.client.storage.listBuckets();
 
@@ -40,7 +40,7 @@ class SupabaseStorage implements StorageServices {
     }
   }
 
-  static initSupabase() async {
+  static Future<void> initSupabase() async {
     // Initialize Supabase
     _supabase = await Supabase.initialize(
       url: Keys.supabaseUrl,
