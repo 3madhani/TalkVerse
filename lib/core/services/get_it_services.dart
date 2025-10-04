@@ -29,7 +29,7 @@ import 'supabase_storage.dart';
 
 final getIt = GetIt.instance;
 
-void setupGetIt() {
+Future<void> setupGetIt() async {
   /// Core services
   getIt.registerSingleton<StorageServices>(SupabaseStorage());
   getIt.registerSingleton<FirebaseAuthService>(FirebaseAuthService());
@@ -84,7 +84,7 @@ void setupGetIt() {
   getIt.registerLazySingleton<GroupCubit>(() => GroupCubit(getIt<GroupRepo>()));
 
   getIt.registerLazySingleton<GroupSelectionCubit>(() => GroupSelectionCubit());
-  getIt.registerLazySingleton<UserDataCubit>(
+  getIt.registerFactory<UserDataCubit>(
     () => UserDataCubit(
       userDataRepo: getIt<UserDataRepo>(),
       imagesRepo: getIt<ImagesRepo>(),
