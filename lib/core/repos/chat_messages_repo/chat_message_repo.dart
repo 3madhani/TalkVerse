@@ -24,7 +24,9 @@ abstract class ChatMessageRepo {
     required String collectionPath,
   });
   Future<Either<Failure, void>> sendMessage({
-    required UserEntity user,
+    required String name,
+    List<UserEntity>? users,
+    UserEntity? user,
     required String receiverId,
     required String message,
     required String roomId,

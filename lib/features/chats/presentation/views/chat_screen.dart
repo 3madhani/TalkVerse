@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chitchat/core/cubits/user_cubit/user_data_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,8 +18,14 @@ class ChatScreen extends StatefulWidget {
   static const String routeName = 'chat-screen';
   final ChatRoomEntity chatRoom;
   final UserEntity? user;
+  final UserEntity? currentUser;
 
-  const ChatScreen({super.key, required this.chatRoom, this.user});
+  const ChatScreen({
+    super.key,
+    required this.chatRoom,
+    this.user,
+    this.currentUser,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -161,7 +168,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ],
           ),
-          body: ChatScreenBody(chatRoom: widget.chatRoom, user: widget.user!),
+          body: ChatScreenBody(
+            chatRoom: widget.chatRoom,
+            user: widget.user!,
+            currentUser: widget.currentUser!,
+          ),
         );
       },
     );
@@ -172,6 +183,9 @@ class _ChatScreenState extends State<ChatScreen> {
     getIt<ChatMessageCubit>().fetchMessages(
       widget.chatRoom.id,
       BackendEndPoints.chatRooms,
+    );
+    getIt<UserDataCubit>().loadSingleUserData(
+      userId: FirebaseAuth.instance.currentUser!.uid,
     );
     super.initState();
   }

@@ -43,6 +43,7 @@ Route<dynamic> onGenerateRoutes(RouteSettings settings) {
               chatRoom:
                   (settings.arguments as Map)['chatRoom'] as ChatRoomEntity,
               user: (settings.arguments as Map)['user'] as UserEntity?,
+              currentUser: (settings.arguments as Map)['currentUser'] as UserEntity,
             ),
       );
     case SettingsScreen.routeName:

@@ -70,18 +70,18 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
         },
         child: BlocBuilder<UserDataCubit, UserDataState>(
           bloc:
-              getIt<UserDataCubit>()..loadSingleUserData(
-                userId:
-                    widget.chatRoom?.members.firstWhere(
-                      (memberId) => memberId != currentUserId,
-                      orElse: () => '',
-                    ) ??
-                    '',
-              ),
+              getIt<UserDataCubit>()
+                ..loadUsersData(usersIds: widget.chatRoom?.members ?? []),
           builder: (context, state) {
             UserEntity? user;
-            if (state is UserDataLoaded) {
-              user = state.user;
+            UserEntity? me;
+            if (state is UsersDataLoaded) {
+              user = state.users.firstWhere(
+                (element) => element.uId != currentUserId,
+              );
+              me = state.users.firstWhere(
+                (element) => element.uId == currentUserId,
+              );
             }
 
             return Card(
@@ -101,7 +101,11 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
                     Navigator.pushNamed(
                       context,
                       ChatScreen.routeName,
-                      arguments: {'chatRoom': widget.chatRoom, 'user': user},
+                      arguments: {
+                        'chatRoom': widget.chatRoom,
+                        'user': user,
+                        "currentUser": me,
+                      },
                     );
                   }
                 },
@@ -132,7 +136,7 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
                             borderRadius: BorderRadius.circular(100),
                             clipBehavior: Clip.antiAlias,
                             child: CachedNetworkImage(
-                              imageUrl: user?.photoUrl ?? '',
+                              imageUrl: user!.photoUrl ?? '',
                               placeholder:
                                   (context, url) =>
                                       const CircularProgressIndicator(

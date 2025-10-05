@@ -4,7 +4,11 @@ import 'package:iconsax/iconsax.dart';
 class ContactsTextField extends StatelessWidget {
   final TextEditingController searchController;
   final Function(String)? onChanged;
-  const ContactsTextField({super.key, required this.searchController, this.onChanged});
+  const ContactsTextField({
+    super.key,
+    required this.searchController,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +21,8 @@ class ContactsTextField extends StatelessWidget {
         hintStyle: const TextStyle(color: Colors.grey, fontSize: 16),
         prefixIcon: const Icon(Iconsax.search_normal_1, color: Colors.grey),
         filled: true,
-        fillColor: Colors.grey.shade800, // Light background
+        fillColor:
+            Theme.of(context).scaffoldBackgroundColor, // Light background
         contentPadding: const EdgeInsets.symmetric(
           vertical: 12,
           horizontal: 16,
@@ -29,7 +34,7 @@ class ContactsTextField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).colorScheme.primary,
             width: 1.5,
           ),
         ),

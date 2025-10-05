@@ -96,7 +96,9 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
   }
 
   Future<void> sendMessage({
-    required UserEntity user,
+    required String name,
+    List<UserEntity>? users,
+    UserEntity? user,
     required String roomId,
     required String collectionPath,
     required String receiverId,
@@ -110,6 +112,8 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
         imageUrl,
       ) async {
         await chatMessageRepo.sendMessage(
+          name: name,
+          users: users,
           user: user,
           collectionPath: collectionPath,
           roomId: roomId,
@@ -120,6 +124,8 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
       });
     } else {
       final result = await chatMessageRepo.sendMessage(
+        name: name,
+        users: users,
         user: user,
         collectionPath: collectionPath,
         roomId: roomId,

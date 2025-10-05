@@ -15,9 +15,9 @@ import '../../../../home/domain/entities/chat_room_entity.dart';
 
 class ChatScreenBody extends StatelessWidget {
   final ChatRoomEntity chatRoom;
-  final UserEntity user;
+  final UserEntity user, currentUser;
 
-  const ChatScreenBody({super.key, required this.chatRoom, required this.user});
+  const ChatScreenBody({super.key, required this.chatRoom, required this.user, required this.currentUser});
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +73,7 @@ class ChatScreenBody extends StatelessWidget {
                       onTap: () {
                         if (receiverId.isNotEmpty) {
                           getIt<ChatMessageCubit>().sendMessage(
+                            name: chatRoom.roomName,
                             user: user,
                             collectionPath: BackendEndPoints.chatRooms,
                             roomId: chatRoom.id,
@@ -105,7 +106,7 @@ class ChatScreenBody extends StatelessWidget {
               },
             ),
           ),
-          SendMessageField(chatRoom: chatRoom, user: user),
+          SendMessageField(chatRoom: chatRoom, user: user, currentUser: currentUser),
         ],
       ),
     );

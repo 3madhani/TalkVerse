@@ -25,6 +25,11 @@ class GroupChatScreenBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userId = FirebaseAuth.instance.currentUser?.uid;
+    members.removeWhere((user) => user.uId == userId);
+    print(userId);
+    for (var i = 0; i < members.length; i++) {
+      print(members[i].uId.toString());
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
       child: Column(
@@ -76,7 +81,8 @@ class GroupChatScreenBody extends StatelessWidget {
                       onTap: () {
                         if (receiverId.isNotEmpty) {
                           getIt<ChatMessageCubit>().sendMessage(
-                            user: members[1],
+                            name: group.name,
+                            users: members,
                             collectionPath: BackendEndPoints.groups,
                             roomId: group.id,
                             receiverId: group.id,
@@ -108,7 +114,7 @@ class GroupChatScreenBody extends StatelessWidget {
               },
             ),
           ),
-          SendMessageField(group: group, user: members[1]),
+          SendMessageField(group: group, users: members),
         ],
       ),
     );

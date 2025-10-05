@@ -122,8 +122,8 @@ flutter_assets:
   field_prefix: null
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
-  image_path: "assets/logo/wechat-logo.png"
-  remove_alpha_ios: true
-  min_sdk_android: 21 # android min sdk min:16, default 21
+  image_path: "assets/images/splash.png"
+  min_sdk_android: 21
+

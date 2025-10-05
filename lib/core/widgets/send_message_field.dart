@@ -16,13 +16,16 @@ import 'text_field_message.dart';
 class SendMessageField extends StatefulWidget {
   final ChatRoomEntity? chatRoom;
   final GroupEntity? group;
-  final UserEntity user;
+  final UserEntity? user, currentUser;
+  final List<UserEntity>? users;
 
   const SendMessageField({
     super.key,
     this.chatRoom,
     this.group,
-    required this.user,
+    this.user,
+    this.users,
+    this.currentUser,
   });
 
   @override
@@ -73,18 +76,25 @@ class _SendMessageFieldState extends State<SendMessageField> {
               (id) => id != FirebaseAuth.instance.currentUser?.uid,
               orElse: () => '', // fallback in case of single-user room
             );
-            getIt<ChatMessageCubit>().sendMessage(
-              user: widget.user,
-              collectionPath: BackendEndPoints.chatRooms,
-              roomId: widget.chatRoom!.id,
-              receiverId: receiverId,
-              image: File(image.path),
-              messageType: 'image',
-            );
+            if (widget.user != null) {
+              getIt<ChatMessageCubit>().sendMessage(
+                name: widget.currentUser!.name!,
+                user: widget.user!,
+                collectionPath: BackendEndPoints.chatRooms,
+                roomId: widget.chatRoom!.id,
+                receiverId: receiverId,
+                image: File(image.path),
+                messageType: 'image',
+              );
+            }
           }
         } else if (widget.group != null) {
+          widget.users!.removeWhere(
+            (user) => user.uId == FirebaseAuth.instance.currentUser?.uid,
+          );
           getIt<ChatMessageCubit>().sendMessage(
-            user: widget.user,
+            name: widget.group!.name,
+            users: widget.users,
             collectionPath: BackendEndPoints.groups,
             roomId: widget.group!.id,
             receiverId: widget.group!.id,
@@ -111,6 +121,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
       );
 
       getIt<ChatMessageCubit>().sendMessage(
+        name: widget.currentUser!.name!,
         user: widget.user,
         collectionPath: BackendEndPoints.chatRooms,
         roomId: widget.chatRoom!.id,
@@ -118,8 +129,12 @@ class _SendMessageFieldState extends State<SendMessageField> {
         message: message,
       );
     } else if (widget.group != null) {
+      widget.users!.removeWhere(
+        (user) => user.uId == FirebaseAuth.instance.currentUser?.uid,
+      );
       getIt<ChatMessageCubit>().sendMessage(
-        user: widget.user,
+        name: widget.group!.name,
+        users: widget.users,
         collectionPath: BackendEndPoints.groups,
         roomId: widget.group!.id,
         receiverId: widget.group!.id,

@@ -122,7 +122,9 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
 
   @override
   Future<Either<Failure, void>> sendMessage({
-    required UserEntity user,
+    required String name,
+    List<UserEntity>? users,
+    UserEntity? user,
     required String collectionPath,
     required String receiverId,
     required String message,
@@ -159,11 +161,21 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
         },
       );
 
-      FirebaseMessagingService().sendNotification(
-        title: user.name!,
-        body: message,
-        token: user.pushToken!,
-      );
+      if (user != null) {
+        FirebaseMessagingService().sendNotification(
+          title: name,
+          body: message,
+          token: user.pushToken!,
+        );
+      } else {
+        for (var element in users!) {
+          FirebaseMessagingService().sendNotification(
+            title: name,
+            body: message,
+            token: element.pushToken!,
+          );
+        }
+      }
 
       return const Right(null);
     } catch (e) {
