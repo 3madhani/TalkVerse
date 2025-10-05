@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
@@ -15,16 +16,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class FirebaseMessagingService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  // final FlutterLocalNotificationsPlugin _localNotifications =
-      // FlutterLocalNotificationsPlugin();
-  // final _onMessageController = StreamController<RemoteMessage>.broadcast();
 
-  final _onMessageOpenedController =
-      StreamController<RemoteMessage>.broadcast();
-  // Stream<RemoteMessage> get onMessage => _onMessageController.stream;
-
-  Stream<RemoteMessage> get onMessageOpenedApp =>
-      _onMessageOpenedController.stream;
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   /// ✅ Securely get access token from service account JSON
   Future<AccessCredentials> getAccessToken() async {
@@ -46,10 +40,65 @@ class FirebaseMessagingService {
 
   void intializeFirebaseMessaging() async {
     await _messaging.requestPermission();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    _messaging.getToken().then((token) {
-      debugPrint('🔑 FCM token: $token');
+
+    await _messaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    await _messaging.setAutoInitEnabled(true);
+
+    AndroidNotificationChannel channel = const AndroidNotificationChannel(
+      'high_importance_channel', // id
+      'High Importance Notifications', // title
+      description:
+          'This channel is used for important notifications.', // description
+      importance: Importance.high,
+    );
+
+    await _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(channel);
+
+    AndroidInitializationSettings initializationSettingsAndroid =
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    final InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
+    await _flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (details) {},
+    );
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      debugPrint('📨 Message: ${message.notification?.title}');
+
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        _flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: channel.description,
+              icon: '@mipmap/ic_launcher',
+            ),
+          ),
+        );
+      }
     });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
+
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 
   Future<void> sendNotification({
