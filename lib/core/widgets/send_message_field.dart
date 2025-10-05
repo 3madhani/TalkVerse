@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:chitchat/core/services/get_it_services.dart';
 import 'package:chitchat/core/widgets/app_snack_bar.dart';
+import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:chitchat/features/groups/domain/entities/group_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +16,14 @@ import 'text_field_message.dart';
 class SendMessageField extends StatefulWidget {
   final ChatRoomEntity? chatRoom;
   final GroupEntity? group;
+  final UserEntity user;
 
-  const SendMessageField({super.key, this.chatRoom, this.group});
+  const SendMessageField({
+    super.key,
+    this.chatRoom,
+    this.group,
+    required this.user,
+  });
 
   @override
   State<SendMessageField> createState() => _SendMessageFieldState();
@@ -67,6 +74,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
               orElse: () => '', // fallback in case of single-user room
             );
             getIt<ChatMessageCubit>().sendMessage(
+              user: widget.user,
               collectionPath: BackendEndPoints.chatRooms,
               roomId: widget.chatRoom!.id,
               receiverId: receiverId,
@@ -76,6 +84,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
           }
         } else if (widget.group != null) {
           getIt<ChatMessageCubit>().sendMessage(
+            user: widget.user,
             collectionPath: BackendEndPoints.groups,
             roomId: widget.group!.id,
             receiverId: widget.group!.id,
@@ -102,6 +111,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
       );
 
       getIt<ChatMessageCubit>().sendMessage(
+        user: widget.user,
         collectionPath: BackendEndPoints.chatRooms,
         roomId: widget.chatRoom!.id,
         receiverId: receiverId,
@@ -109,6 +119,7 @@ class _SendMessageFieldState extends State<SendMessageField> {
       );
     } else if (widget.group != null) {
       getIt<ChatMessageCubit>().sendMessage(
+        user: widget.user,
         collectionPath: BackendEndPoints.groups,
         roomId: widget.group!.id,
         receiverId: widget.group!.id,

@@ -14,8 +14,5 @@ abstract class UserDataRepo {
 
   Future<void> updateUserLastSeen(String userId, DateTime lastSeen);
 
-  Future<Either<Failure, void>> updateUserPushToken(
-    String userId,
-    String pushToken,
-  );
+  Future<Either<Failure, void>> updateUserPushToken(String pushToken);
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../features/auth/domain/entities/user_entity.dart';
 import '../../repos/chat_messages_repo/chat_message_repo.dart';
 import '../../repos/images_repo/images_repo.dart';
 import 'chat_message_state.dart';
@@ -95,6 +96,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
   }
 
   Future<void> sendMessage({
+    required UserEntity user,
     required String roomId,
     required String collectionPath,
     required String receiverId,
@@ -108,6 +110,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
         imageUrl,
       ) async {
         await chatMessageRepo.sendMessage(
+          user: user,
           collectionPath: collectionPath,
           roomId: roomId,
           receiverId: receiverId,
@@ -117,6 +120,7 @@ class ChatMessageCubit extends Cubit<ChatMessageState> {
       });
     } else {
       final result = await chatMessageRepo.sendMessage(
+        user: user,
         collectionPath: collectionPath,
         roomId: roomId,
         receiverId: receiverId,

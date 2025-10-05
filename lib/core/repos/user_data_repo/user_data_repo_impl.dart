@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../../../features/auth/data/model/user_model.dart';
 import '../../constants/backend/backend_end_points.dart';
@@ -13,6 +14,12 @@ class UserDataRepoImpl implements UserDataRepo {
   @override
   Stream<Either<Failure, UserModel>> getUserData(String userId) async* {
     try {
+      await FirebaseMessaging.instance.getToken().then(
+        (value) => {
+          if (value != null) {updateUserPushToken(value)},
+        },
+      );
+
       yield* databaseServices
           .fetchUser(path: BackendEndPoints.getUser, documentId: userId)
           .map((data) {
@@ -72,11 +79,16 @@ class UserDataRepoImpl implements UserDataRepo {
   }
 
   @override
-  Future<Either<Failure, void>> updateUserPushToken(
-    String userId,
-    String pushToken,
-  ) {
-    // TODO: implement updateUserPushToken
-    throw UnimplementedError();
+  Future<Either<Failure, void>> updateUserPushToken(String pushToken) async {
+    try {
+      await databaseServices.updateData(
+        path: BackendEndPoints.addUsers,
+        data: {"pushToken": pushToken},
+        documentId: FirebaseAuth.instance.currentUser!.uid,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 }

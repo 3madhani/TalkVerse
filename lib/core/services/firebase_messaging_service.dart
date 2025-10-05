@@ -5,7 +5,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
 
@@ -39,7 +38,15 @@ class FirebaseMessagingService {
   }
 
   void intializeFirebaseMessaging() async {
-    await _messaging.requestPermission();
+    await _messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
 
     await _messaging.setForegroundNotificationPresentationOptions(
       alert: true,
@@ -104,12 +111,12 @@ class FirebaseMessagingService {
   Future<void> sendNotification({
     required String title,
     required String body,
+    required String token,
   }) async {
-    final token = await _messaging.getToken();
     final credentials = await getAccessToken();
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${credentials.accessToken}',
+      'Authorization': 'Bearer ${credentials.accessToken.data}',
     };
     final response = await http.post(
       Uri.parse(

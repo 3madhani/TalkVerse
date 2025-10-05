@@ -1,3 +1,4 @@
+import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,8 +15,9 @@ import '../../../../home/domain/entities/chat_room_entity.dart';
 
 class ChatScreenBody extends StatelessWidget {
   final ChatRoomEntity chatRoom;
+  final UserEntity user;
 
-  const ChatScreenBody({super.key, required this.chatRoom});
+  const ChatScreenBody({super.key, required this.chatRoom, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +73,7 @@ class ChatScreenBody extends StatelessWidget {
                       onTap: () {
                         if (receiverId.isNotEmpty) {
                           getIt<ChatMessageCubit>().sendMessage(
+                            user: user,
                             collectionPath: BackendEndPoints.chatRooms,
                             roomId: chatRoom.id,
                             receiverId: receiverId,
@@ -102,7 +105,7 @@ class ChatScreenBody extends StatelessWidget {
               },
             ),
           ),
-          SendMessageField(chatRoom: chatRoom),
+          SendMessageField(chatRoom: chatRoom, user: user),
         ],
       ),
     );

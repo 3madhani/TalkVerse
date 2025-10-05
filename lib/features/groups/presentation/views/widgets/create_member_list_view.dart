@@ -33,7 +33,7 @@ class _CreateMemberListViewState extends State<CreateMemberListView> {
               return ListView.separated(
                 padding: EdgeInsets.zero,
                 itemCount: state.contacts.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
+                separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final member = state.contacts[index];
                   final isSelected = selectedIds.contains(member.uId);
@@ -100,7 +100,7 @@ class _CreateMemberListViewState extends State<CreateMemberListView> {
                                     height: 40,
                                     fit: BoxFit.cover,
                                     placeholder:
-                                        (_, __) => const SizedBox(
+                                        (_, _) => const SizedBox(
                                           width: 20,
                                           height: 20,
                                           child: CircularProgressIndicator(
@@ -108,7 +108,7 @@ class _CreateMemberListViewState extends State<CreateMemberListView> {
                                           ),
                                         ),
                                     errorWidget:
-                                        (_, __, ___) => const Icon(Icons.error),
+                                        (_, _, _) => const Icon(Icons.error),
                                   ),
                                 ),
                       ),

@@ -11,11 +11,12 @@ plugins {
 android {
     namespace = "com.example.chitchat"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -29,6 +30,14 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
+
+    buildTypes {
+        release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
 }
 
 
@@ -37,5 +46,7 @@ flutter {
 }
 
 dependencies {
-     implementation("com.facebook.android:facebook-login:latest.release")
+    implementation("com.facebook.android:facebook-login:latest.release")
+    implementation("androidx.multidex:multidex:2.0.1")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

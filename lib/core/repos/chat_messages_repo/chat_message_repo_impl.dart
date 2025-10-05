@@ -5,6 +5,8 @@ import 'package:chitchat/core/entities/message_entity.dart';
 import 'package:chitchat/core/errors/failure.dart';
 import 'package:chitchat/core/models/message_model.dart';
 import 'package:chitchat/core/services/database_services.dart';
+import 'package:chitchat/core/services/firebase_messaging_service.dart';
+import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
@@ -120,6 +122,7 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
 
   @override
   Future<Either<Failure, void>> sendMessage({
+    required UserEntity user,
     required String collectionPath,
     required String receiverId,
     required String message,
@@ -154,6 +157,12 @@ class ChatMessageRepoImpl implements ChatMessageRepo {
           'lastMessage': messageType == 'image' ? 'Image' : message,
           'lastMessageTime': messageTime,
         },
+      );
+
+      FirebaseMessagingService().sendNotification(
+        title: user.name!,
+        body: message,
+        token: user.pushToken!,
       );
 
       return const Right(null);

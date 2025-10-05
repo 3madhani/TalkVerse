@@ -161,7 +161,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ],
           ),
-          body: ChatScreenBody(chatRoom: widget.chatRoom),
+          body: ChatScreenBody(chatRoom: widget.chatRoom, user: widget.user!),
         );
       },
     );

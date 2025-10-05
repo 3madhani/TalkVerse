@@ -1,3 +1,4 @@
+import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:chitchat/features/groups/domain/entities/group_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,12 @@ import '../../../../../core/widgets/start_message_card.dart';
 
 class GroupChatScreenBody extends StatelessWidget {
   final GroupEntity group;
-  const GroupChatScreenBody({super.key, required this.group});
+  final List<UserEntity> members;
+  const GroupChatScreenBody({
+    super.key,
+    required this.group,
+    required this.members,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +76,7 @@ class GroupChatScreenBody extends StatelessWidget {
                       onTap: () {
                         if (receiverId.isNotEmpty) {
                           getIt<ChatMessageCubit>().sendMessage(
+                            user: members[1],
                             collectionPath: BackendEndPoints.groups,
                             roomId: group.id,
                             receiverId: group.id,
@@ -101,7 +108,7 @@ class GroupChatScreenBody extends StatelessWidget {
               },
             ),
           ),
-          SendMessageField(group: group),
+          SendMessageField(group: group, user: members[1]),
         ],
       ),
     );

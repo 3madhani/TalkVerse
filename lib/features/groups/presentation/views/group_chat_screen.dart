@@ -1,3 +1,4 @@
+import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -26,6 +27,7 @@ class GroupChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var thisGroup = group;
+    List<UserEntity> members = [];
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -86,6 +88,7 @@ class GroupChatScreen extends StatelessWidget {
                         if (state is UsersDataLoaded) {
                           List<String> names = [];
                           for (var user in state.users) {
+                            members.add(user);
                             names.add(user.name!);
                           }
 
@@ -124,7 +127,7 @@ class GroupChatScreen extends StatelessWidget {
             ),
           ],
         ),
-        body: GroupChatScreenBody(group: thisGroup),
+        body: GroupChatScreenBody(group: thisGroup, members: members),
       ),
     );
   }
