@@ -44,8 +44,8 @@ class ChatRoomCubit extends Cubit<ChatRoomState> {
 
   Future<void> deleteChatRoom(String roomId) async {
     try {
-      await chatRoomRepo.deleteChatRoom(roomId);
       chatRoomsCache.removeWhere((room) => room.id == roomId);
+      await chatRoomRepo.deleteChatRoom(roomId);
       await _cacheChatRooms(chatRoomsCache);
       emit(ChatRoomListLoaded(List.from(chatRoomsCache)));
       emit(const ChatRoomSuccess("Chat deleted successfully"));

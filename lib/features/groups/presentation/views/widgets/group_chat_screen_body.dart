@@ -8,6 +8,7 @@ import '../../../../../core/constants/backend/backend_end_points.dart';
 import '../../../../../core/cubits/chat_cubit/chat_message_cubit.dart';
 import '../../../../../core/cubits/chat_cubit/chat_message_state.dart';
 import '../../../../../core/services/get_it_services.dart';
+import '../../../../../core/utils/app_date_time.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../core/widgets/chat_message_bubble.dart';
 import '../../../../../core/widgets/send_message_field.dart';
@@ -100,11 +101,46 @@ class GroupChatScreenBody extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final message = messages[index];
                       final isSender = message.senderId == userId;
+                      String newDate = '';
+                      bool isSameDate = false;
 
-                      return ChatMessageBubble(
-                        message: message,
-                        isSender: isSender,
-                        chatId: group.id,
+                      if ((index == 0 && messages.length == 1) ||
+                          index == messages.length - 1) {
+                        newDate = AppDateTime.dateTimeFormat(message.createdAt);
+                      } else {
+                        final DateTime date = AppDateTime.dateFormat(
+                          message.createdAt,
+                        );
+
+                        final DateTime prevDate = AppDateTime.dateFormat(
+                          messages[index + 1].createdAt,
+                        );
+
+                        if (date.day != prevDate.day ||
+                            date.month != prevDate.month ||
+                            date.year != prevDate.year) {
+                          isSameDate = false;
+                          newDate = AppDateTime.dateTimeFormat(
+                            message.createdAt,
+                          );
+                        } else {
+                          isSameDate = true;
+                        }
+                      }
+
+                      return Column(
+                        children: [
+                          if (!isSameDate) ...[
+                            const SizedBox(height: 8),
+                            Text(newDate),
+                            const SizedBox(height: 8),
+                          ],
+                          ChatMessageBubble(
+                            message: message,
+                            isSender: isSender,
+                            chatId: group.id,
+                          ),
+                        ],
                       );
                     },
                   );

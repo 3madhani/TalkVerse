@@ -35,6 +35,7 @@ class UniversalChatCard extends StatefulWidget {
 class _UniversalChatCardState extends State<UniversalChatCard> {
   final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
   int unreadCount = 0;
+
   bool get isGroup => widget.group != null;
 
   @override
@@ -44,168 +45,46 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
     return BlocListener<ChatMessageCubit, ChatMessageState>(
       bloc: getIt<ChatMessageCubit>(),
       listener: (context, state) {
+        if (!mounted) return;
         if (state is ChatMessageLoaded) {
           final messages = state.messages;
-          unreadCount =
+          final count =
               messages
-                  .where(
-                    (message) =>
-                        message.isRead == false &&
-                        message.senderId != currentUserId,
-                  )
+                  .where((msg) => !msg.isRead && msg.senderId != currentUserId)
                   .length;
-          setState(() {});
+          if (unreadCount != count) {
+            setState(() => unreadCount = count);
+          }
         }
       },
       child: DismissibleCard(
+        key: ValueKey(isGroup ? widget.group!.id : widget.chatRoom!.id),
         title: isGroup ? "Delete Group" : "Delete Chat",
         confirm: true,
         id: isGroup ? widget.group!.id : widget.chatRoom!.id,
         content: isGroup ? "group" : "chat",
-        onDismiss: () async {
-          if (isGroup) {
-            await getIt<GroupCubit>().deleteGroup(widget.group!.id);
-          } else {
-            await getIt<ChatRoomCubit>().deleteChatRoom(widget.chatRoom!.id);
-          }
-        },
-        child: BlocBuilder<UserDataCubit, UserDataState>(
-          bloc:
-              getIt<UserDataCubit>()
-                ..loadUsersData(usersIds: widget.chatRoom?.members ?? []),
-          builder: (context, state) {
-            UserEntity? user;
-            UserEntity? me;
-            if (state is UsersDataLoaded) {
-              user = state.users.firstWhere(
-                (element) => element.uId != currentUserId,
-              );
-              me = state.users.firstWhere(
-                (element) => element.uId == currentUserId,
-              );
-            }
-
-            return Card(
-              elevation: 1,
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+        onDismiss: _onDismiss,
+        child:
+            isGroup
+                ? _buildGroupTile(theme)
+                : BlocBuilder<UserDataCubit, UserDataState>(
+                  bloc:
+                      getIt<UserDataCubit>()..loadUsersData(
+                        usersIds: widget.chatRoom?.members ?? [],
+                      ),
+                  builder: (context, state) {
+                    return _buildChatTile(theme, state);
+                  },
                 ),
-                onTap: () {
-                  if (isGroup) {
-                    Navigator.pushNamed(
-                      context,
-                      GroupChatScreen.routeName,
-                      arguments: widget.group,
-                    );
-                  } else {
-                    Navigator.pushNamed(
-                      context,
-                      ChatScreen.routeName,
-                      arguments: {
-                        'chatRoom': widget.chatRoom,
-                        'user': user,
-                        "currentUser": me,
-                      },
-                    );
-                  }
-                },
-                leading: CircleAvatar(
-                  radius: 22,
-                  child:
-                      isGroup
-                          ? ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            clipBehavior: Clip.antiAlias,
-                            child: CachedNetworkImage(
-                              imageUrl: widget.group!.imageUrl ?? '',
-                              placeholder:
-                                  (context, url) =>
-                                      const CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.grey,
-                                      ),
-                              errorWidget:
-                                  (context, url, error) => const Icon(
-                                    Icons.group,
-                                    size: 30,
-                                    color: Colors.white,
-                                  ),
-                            ),
-                          )
-                          : ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            clipBehavior: Clip.antiAlias,
-                            child: CachedNetworkImage(
-                              imageUrl: user!.photoUrl ?? '',
-                              placeholder:
-                                  (context, url) =>
-                                      const CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.grey,
-                                      ),
-                              errorWidget:
-                                  (context, url, error) => const Icon(
-                                    Icons.person,
-                                    size: 30,
-                                    color: Colors.white,
-                                  ),
-                            ),
-                          ),
-                ),
-                title: Text(
-                  isGroup ? widget.group!.name : widget.chatRoom!.roomName,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  isGroup
-                      ? (widget.group!.lastMessage.isEmpty
-                          ? widget.group!.about ?? ''
-                          : widget.group!.lastMessage)
-                      : (widget.chatRoom!.lastMessage ??
-                          widget.chatRoom!.aboutMe),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(color: theme.textTheme.bodySmall?.color),
-                ),
-                trailing:
-                    !isGroup && unreadCount > 0
-                        ? SizedBox(
-                          width: 25,
-                          height: 25,
-                          child: Badge(
-                            backgroundColor: theme.colorScheme.primary,
-                            label: Text(
-                              '$unreadCount',
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        )
-                        : Text(
-                          isGroup
-                              ? widget.group!.formatDateAndTime()
-                              : AppDateTime.dateTimeFormat(
-                                widget.chatRoom!.lastMessageTime!,
-                              ),
-                          style: TextStyle(
-                            color: theme.textTheme.bodyMedium?.color,
-                          ),
-                        ),
-              ),
-            );
-          },
-        ),
       ),
     );
   }
 
   @override
   void initState() {
+    super.initState();
+
+    // Start listening for messages
     if (widget.chatRoom != null) {
       getIt<ChatMessageCubit>().fetchMessages(
         widget.chatRoom!.id,
@@ -217,6 +96,159 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
         BackendEndPoints.groups,
       );
     }
-    super.initState();
+  }
+
+  Widget _buildAvatar(String imageUrl, {required bool isGroup}) {
+    // Check if imageUrl is valid before trying to load
+    final bool hasValidUrl =
+        imageUrl.isNotEmpty &&
+        (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'));
+
+    return CircleAvatar(
+      radius: 22,
+      child:
+          hasValidUrl
+              ? ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                clipBehavior: Clip.antiAlias,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder:
+                      (context, url) => const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.grey,
+                      ),
+                  errorWidget:
+                      (context, url, error) => Icon(
+                        isGroup ? Icons.group : Icons.person,
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                ),
+              )
+              : Icon(
+                isGroup ? Icons.group : Icons.person,
+                size: 30,
+                color: Colors.white,
+              ),
+    );
+  }
+
+  Widget _buildChatTile(ThemeData theme, UserDataState state) {
+    final chatRoom = widget.chatRoom!;
+    UserEntity? user;
+    UserEntity? me;
+
+    if (state is UsersDataLoaded && state.users.isNotEmpty) {
+      // Use try-catch to avoid type mismatch with orElse
+      try {
+        user = state.users.firstWhere((u) => u.uId != currentUserId);
+      } catch (e) {
+        user = null;
+      }
+
+      try {
+        me = state.users.firstWhere((u) => u.uId == currentUserId);
+      } catch (e) {
+        me = null;
+      }
+    }
+
+    if (user == null || user.uId.isEmpty) {
+      return const ListTile(
+        leading: CircleAvatar(child: Icon(Icons.person)),
+        title: Text('Loading chat...'),
+      );
+    }
+
+    final imageUrl = user.photoUrl?.trim() ?? '';
+    final subtitle = chatRoom.lastMessage ?? chatRoom.aboutMe ;
+
+    return Card(
+      elevation: 1,
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            ChatScreen.routeName,
+            arguments: {'chatRoom': chatRoom, 'user': user, 'currentUser': me},
+          );
+        },
+        leading: _buildAvatar(imageUrl, isGroup: false),
+        title: Text(chatRoom.roomName, overflow: TextOverflow.ellipsis),
+        subtitle: Text(
+          subtitle,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          style: TextStyle(color: theme.textTheme.bodySmall?.color),
+        ),
+        trailing:
+            unreadCount > 0
+                ? SizedBox(
+                  width: 25,
+                  height: 25,
+                  child: Badge(
+                    backgroundColor: theme.colorScheme.primary,
+                    label: Text(
+                      '$unreadCount',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
+                : Text(
+                  chatRoom.lastMessageTime != null
+                      ? AppDateTime.dateTimeFormat(chatRoom.lastMessageTime!)
+                      : '',
+                  style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+                ),
+      ),
+    );
+  }
+
+  Widget _buildGroupTile(ThemeData theme) {
+    final group = widget.group!;
+    final imageUrl = group.imageUrl?.trim() ?? '';
+
+    return Card(
+      elevation: 1,
+      child: ListTile(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            GroupChatScreen.routeName,
+            arguments: group,
+          );
+        },
+        leading: _buildAvatar(imageUrl, isGroup: true),
+        title: Text(group.name, overflow: TextOverflow.ellipsis),
+        subtitle: Text(
+          group.lastMessage.isEmpty ? group.about ?? '' : group.lastMessage,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          style: TextStyle(color: theme.textTheme.bodySmall?.color),
+        ),
+        trailing: Text(
+          group.formatDateAndTime(),
+          style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+        ),
+      ),
+    );
+  }
+
+  // =========================
+  // 🧩 Helpers
+  // =========================
+
+  Future<void> _onDismiss() async {
+    if (isGroup) {
+      await getIt<GroupCubit>().deleteGroup(widget.group!.id);
+    } else {
+      await getIt<ChatRoomCubit>().deleteChatRoom(widget.chatRoom!.id);
+    }
   }
 }

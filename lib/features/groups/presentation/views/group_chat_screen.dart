@@ -1,4 +1,5 @@
 import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -90,7 +91,14 @@ class GroupChatScreen extends StatelessWidget {
                           for (var user in state.users) {
                             members.add(user);
                             names.add(user.name!);
+                            print(members);
                           }
+
+                          members.removeWhere(
+                            (element) =>
+                                element.uId ==
+                                FirebaseAuth.instance.currentUser?.uid,
+                          );
 
                           return Text(
                             names.length > 1

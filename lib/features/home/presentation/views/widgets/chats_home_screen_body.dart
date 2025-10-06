@@ -7,7 +7,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../../core/services/get_it_services.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
 import '../../../../../core/widgets/universal_chat_card.dart';
-import '../../../domain/entities/chat_room_entity.dart';
 import '../../manager/chat_room_cubit/chat_room_cubit.dart';
 import '../../manager/chat_room_cubit/chat_room_state.dart';
 
@@ -38,23 +37,39 @@ class _ChatsHomeScreenBodyState extends State<ChatsHomeScreenBody> {
         final chatRoomCubit = getIt<ChatRoomCubit>();
         final cachedRooms = chatRoomCubit.chatRoomsCache;
 
-        // Skeleton loading
+        // Skeleton loading - use a custom skeleton widget instead of UniversalChatCard
         if (state is ChatRoomLoading && cachedRooms.isEmpty) {
           return Skeletonizer(
             child: ListView.builder(
               itemCount: 1,
               itemBuilder: (context, index) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6.0),
-                  child: UniversalChatCard(
-                    chatRoom: ChatRoomEntity(
-                      id: '',
-                      roomName: 'Loading...',
-                      aboutMe: '',
-                      createdAt: '',
-                      lastMessageTime: '',
-                      members: [],
-                      lastMessage: null,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6.0,
+                    vertical: 4.0,
+                  ),
+                  child: Card(
+                    elevation: 1,
+                    child: ListTile(
+                      leading: const CircleAvatar(
+                        radius: 22,
+                        child: Icon(Icons.person),
+                      ),
+                      title: Container(
+                        height: 16,
+                        width: 150,
+                        color: Colors.grey,
+                      ),
+                      subtitle: Container(
+                        height: 14,
+                        width: 200,
+                        color: Colors.grey,
+                      ),
+                      trailing: Container(
+                        height: 12,
+                        width: 50,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 );
@@ -72,7 +87,10 @@ class _ChatsHomeScreenBodyState extends State<ChatsHomeScreenBody> {
             itemCount: chatRooms.length,
             itemBuilder: (context, index) {
               final room = chatRooms[index];
-              return UniversalChatCard(chatRoom: room);
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: UniversalChatCard(chatRoom: room),
+              );
             },
           );
         }

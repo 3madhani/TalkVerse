@@ -11,6 +11,7 @@ class Prefs {
 
   // Generic access
   static bool getBool(String key) => _instance.getBool(key) ?? false;
+  static int? getInt(String key) => _instance.getInt(key);
 
   /// Get JSON-decoded map from a cached string value
   static Map<String, dynamic> getJsonMap(String key) {
@@ -52,19 +53,24 @@ class Prefs {
     await setJsonMap(key, map);
   }
 
-  static void reset() {
-    _instance.clear();
+  /// ✅ Proper reset method (async)
+  static Future<void> reset() async {
+    _instance = await SharedPreferences.getInstance();
+    await _instance.clear();
   }
 
   static Future<void> setBool(String key, bool value) async =>
       await _instance.setBool(key, value);
 
-  // ===== Extended Cache Management =====
-
   /// Set dark mode (true = dark mode)
   static Future<void> setDarkMode(bool isDark) async {
     await _instance.setBool(_keyIsDarkMode, isDark);
   }
+
+  // ===== Extended Cache Management =====
+
+  static Future<void> setInt(String key, int value) async =>
+      await _instance.setInt(key, value);
 
   /// Save JSON-encodable map to string
   static Future<void> setJsonMap(String key, Map<String, dynamic> map) async {

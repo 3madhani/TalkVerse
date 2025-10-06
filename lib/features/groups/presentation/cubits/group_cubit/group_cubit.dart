@@ -64,8 +64,9 @@ class GroupCubit extends Cubit<GroupState> {
   /// Delete a group
   Future<void> deleteGroup(String groupId) async {
     try {
-      await groupRepo.deleteGroup(groupId);
       groupsCache.removeWhere((group) => group.id == groupId);
+      await groupRepo.deleteGroup(groupId);
+
       await _cacheGroups(groupsCache);
 
       // Emit GroupLoaded immediately so UI updates
