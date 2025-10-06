@@ -68,7 +68,7 @@ class HomeViewModel extends ChangeNotifier {
     _currentIndex = index;
     _pageController.animateToPage(
       index,
-      duration: const Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
     notifyListeners();
@@ -76,6 +76,6 @@ class HomeViewModel extends ChangeNotifier {
 
   static void goToChatTab(BuildContext context) {
     final viewModel = Provider.of<HomeViewModel>(context, listen: false);
-    viewModel.jumpToTab(0); // assuming tab index 0 is the chat tab
+    viewModel.jumpToTab(0);
   }
 }

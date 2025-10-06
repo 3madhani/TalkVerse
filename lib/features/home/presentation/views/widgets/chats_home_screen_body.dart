@@ -1,4 +1,6 @@
+import 'package:chitchat/core/cubits/user_cubit/user_data_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -91,5 +93,14 @@ class _ChatsHomeScreenBodyState extends State<ChatsHomeScreenBody> {
     super.initState();
     getIt<ChatRoomCubit>().loadCachedChatRooms();
     getIt<ChatRoomCubit>().listenToUserChatRooms();
+    SystemChannels.lifecycle.setMessageHandler((message) async {
+      if (message == 'AppLifecycleState.resumed') {
+        getIt<UserDataCubit>().updateUserLastSeen(online: true);
+      } else if (message == 'AppLifecycleState.paused' ||
+          message == 'AppLifecycleState.inactive') {
+        getIt<UserDataCubit>().updateUserLastSeen(online: false);
+      }
+      return null;
+    });
   }
 }

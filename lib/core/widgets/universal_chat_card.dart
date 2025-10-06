@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chitchat/core/cubits/user_cubit/user_data_cubit.dart';
+import 'package:chitchat/core/utils/app_date_time.dart';
 import 'package:chitchat/core/widgets/dismissible_card.dart';
 import 'package:chitchat/features/chats/presentation/views/chat_screen.dart';
 import 'package:chitchat/features/groups/domain/entities/group_entity.dart';
@@ -188,7 +189,9 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
                         : Text(
                           isGroup
                               ? widget.group!.formatDateAndTime()
-                              : widget.chatRoom!.formatDateAndTime(),
+                              : AppDateTime.dateTimeFormat(
+                                widget.chatRoom!.lastMessageTime!,
+                              ),
                           style: TextStyle(
                             color: theme.textTheme.bodyMedium?.color,
                           ),

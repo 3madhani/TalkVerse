@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chitchat/core/services/get_it_services.dart';
+import 'package:chitchat/core/widgets/dismissible_card.dart';
 import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat_room_cubit.dart';
-import 'package:chitchat/core/widgets/dismissible_card.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -67,7 +67,7 @@ class ContactCard extends StatelessWidget {
 
               final result = await cubit.createChatRoom(email: contact.email);
 
-              if (result) {
+              if (result)  {
                 HomeViewModel.goToChatTab(context);
               }
             },

@@ -1,3 +1,4 @@
+import 'package:chitchat/core/utils/app_date_time.dart';
 import 'package:chitchat/features/auth/domain/entities/user_entity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,12 @@ class ChatScreenBody extends StatelessWidget {
   final ChatRoomEntity chatRoom;
   final UserEntity user, currentUser;
 
-  const ChatScreenBody({super.key, required this.chatRoom, required this.user, required this.currentUser});
+  const ChatScreenBody({
+    super.key,
+    required this.chatRoom,
+    required this.user,
+    required this.currentUser,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -90,13 +96,48 @@ class ChatScreenBody extends StatelessWidget {
                     reverse: true,
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
+                      String newDate = '';
+                      bool isSameDate = false;
                       final message = messages[index];
                       final isSender = message.senderId == userId;
 
-                      return ChatMessageBubble(
-                        message: message,
-                        isSender: isSender,
-                        chatId: chatRoom.id,
+                      if ((index == 0 && messages.length == 1) ||
+                          index == messages.length - 1) {
+                        newDate = AppDateTime.dateTimeFormat(message.createdAt);
+                      } else {
+                        final DateTime date = AppDateTime.dateFormat(
+                          message.createdAt,
+                        );
+
+                        final DateTime prevDate = AppDateTime.dateFormat(
+                          messages[index + 1].createdAt,
+                        );
+
+                        if (date.day != prevDate.day ||
+                            date.month != prevDate.month ||
+                            date.year != prevDate.year) {
+                          isSameDate = false;
+                          newDate = AppDateTime.dateTimeFormat(
+                            message.createdAt,
+                          );
+                        } else {
+                          isSameDate = true;
+                        }
+                      }
+
+                      return Column(
+                        children: [
+                          if (!isSameDate)
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(newDate),
+                            ),
+                          ChatMessageBubble(
+                            message: message,
+                            isSender: isSender,
+                            chatId: chatRoom.id,
+                          ),
+                        ],
                       );
                     },
                   );
@@ -106,7 +147,11 @@ class ChatScreenBody extends StatelessWidget {
               },
             ),
           ),
-          SendMessageField(chatRoom: chatRoom, user: user, currentUser: currentUser),
+          SendMessageField(
+            chatRoom: chatRoom,
+            user: user,
+            currentUser: currentUser,
+          ),
         ],
       ),
     );

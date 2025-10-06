@@ -52,6 +52,7 @@ class SettingsScreenBody extends StatelessWidget {
           const DarkModeTile(),
           GestureDetector(
             onTap: () {
+              getIt<UserDataCubit>().updateUserLastSeen(online: false);
               // Cancel any Cubits that are listening to Firestore
               getIt<ContactsCubit>().close();
               getIt<ChatRoomCubit>().close();

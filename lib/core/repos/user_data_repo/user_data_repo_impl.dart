@@ -73,9 +73,12 @@ class UserDataRepoImpl implements UserDataRepo {
   }
 
   @override
-  Future<void> updateUserLastSeen(String userId, DateTime lastSeen) {
-    // TODO: implement updateUserLastSeen
-    throw UnimplementedError();
+  Future<void> updateUserLastSeen(bool online ) async {
+    await databaseServices.updateData(
+      path: BackendEndPoints.addUsers,
+      data: {"online": online, "lastSeen": DateTime.now().millisecondsSinceEpoch.toString()},
+      documentId: FirebaseAuth.instance.currentUser!.uid,
+    );
   }
 
   @override

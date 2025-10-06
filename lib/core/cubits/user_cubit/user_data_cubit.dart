@@ -125,6 +125,10 @@ class UserDataCubit extends Cubit<UserDataState> {
     );
   }
 
+  Future<void> updateUserLastSeen({required bool online}) async {
+    await userDataRepo.updateUserLastSeen(online);
+  }
+
   Future<String?> uploadProfileImage(File? image) async {
     try {
       final imageUrl = await imagesRepo.uploadImage(

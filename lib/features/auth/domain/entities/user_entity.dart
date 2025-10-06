@@ -38,4 +38,12 @@ class UserEntity extends Equatable {
     online,
     friends,
   ];
+
+  String formateLastSeen() {
+    if (lastSeen == null) return '';
+
+    final date =
+        DateTime.fromMillisecondsSinceEpoch(int.parse(lastSeen!)).toLocal();
+    return "${date.hour}:${date.minute}";
+  }
 }

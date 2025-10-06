@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chitchat/core/utils/app_date_time.dart';
 import 'package:chitchat/core/widgets/photo_view_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -184,7 +185,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          _formatTime(widget.message.createdAt),
+          AppDateTime.timeFormat(widget.message.createdAt),
           style: theme.textTheme.labelSmall?.copyWith(color: timeColor),
         ),
         if (widget.isSender) ...[
@@ -201,24 +202,4 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
     );
   }
 
-  String _formatTime(dynamic dateInput) {
-    try {
-      DateTime date;
-
-      if (dateInput is int) {
-        date = DateTime.fromMillisecondsSinceEpoch(dateInput).toLocal();
-      } else if (dateInput is String && RegExp(r'^\d+$').hasMatch(dateInput)) {
-        date =
-            DateTime.fromMillisecondsSinceEpoch(int.parse(dateInput)).toLocal();
-      } else if (dateInput is String) {
-        date = DateTime.parse(dateInput).toLocal();
-      } else {
-        return '';
-      }
-
-      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    } catch (_) {
-      return '';
-    }
   }
-}

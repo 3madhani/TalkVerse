@@ -12,7 +12,7 @@ abstract class UserDataRepo {
     required Map<String, dynamic> data,
   });
 
-  Future<void> updateUserLastSeen(String userId, DateTime lastSeen);
+  Future<void> updateUserLastSeen(bool online);
 
   Future<Either<Failure, void>> updateUserPushToken(String pushToken);
 }
