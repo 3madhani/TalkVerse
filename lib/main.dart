@@ -20,7 +20,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // initialize firebase messaging service
-  FirebaseMessagingService().intializeFirebaseMessaging();
+  FirebaseMessagingService().initializeFirebaseMessaging();
 
   // Initialize Supabase
   await SupabaseStorage.initSupabase();

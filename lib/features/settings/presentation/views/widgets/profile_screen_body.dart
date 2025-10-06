@@ -1,3 +1,4 @@
+import 'package:chitchat/core/widgets/photo_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -40,7 +41,22 @@ class ProfileScreenBody extends StatelessWidget {
                     child: Column(
                       children: [
                         /// Profile Picture
-                        ProfilePicture(profilePictureUrl: user?.photoUrl ?? ""),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => PhotoViewScreen(
+                                      url: user?.photoUrl ?? "",
+                                    ),
+                              ),
+                            );
+                          },
+                          child: ProfilePicture(
+                            profilePictureUrl: user?.photoUrl ?? "",
+                          ),
+                        ),
                         const SizedBox(height: 16),
 
                         /// Name Field

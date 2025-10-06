@@ -1,4 +1,5 @@
 import 'package:chitchat/core/services/get_it_services.dart';
+import 'package:chitchat/core/services/shared_preferences_singleton.dart';
 import 'package:chitchat/features/groups/presentation/cubits/group_cubit/group_cubit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,7 @@ class SettingsScreenBody extends StatelessWidget {
               getIt.resetLazySingleton<GroupCubit>();
               getIt.resetLazySingleton<ChatMessageCubit>();
               getIt.resetLazySingleton<UserDataCubit>();
+              Prefs.reset();
 
               getIt<AuthCubit>().signOut();
               Navigator.pushNamedAndRemoveUntil(

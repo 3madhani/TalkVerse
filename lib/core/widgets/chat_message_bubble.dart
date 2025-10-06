@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chitchat/core/widgets/photo_view_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/backend/backend_end_points.dart';
@@ -97,25 +98,38 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                                       Colors.black,
                                 ),
                               )
-                              : ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                clipBehavior: Clip.antiAlias,
-                                child: CachedNetworkImage(
-                                  imageUrl: widget.message.message,
-                                  fit: BoxFit.cover,
-                                  placeholder:
-                                      (context, url) => const SizedBox(
-                                        height: 100,
-                                        width: 100,
-                                        child: Center(
-                                          child: CircularProgressIndicator(),
+                              : GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => PhotoViewScreen(
+                                            url: widget.message.message,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: CachedNetworkImage(
+                                    imageUrl: widget.message.message,
+                                    fit: BoxFit.cover,
+                                    placeholder:
+                                        (context, url) => const SizedBox(
+                                          height: 100,
+                                          width: 100,
+                                          child: Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
                                         ),
-                                      ),
-                                  errorWidget:
-                                      (context, url, error) => const Icon(
-                                        Icons.error,
-                                        color: Colors.red,
-                                      ),
+                                    errorWidget:
+                                        (context, url, error) => const Icon(
+                                          Icons.error,
+                                          color: Colors.red,
+                                        ),
+                                  ),
                                 ),
                               ),
                     ),

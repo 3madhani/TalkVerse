@@ -4,6 +4,7 @@ import 'package:chitchat/features/auth/presentation/views/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/services/firebase_messaging_service.dart';
 import 'features/home/presentation/manager/theme_view_model.dart';
 import 'features/home/presentation/views/home_layout.dart';
 
@@ -15,6 +16,7 @@ class TalkVerse extends StatelessWidget {
     return Consumer<ThemeViewModel>(
       builder: (context, settingsViewModel, child) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
           themeMode:
               settingsViewModel.isDarkMode ? ThemeMode.dark : ThemeMode.light,
