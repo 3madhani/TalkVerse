@@ -22,9 +22,10 @@ class GroupCubit extends Cubit<GroupState> {
 
   GroupCubit(this.groupRepo) : super(GroupInitial());
 
-  void addAdmin({required String groupId, required String userId}) {
+  void addAdmin({required String groupId, required String userId}) async {
     try {
-      groupRepo.addAdmin(groupId, userId);
+      await groupRepo.addAdmin(groupId, userId);
+      emit(GroupsLoaded(List.from(groupsCache)));
       emit(const GroupSuccess("Admin added successfully"));
     } catch (e) {
       emit(GroupError("Failed to add admin: $e"));

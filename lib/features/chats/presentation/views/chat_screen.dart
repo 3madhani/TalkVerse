@@ -35,13 +35,24 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create:
-          (context) =>
-              getIt<UserDataCubit>()
-                ..loadSingleUserData(userId: widget.user!.uId),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create:
+              (context) =>
+                  getIt<ChatMessageCubit>()..fetchMessages(
+                    widget.chatRoom.id,
+                    BackendEndPoints.chatRooms,
+                  ),
+        ),
+        BlocProvider(
+          create:
+              (context) =>
+                  getIt<UserDataCubit>()
+                    ..loadSingleUserData(userId: widget.user!.uId),
+        ),
+      ],
       child: BlocBuilder<ChatMessageCubit, ChatMessageState>(
-        bloc: getIt<ChatMessageCubit>(),
         builder: (context, state) {
           final isSelecting =
               state is ChatMessageLoaded && state.selectedMessageIds.isNotEmpty;
@@ -54,7 +65,9 @@ class _ChatScreenState extends State<ChatScreen> {
               titleSpacing: 0,
               title:
                   isSelecting
-                      ? Text('${state.selectedMessageIds.length} selected')
+                      ? Text(
+                        '${state.selectedMessageIds.length} selected messages',
+                      )
                       : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -206,17 +219,5 @@ class _ChatScreenState extends State<ChatScreen> {
         },
       ),
     );
-  }
-
-  @override
-  void initState() {
-    getIt<ChatMessageCubit>().fetchMessages(
-      widget.chatRoom.id,
-      BackendEndPoints.chatRooms,
-    );
-    getIt<UserDataCubit>().loadSingleUserData(
-      userId: FirebaseAuth.instance.currentUser!.uid,
-    );
-    super.initState();
   }
 }

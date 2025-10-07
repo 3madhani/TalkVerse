@@ -1,8 +1,8 @@
-import 'package:chitchat/features/settings/presentation/views/widgets/profile_screen_body.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../manager/profile_view_model.dart';
+import '../widgets/profile_screen_body.dart';
 
 class ProfileScreen extends StatelessWidget {
   static const routeName = 'profile-screen';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../manager/home_view_model.dart';
-import 'widgets/keep_alive_wrapper.dart';
+import '../widgets/keep_alive_wrapper.dart';
 
 class HomeLayout extends StatelessWidget {
   static const String routeName = 'home-layout';

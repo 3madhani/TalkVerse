@@ -27,10 +27,6 @@ class GroupChatScreenBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     members.removeWhere((user) => user.uId == userId);
-    print(userId);
-    for (var i = 0; i < members.length; i++) {
-      print(members[i].uId.toString());
-    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
       child: Column(
@@ -49,7 +45,7 @@ class GroupChatScreenBody extends StatelessWidget {
                     if (!message.isRead && message.senderId != userId) {
                       cubit.markMessageAsReadLocally(message.messageId);
                       cubit.readMessage(
-                        collectionPath: BackendEndPoints.chatRooms,
+                        collectionPath: BackendEndPoints.groups,
                         chatId: group.id,
                         isRead: true,
                         messageId: message.messageId,
@@ -136,6 +132,7 @@ class GroupChatScreenBody extends StatelessWidget {
                             const SizedBox(height: 8),
                           ],
                           ChatMessageBubble(
+                            isGroup: true,
                             message: message,
                             isSender: isSender,
                             chatId: group.id,

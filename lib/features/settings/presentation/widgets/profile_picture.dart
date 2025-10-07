@@ -9,6 +9,8 @@ import '../../../../../core/cubits/user_cubit/user_data_cubit.dart';
 import '../../../../../core/services/get_it_services.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
 
+
+
 class ProfilePicture extends StatelessWidget {
   final String profilePictureUrl;
   const ProfilePicture({super.key, required this.profilePictureUrl});
@@ -20,24 +22,27 @@ class ProfilePicture extends StatelessWidget {
     return Center(
       child: Stack(
         children: [
-          ClipOval(
-            child: Container(
-              width: 130,
-              height: 130,
+          Container(
+            width: 130,
+            height: 130,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: colorScheme.surface, width: 2),
               color: colorScheme.primaryContainer,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
               child:
                   _isValidUrl(profilePictureUrl)
                       ? CachedNetworkImage(
+                        width: 130,
+                        height: 130,
                         imageUrl: profilePictureUrl,
                         fit: BoxFit.cover,
                         placeholder:
                             (context, url) => const Center(
-                              child: SizedBox(
-                                width: 40,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.grey,
-                                ),
+                              child: CircularProgressIndicator(
+                                color: Colors.grey,
                               ),
                             ),
                         errorWidget:

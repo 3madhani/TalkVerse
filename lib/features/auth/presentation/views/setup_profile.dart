@@ -3,6 +3,7 @@ import 'package:iconsax/iconsax.dart';
 
 import '../../../../core/services/get_it_services.dart';
 import '../manager/auth_cubit/auth_cubit.dart';
+import 'login_screen.dart';
 import 'widgets/setup_profile_body.dart';
 
 class SetupProfile extends StatelessWidget {
@@ -18,6 +19,11 @@ class SetupProfile extends StatelessWidget {
           IconButton(
             onPressed: () {
               getIt<AuthCubit>().signOut();
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                LoginScreen.routeName,
+                (route) => false,
+              );
             },
             icon: const Icon(Iconsax.logout_1),
           ),

@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../../../core/widgets/app_snack_bar.dart';
-import '../../../domain/entities/group_entity.dart';
 import '../../cubits/group_cubit/group_cubit.dart';
 
 class GroupsScreenBody extends StatefulWidget {
@@ -37,20 +36,33 @@ class _GroupsScreenBodyState extends State<GroupsScreenBody> {
             child: ListView.builder(
               itemCount: 1,
               itemBuilder: (context, index) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 6.0),
-                  child: UniversalChatCard(
-                    group: GroupEntity(
-                      imageUrl: '',
-                      id: '',
-                      name: 'Loading...',
-                      createdAt: '',
-                      lastMessageTime: '',
-                      members: [],
-                      lastMessage: '',
-                      about: '',
-                      admins: [],
-                      createdBy: '',
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6.0,
+                    vertical: 4.0,
+                  ),
+                  child: Card(
+                    elevation: 1,
+                    child: ListTile(
+                      leading: const CircleAvatar(
+                        radius: 22,
+                        child: Icon(Icons.person),
+                      ),
+                      title: Container(
+                        height: 16,
+                        width: 150,
+                        color: Colors.grey,
+                      ),
+                      subtitle: Container(
+                        height: 14,
+                        width: 200,
+                        color: Colors.grey,
+                      ),
+                      trailing: Container(
+                        height: 12,
+                        width: 50,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 );

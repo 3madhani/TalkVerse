@@ -6,8 +6,8 @@ import 'package:chitchat/features/home/presentation/manager/chat_room_cubit/chat
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../manager/contacts_cubit/contacts_cubit.dart';
-import '../../manager/home_view_model.dart';
+import '../manager/contacts_cubit/contacts_cubit.dart';
+import '../manager/home_view_model.dart';
 
 class ContactCard extends StatelessWidget {
   final UserEntity contact;

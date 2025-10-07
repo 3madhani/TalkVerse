@@ -1,4 +1,5 @@
 import 'package:chitchat/features/groups/presentation/cubits/group_cubit/group_cubit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -9,13 +10,11 @@ import '../../../domain/entities/group_entity.dart';
 class GroupMembersListView extends StatefulWidget {
   final GroupEntity group;
   final List<UserEntity> members;
-  final bool isAdmin;
 
   const GroupMembersListView({
     super.key,
     required this.group,
     required this.members,
-    required this.isAdmin,
   });
 
   @override
@@ -23,15 +22,14 @@ class GroupMembersListView extends StatefulWidget {
 }
 
 class _GroupMembersListViewState extends State<GroupMembersListView> {
-  late List<UserEntity> _members;
-  late List<String> _groupMembers;
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: _groupMembers.length,
+      itemCount: widget.members.length,
       itemBuilder: (context, index) {
-        final member = _members[index];
+        final member = widget.members[index];
+        final isMemberAdmin = widget.group.admins.contains(member.uId);
+
         return Card(
           child: ListTile(
             leading: CircleAvatar(
@@ -43,60 +41,18 @@ class _GroupMembersListViewState extends State<GroupMembersListView> {
             ),
             title: Text(member.name ?? 'No Name'),
             subtitle:
-                widget.group.admins.contains(member.uId)
+                isMemberAdmin
                     ? const Text('Admin', style: TextStyle(color: Colors.green))
                     : const Text(
                       'Member',
                       style: TextStyle(color: Colors.grey),
                     ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.isAdmin && !widget.group.admins.contains(member.uId))
-                  IconButton(
-                    onPressed: () {
-                      context.read<GroupCubit>().addAdmin(
-                        groupId: widget.group.id,
-                        userId: member.uId,
-                      );
-                    },
-                    icon: const Icon(Iconsax.user_add, color: Colors.green),
-                  )
-                else if (widget.isAdmin &&
-                    widget.group.admins.contains(member.uId))
-                  IconButton(
-                    onPressed: () {
-                      context.read<GroupCubit>().removeAdmin(
-                        groupId: widget.group.id,
-                        userId: member.uId,
-                      );
-                    },
-                    icon: const Icon(Iconsax.user_remove, color: Colors.red),
-                  ),
-                if (widget.isAdmin)
-                  IconButton(
-                    icon: const Icon(Iconsax.trash, color: Colors.red),
-                    onPressed: () async {
-                      await context.read<GroupCubit>().removeMember(
-                        groupId: widget.group.id,
-                        userId: member.uId,
-                      );
-                      if (widget.group.admins.contains(member.uId)) {
-                        context.read<GroupCubit>().removeAdmin(
-                          groupId: widget.group.id,
-                          userId: member.uId,
-                        );
-                      }
-
-                      // Update local state so UI refreshes
-                      setState(() {
-                        _members.removeAt(index);
-                        _groupMembers.removeAt(index);
-                      });
-                    },
-                  ),
-              ],
-            ),
+            trailing:
+                widget.group.admins.contains(
+                      FirebaseAuth.instance.currentUser?.uid,
+                    )
+                    ? _buildAdminActions(member, isMemberAdmin, index)
+                    : null,
           ),
         );
       },
@@ -106,8 +62,95 @@ class _GroupMembersListViewState extends State<GroupMembersListView> {
   @override
   void initState() {
     super.initState();
-    _members = List<UserEntity>.from(widget.members);
-    _members.sort((a, b) => a.name!.compareTo(b.name!));
-    _groupMembers = List<String>.from(widget.group.members);
+    widget.members.sort((a, b) => a.name!.compareTo(b.name!));
+  }
+
+  Widget _buildAdminActions(UserEntity member, bool isGroupAdmin, int index) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Toggle admin status button
+        if (!isGroupAdmin)
+          IconButton(
+            onPressed: () {
+              context.read<GroupCubit>().addAdmin(
+                groupId: widget.group.id,
+                userId: member.uId,
+              );
+            },
+            icon: const Icon(Iconsax.user_add, color: Colors.green),
+            tooltip: 'Make Admin',
+          )
+        else
+          IconButton(
+            onPressed: () {
+              context.read<GroupCubit>().removeAdmin(
+                groupId: widget.group.id,
+                userId: member.uId,
+              );
+            },
+            icon: const Icon(Iconsax.user_remove, color: Colors.orange),
+            tooltip: 'Remove Admin',
+          ),
+
+        // Remove member button
+        IconButton(
+          icon: const Icon(Iconsax.trash, color: Colors.red),
+          tooltip: 'Remove Member',
+          onPressed: () => _showRemoveMemberDialog(member, isGroupAdmin, index),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showRemoveMemberDialog(
+    UserEntity member,
+    bool isGroupAdmin,
+    int index,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Remove Member'),
+            content: Text(
+              'Are you sure you want to remove ${member.name ?? 'this member'} from the group?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Remove'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true && mounted) {
+      // Remove admin privileges if member is an admin
+      if (isGroupAdmin) {
+        context.read<GroupCubit>().removeAdmin(
+          groupId: widget.group.id,
+          userId: member.uId,
+        );
+      }
+
+      // Remove member from group
+      await context.read<GroupCubit>().removeMember(
+        groupId: widget.group.id,
+        userId: member.uId,
+      );
+
+      // Update local state
+      if (mounted) {
+        setState(() {
+          widget.members.removeAt(index);
+        });
+      }
+    }
   }
 }

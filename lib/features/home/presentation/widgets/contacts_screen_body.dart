@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../../../../core/services/get_it_services.dart';
-import '../../../../auth/domain/entities/user_entity.dart';
-import '../../manager/contacts_cubit/contacts_cubit.dart';
-import '../../manager/contacts_cubit/contacts_state.dart';
+import '../../../../core/services/get_it_services.dart';
+import '../../../auth/domain/entities/user_entity.dart';
+import '../manager/contacts_cubit/contacts_cubit.dart';
+import '../manager/contacts_cubit/contacts_state.dart';
 import 'contact_card.dart';
 
 class ContactsScreenBody extends StatefulWidget {

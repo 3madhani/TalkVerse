@@ -8,43 +8,58 @@ import 'group_members_list_view.dart';
 class GroupMemberScreenBody extends StatelessWidget {
   final GroupEntity group;
 
-  final bool isAdmin;
-  const GroupMemberScreenBody({
-    super.key,
-    required this.group,
-    required this.isAdmin,
-  });
+  const GroupMemberScreenBody({super.key, required this.group});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        children: [
-          BlocBuilder<UserDataCubit, UserDataState>(
-            builder: (context, state) {
-              if (state is UserDataLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is UsersDataLoaded) {
-                final members =
-                    state.users
-                        .where((user) => group.members.contains(user.uId))
-                        .toList();
+    return BlocBuilder<UserDataCubit, UserDataState>(
+      builder: (context, state) {
+        if (state is UserDataLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-                return Expanded(
-                  child: GroupMembersListView(
-                    group: group,
-                    members: members,
-                    isAdmin: isAdmin,
+        if (state is UsersDataLoaded) {
+          final members =
+              state.users
+                  .where((user) => group.members.contains(user.uId))
+                  .toList();
+
+          if (members.isEmpty) {
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.people_outline, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'No members found',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                   ),
-                );
-              }
-              return const Center(child: Text("Failed to load members"));
-            },
+                ],
+              ),
+            );
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: GroupMembersListView(group: group, members: members),
+          );
+        }
+
+        return const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Colors.red),
+              SizedBox(height: 16),
+              Text(
+                'Failed to load members',
+                style: TextStyle(fontSize: 16, color: Colors.red),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

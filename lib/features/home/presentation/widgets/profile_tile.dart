@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../../../core/cubits/user_cubit/user_data_cubit.dart';
+import '../../../../core/cubits/user_cubit/user_data_cubit.dart';
 
 class ProfileTile extends StatelessWidget {
   const ProfileTile({super.key});
@@ -24,23 +24,22 @@ class ProfileTile extends StatelessWidget {
                   : 'User Name',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            leading: CircleAvatar(
-              radius: 30,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: CachedNetworkImage(
-                  imageUrl: state is UserDataLoaded ? state.user.photoUrl! : '',
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(
+                width: 50,
+                height: 50,
+                imageUrl: state is UserDataLoaded ? state.user.photoUrl! : '',
 
-                  fit: BoxFit.cover,
-                  placeholder:
-                      (context, url) => const CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.grey,
-                      ),
-                  errorWidget:
-                      (context, url, error) =>
-                          Icon(Icons.error, color: colorScheme.error, size: 40),
-                ),
+                fit: BoxFit.cover,
+                placeholder:
+                    (context, url) => const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.grey,
+                    ),
+                errorWidget:
+                    (context, url, error) =>
+                        Icon(Icons.error, color: colorScheme.error, size: 40),
               ),
             ),
             trailing: IconButton(

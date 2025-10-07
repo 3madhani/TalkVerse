@@ -42,60 +42,50 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocListener<ChatMessageCubit, ChatMessageState>(
-      bloc: getIt<ChatMessageCubit>(),
-      listener: (context, state) {
-        if (!mounted) return;
-        if (state is ChatMessageLoaded) {
-          final messages = state.messages;
-          final count =
-              messages
-                  .where((msg) => !msg.isRead && msg.senderId != currentUserId)
-                  .length;
-          if (unreadCount != count) {
-            setState(() => unreadCount = count);
+    return BlocProvider(
+      create:
+          (context) =>
+              getIt<ChatMessageCubit>()..fetchMessages(
+                isGroup ? widget.group!.id : widget.chatRoom!.id,
+                isGroup ? BackendEndPoints.groups : BackendEndPoints.chatRooms,
+              ),
+      child: BlocListener<ChatMessageCubit, ChatMessageState>(
+        listener: (context, state) {
+          if (state is ChatMessageLoaded) {
+            final messages = state.messages;
+            final count =
+                messages
+                    .where(
+                      (msg) => !msg.isRead && msg.senderId != currentUserId,
+                    )
+                    .length;
+            if (unreadCount != count) {
+              setState(() => unreadCount = count);
+            }
           }
-        }
-      },
-      child: DismissibleCard(
-        key: ValueKey(isGroup ? widget.group!.id : widget.chatRoom!.id),
-        title: isGroup ? "Delete Group" : "Delete Chat",
-        confirm: true,
-        id: isGroup ? widget.group!.id : widget.chatRoom!.id,
-        content: isGroup ? "group" : "chat",
-        onDismiss: _onDismiss,
-        child:
-            isGroup
-                ? _buildGroupTile(theme)
-                : BlocBuilder<UserDataCubit, UserDataState>(
-                  bloc:
-                      getIt<UserDataCubit>()..loadUsersData(
-                        usersIds: widget.chatRoom?.members ?? [],
-                      ),
-                  builder: (context, state) {
-                    return _buildChatTile(theme, state);
-                  },
-                ),
+        },
+        child: DismissibleCard(
+          key: ValueKey(isGroup ? widget.group!.id : widget.chatRoom!.id),
+          title: isGroup ? "Delete Group" : "Delete Chat",
+          confirm: true,
+          id: isGroup ? widget.group!.id : widget.chatRoom!.id,
+          content: isGroup ? "group" : "chat",
+          onDismiss: _onDismiss,
+          child:
+              isGroup
+                  ? _buildGroupTile(theme)
+                  : BlocBuilder<UserDataCubit, UserDataState>(
+                    bloc:
+                        getIt<UserDataCubit>()..loadUsersData(
+                          usersIds: widget.chatRoom?.members ?? [],
+                        ),
+                    builder: (context, state) {
+                      return _buildChatTile(theme, state);
+                    },
+                  ),
+        ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Start listening for messages
-    if (widget.chatRoom != null) {
-      getIt<ChatMessageCubit>().fetchMessages(
-        widget.chatRoom!.id,
-        BackendEndPoints.chatRooms,
-      );
-    } else if (widget.group != null) {
-      getIt<ChatMessageCubit>().fetchMessages(
-        widget.group!.id,
-        BackendEndPoints.groups,
-      );
-    }
   }
 
   Widget _buildAvatar(String imageUrl, {required bool isGroup}) {
@@ -163,7 +153,7 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
     }
 
     final imageUrl = user.photoUrl?.trim() ?? '';
-    final subtitle = chatRoom.lastMessage ?? chatRoom.aboutMe ;
+    final subtitle = chatRoom.lastMessage ?? chatRoom.aboutMe;
 
     return Card(
       elevation: 1,
@@ -177,7 +167,7 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
           );
         },
         leading: _buildAvatar(imageUrl, isGroup: false),
-        title: Text(chatRoom.roomName, overflow: TextOverflow.ellipsis),
+        title: Text(user.name!, overflow: TextOverflow.ellipsis),
         subtitle: Text(
           subtitle,
           overflow: TextOverflow.ellipsis,
@@ -196,6 +186,7 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -232,10 +223,27 @@ class _UniversalChatCardState extends State<UniversalChatCard> {
           maxLines: 1,
           style: TextStyle(color: theme.textTheme.bodySmall?.color),
         ),
-        trailing: Text(
-          group.formatDateAndTime(),
-          style: TextStyle(color: theme.textTheme.bodyMedium?.color),
-        ),
+        trailing:
+            unreadCount > 0
+                ? SizedBox(
+                  width: 25,
+                  height: 25,
+                  child: Badge(
+                    backgroundColor: theme.colorScheme.primary,
+                    label: Text(
+                      '$unreadCount',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                )
+                : Text(
+                  AppDateTime.dateTimeFormat(group.lastMessageTime),
+                  style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+                ),
       ),
     );
   }

@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../../../../core/services/get_it_services.dart';
-import '../../../../../core/widgets/app_snack_bar.dart';
-import '../../../../../core/widgets/universal_chat_card.dart';
-import '../../manager/chat_room_cubit/chat_room_cubit.dart';
-import '../../manager/chat_room_cubit/chat_room_state.dart';
+import '../../../../core/services/get_it_services.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
+import '../../../../core/widgets/universal_chat_card.dart';
+import '../manager/chat_room_cubit/chat_room_cubit.dart';
+import '../manager/chat_room_cubit/chat_room_state.dart';
 
 class ChatsHomeScreenBody extends StatefulWidget {
   const ChatsHomeScreenBody({super.key});
@@ -21,7 +21,6 @@ class _ChatsHomeScreenBodyState extends State<ChatsHomeScreenBody> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ChatRoomCubit, ChatRoomState>(
-      bloc: getIt<ChatRoomCubit>(),
       listener: (context, state) {
         if (state is ChatRoomError) {
           AppSnackBar.showError(context, state.message);

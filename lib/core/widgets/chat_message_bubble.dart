@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chitchat/core/utils/app_date_time.dart';
 import 'package:chitchat/core/widgets/photo_view_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../constants/backend/backend_end_points.dart';
 import '../cubits/chat_cubit/chat_message_cubit.dart';
@@ -15,13 +16,14 @@ class ChatMessageBubble extends StatefulWidget {
 
   final MessageEntity message;
   final String chatId;
-  final bool isSender;
+  final bool isSender, isGroup;
 
   const ChatMessageBubble({
     super.key,
     required this.message,
     required this.isSender,
     required this.chatId,
+    required this.isGroup,
   });
 
   @override
@@ -32,7 +34,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cubit = getIt<ChatMessageCubit>();
+    final cubit = context.read<ChatMessageCubit>();
     final state = cubit.state;
 
     final isText = widget.message.type == 'text';
@@ -151,9 +153,16 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
 
   @override
   void initState() {
-    if (!widget.isSender) {
+    if (!widget.isSender && !widget.isGroup) {
       getIt<ChatMessageCubit>().readMessage(
         collectionPath: BackendEndPoints.chatRooms,
+        chatId: widget.chatId,
+        messageId: widget.message.messageId,
+        isRead: true,
+      );
+    } else if (!widget.isSender && widget.isGroup) {
+      getIt<ChatMessageCubit>().readMessage(
+        collectionPath: BackendEndPoints.groups,
         chatId: widget.chatId,
         messageId: widget.message.messageId,
         isRead: true,
@@ -201,5 +210,4 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
       ],
     );
   }
-
-  }
+}

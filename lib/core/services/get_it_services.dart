@@ -73,7 +73,7 @@ Future<void> setupGetIt() async {
     () => ChatRoomCubit(getIt<ChatRoomRepo>()),
   );
 
-  getIt.registerLazySingleton<ChatMessageCubit>(
+  getIt.registerFactory<ChatMessageCubit>(
     () => ChatMessageCubit(getIt<ChatMessageRepo>(), getIt<ImagesRepo>()),
   );
 

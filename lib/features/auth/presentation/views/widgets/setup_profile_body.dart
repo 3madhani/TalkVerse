@@ -3,6 +3,7 @@ import 'package:chitchat/core/widgets/app_snack_bar.dart';
 import 'package:chitchat/features/auth/presentation/manager/auth_cubit/auth_cubit.dart';
 import 'package:chitchat/features/auth/presentation/manager/auth_cubit/auth_state.dart';
 import 'package:chitchat/features/home/presentation/views/home_layout.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
@@ -108,27 +109,30 @@ class _SetupProfileBodyState extends State<SetupProfileBody> {
   void dispose() {
     nameController.dispose();
     formKey.currentState?.dispose();
-    getIt<AuthCubit>().close();
     super.dispose();
   }
 
   void _submitProfile() {
     if (!formKey.currentState!.validate()) return;
 
-    final state = getIt<AuthCubit>().state;
-    if (state is AuthSuccess) {
-      final user = UserEntity(
-        name: nameController.text.trim(),
-        email: state.user.email,
-        uId: state.user.uId,
-        photoUrl: '',
-        aboutMe: '',
-        online: true,
-        createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
-        lastSeen: DateTime.now().millisecondsSinceEpoch.toString(),
-        pushToken: '',
-      );
-      getIt<AuthCubit>().addUserToFirebase(user);
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser == null) {
+      AppSnackBar.showError(context, "No authenticated user found.");
+      return;
     }
+
+    final user = UserEntity(
+      name: nameController.text.trim(),
+      email: firebaseUser.email ?? '',
+      uId: firebaseUser.uid,
+      photoUrl: '',
+      aboutMe: '',
+      online: true,
+      createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
+      lastSeen: DateTime.now().millisecondsSinceEpoch.toString(),
+      pushToken: '',
+    );
+
+    getIt<AuthCubit>().addUserToFirebase(user);
   }
 }

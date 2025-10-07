@@ -3,7 +3,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
-import '../../manager/theme_view_model.dart';
+import '../manager/theme_view_model.dart';
 
 class ThemeTile extends StatelessWidget {
   const ThemeTile({super.key});

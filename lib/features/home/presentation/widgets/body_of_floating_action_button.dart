@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import '../../../../auth/presentation/views/widgets/custom_elevated_button.dart';
-import '../../../../auth/presentation/views/widgets/custom_text_field.dart';
+import '../../../auth/presentation/views/widgets/custom_elevated_button.dart';
+import '../../../auth/presentation/views/widgets/custom_text_field.dart';
 
 
 typedef AddUserCallback = void Function(BuildContext context, String email);

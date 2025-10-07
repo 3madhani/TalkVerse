@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/cubits/user_cubit/user_data_cubit.dart';
 import '../../../../core/services/get_it_services.dart';
-import 'widgets/settings_screen_body.dart';
+import '../widgets/settings_screen_body.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const routeName = 'settings-screen';

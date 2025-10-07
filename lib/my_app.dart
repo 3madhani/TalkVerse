@@ -1,5 +1,6 @@
 import 'package:chitchat/core/helpers/on_generate_routes.dart';
 import 'package:chitchat/features/auth/presentation/views/login_screen.dart';
+import 'package:chitchat/features/auth/presentation/views/verify_email_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,7 @@ class TalkVerse extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeViewModel = Provider.of<ThemeViewModel>(context);
+
     return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
@@ -47,13 +49,37 @@ class TalkVerse extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SplashScreen();
-          } else if (snapshot.hasData) {
+          }
+
+          final user = snapshot.data;
+
+          if (user == null) {
+            // 🔹 No user logged in
+            return const LoginScreen();
+          }
+
+          // 🔹 Check if user is verified
+          final isSocial = _isSocialProvider(user);
+          if (user.emailVerified || isSocial) {
+            // Verified (either email or via trusted provider)
             return const HomeLayout();
           } else {
-            return const LoginScreen();
+            // Needs email verification
+            return const VerifyEmailScreen();
           }
         },
       ),
     );
+  }
+
+  bool _isSocialProvider(User user) {
+    // Facebook and Google users are considered verified by default
+    for (final info in user.providerData) {
+      if (info.providerId == 'facebook.com' ||
+          info.providerId == 'google.com') {
+        return true;
+      }
+    }
+    return false;
   }
 }

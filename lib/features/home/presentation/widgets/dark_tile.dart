@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
-import '../../manager/theme_view_model.dart';
+import '../manager/theme_view_model.dart';
 
 class DarkModeTile extends StatelessWidget {
   const DarkModeTile({super.key});

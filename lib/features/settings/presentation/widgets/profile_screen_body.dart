@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 
 import '../../../../../core/cubits/user_cubit/user_data_cubit.dart';
 import '../../../../../core/widgets/app_snack_bar.dart';
-import '../../../../auth/presentation/views/widgets/custom_elevated_button.dart';
-import '../../manager/profile_view_model.dart';
+import '../../../auth/presentation/views/widgets/custom_elevated_button.dart';
+import '../manager/profile_view_model.dart';
 import 'profile_info_card.dart';
 import 'profile_info_card_static.dart';
 import 'profile_picture.dart';

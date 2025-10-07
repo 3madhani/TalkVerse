@@ -35,7 +35,6 @@ class ChatScreenBody extends StatelessWidget {
         children: [
           Expanded(
             child: BlocConsumer<ChatMessageCubit, ChatMessageState>(
-              bloc: getIt<ChatMessageCubit>(),
               listener: (context, state) {
                 final cubit = getIt<ChatMessageCubit>();
 
@@ -58,6 +57,25 @@ class ChatScreenBody extends StatelessWidget {
                 }
               },
               builder: (context, state) {
+                if (state is ChatMessageInitial) {
+                  return StartMessageCard(
+                    roomName: chatRoom.roomName,
+                    onTap: () {
+                      getIt<ChatMessageCubit>().sendMessage(
+                        name: chatRoom.roomName,
+                        user: user,
+                        collectionPath: BackendEndPoints.chatRooms,
+                        roomId: chatRoom.id,
+                        receiverId: chatRoom.members.firstWhere(
+                          (id) => id != userId,
+                        ),
+                        message:
+                            "Hi, ${currentUser.name}!\nLet's start chatting here.",
+                      );
+                    },
+                  );
+                }
+
                 if (state is ChatMessageLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -85,7 +103,7 @@ class ChatScreenBody extends StatelessWidget {
                             roomId: chatRoom.id,
                             receiverId: receiverId,
                             message:
-                                "Hi, ${chatRoom.roomName}!\nLet's start chatting here.",
+                                "Hi, ${currentUser.name}!\nLet's start chatting here.",
                           );
                         }
                       },
@@ -133,6 +151,7 @@ class ChatScreenBody extends StatelessWidget {
                               child: Text(newDate),
                             ),
                           ChatMessageBubble(
+                            isGroup: false,
                             message: message,
                             isSender: isSender,
                             chatId: chatRoom.id,

@@ -8,9 +8,9 @@ import 'package:provider/provider.dart';
 import '../../../../core/widgets/app_snack_bar.dart';
 import '../manager/contacts_cubit/contacts_state.dart';
 import '../manager/contacts_view_model.dart';
-import 'widgets/body_of_floating_action_button.dart';
-import 'widgets/contacts_screen_body.dart';
-import 'widgets/contacts_text_field.dart';
+import '../widgets/body_of_floating_action_button.dart';
+import '../widgets/contacts_screen_body.dart';
+import '../widgets/contacts_text_field.dart';
 
 class ContactsScreen extends StatelessWidget {
   static const routeName = 'contacts-screen';

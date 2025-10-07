@@ -91,7 +91,6 @@ class GroupChatScreen extends StatelessWidget {
                           for (var user in state.users) {
                             members.add(user);
                             names.add(user.name!);
-                            print(members);
                           }
 
                           members.removeWhere(

@@ -8,6 +8,7 @@ import 'package:iconsax/iconsax.dart';
 import '../../../../core/cubits/user_cubit/user_data_cubit.dart';
 import '../../../../core/repos/images_repo/images_repo.dart';
 import '../../../../core/repos/user_data_repo/user_data_repo.dart';
+import '../../../../core/widgets/app_snack_bar.dart';
 import '../../domain/entities/group_entity.dart';
 import '../../domain/repos/group_repo.dart';
 import 'group_edit_screen.dart';
@@ -21,10 +22,8 @@ class GroupMemberScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAdmin = group.admins.contains(
-      FirebaseAuth.instance.currentUser!.uid,
-    );
     final theme = Theme.of(context);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -63,34 +62,56 @@ class GroupMemberScreen extends StatelessWidget {
             ),
           ),
           actions: [
-            if (isAdmin)
-              IconButton(
-                onPressed: () {
-                  Navigator.pushNamed(
-                    context,
-                    GroupEditScreen.routeName,
-                    arguments: group,
+            BlocBuilder<GroupCubit, GroupState>(
+              builder: (context, state) {
+                if (state is GroupLoaded &&
+                    state.group.admins.contains(
+                      FirebaseAuth.instance.currentUser!.uid,
+                    )) {
+                  return IconButton(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        GroupEditScreen.routeName,
+                        arguments: state.group,
+                      );
+                    },
+                    icon: const Icon(Iconsax.user_edit),
                   );
-                },
-                icon: const Icon(Iconsax.user_edit),
-              ),
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ],
         ),
-        body: BlocBuilder<GroupCubit, GroupState>(
+        body: BlocConsumer<GroupCubit, GroupState>(
+          listener: (context, state) {
+            if (state is GroupError) {
+              AppSnackBar.showError(context, state.message);
+            }
+            if (state is GroupSuccess) {
+              context.read<GroupCubit>().streamGroup(group.id);
+              context.read<UserDataCubit>().loadUsersData(
+                usersIds: group.members,
+              );
+              AppSnackBar.showSuccess(context, state.message);
+            }
+            if (state is GroupLoaded) {
+              context.read<UserDataCubit>().loadUsersData(
+                usersIds: state.group.members,
+              );
+            }
+          },
           builder: (context, state) {
             if (state is GroupLoading) {
               return const Center(child: CircularProgressIndicator());
-            }
-            if (state is GroupError) {
+            } else if (state is GroupLoaded && state.group.members.isNotEmpty) {
+              return GroupMemberScreenBody(group: state.group);
+            } else if (state is GroupError) {
               return Center(child: Text(state.message));
+            } else {
+              return const Center(child: CircularProgressIndicator());
             }
-            if (state is GroupLoaded) {
-              return GroupMemberScreenBody(
-                group: state.group,
-                isAdmin: isAdmin,
-              );
-            }
-            return const Center(child: Text("Failed to load members"));
           },
         ),
       ),

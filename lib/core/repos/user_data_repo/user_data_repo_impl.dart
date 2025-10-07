@@ -38,6 +38,11 @@ class UserDataRepoImpl implements UserDataRepo {
   Stream<Either<Failure, List<UserModel>>> getUsersData(
     List<String> usersIds,
   ) async* {
+    await FirebaseMessaging.instance.getToken().then(
+      (value) => {
+        if (value != null) {updateUserPushToken(value)},
+      },
+    );
     try {
       yield* databaseServices
           .fetchUser(path: BackendEndPoints.getUser, listOfIds: usersIds)
@@ -73,10 +78,13 @@ class UserDataRepoImpl implements UserDataRepo {
   }
 
   @override
-  Future<void> updateUserLastSeen(bool online ) async {
+  Future<void> updateUserLastSeen(bool online) async {
     await databaseServices.updateData(
       path: BackendEndPoints.addUsers,
-      data: {"online": online, "lastSeen": DateTime.now().millisecondsSinceEpoch.toString()},
+      data: {
+        "online": online,
+        "lastSeen": DateTime.now().millisecondsSinceEpoch.toString(),
+      },
       documentId: FirebaseAuth.instance.currentUser!.uid,
     );
   }
