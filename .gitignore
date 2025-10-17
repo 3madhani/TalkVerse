@@ -44,3 +44,4 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 firebase/notification_key.json
+firebase/notification_key.json
